@@ -34,3 +34,5 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `.java` extension is matched case insensitively (`Example.JAVA` is accepted)
 - Unicode escapes that decode to whitespace (`\u0020`, `\u000A`) count as whitespace
 - An invalid unicode escape (`\u00G1`) prints the syntax error warning, as `javac` rejects it
+- Only Java whitespace (space, tab, form feed) makes a line empty; characters such as
+  U+2028 or U+3000 count as code, as `javac` rejects them

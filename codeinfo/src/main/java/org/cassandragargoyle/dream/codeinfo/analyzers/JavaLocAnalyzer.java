@@ -179,7 +179,7 @@ public class JavaLocAnalyzer {
             }
             char decoded = (char) Integer.parseInt(line, i, i + 4, 16);
             i += 4;
-            if (Character.isWhitespace(decoded)) {
+            if (isJavaWhitespace(decoded)) {
                 Arrays.fill(whitespaceMask, escapeStart, i, true);
             }
         }
@@ -225,7 +225,16 @@ public class JavaLocAnalyzer {
      * Check if a column is whitespace, written directly or as part of a unicode escape
      */
     private static boolean isWhitespace(String line, int col, boolean[] whitespaceMask) {
-        return Character.isWhitespace(line.charAt(col)) || (whitespaceMask != null && whitespaceMask[col]);
+        return isJavaWhitespace(line.charAt(col)) || (whitespaceMask != null && whitespaceMask[col]);
+    }
+
+    /**
+     * Check for whitespace as defined by the Java language (JLS 3.6): space, tab, form feed
+     * and line terminators. Character.isWhitespace also accepts characters such as U+2028
+     * or U+3000, which javac rejects as illegal characters
+     */
+    private static boolean isJavaWhitespace(char c) {
+        return c == ' ' || c == '\t' || c == '\f' || c == '\n' || c == '\r';
     }
 
     /**

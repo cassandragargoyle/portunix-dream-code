@@ -118,7 +118,8 @@ The LOC counter follows these rules:
 
 - **Count**: Lines with executable code
 - **Count**: Lines with both code and comments (e.g., `int x = 1; // comment`)
-- **Skip**: Empty lines (whitespace only)
+- **Skip**: Empty lines (whitespace only: space, tab and form feed, as in the Java
+  language; other Unicode spaces such as U+3000 are code)
 - **Skip**: Comment-only lines (single-line `//` or multi-line `/* */`)
 
 Comments are detected by the Java lexer, so comment markers inside string literals

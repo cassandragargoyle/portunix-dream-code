@@ -550,4 +550,12 @@ Findings from `docs/testing/acceptance-002.md` (all also on `main`):
 - 6 new tests (50 total); on 70 inputs only the two escape cases differ from the
   previous commit
 - O2 (unterminated string literal hides later comments) is not changed: the lexer
-  stops in the middle of the file and recovery would need an own lexer
+  stops in the middle of the file and recovery would need an own lexer; tracked in #11
+
+### 2026-10-26 - Fix for acceptance finding N1
+
+- Whitespace follows the Java language (JLS 3.6: space, tab, form feed, line
+  terminators) instead of `Character.isWhitespace`, for raw characters and for
+  unicode escapes. Lines with U+2028, U+3000 or a vertical tab are code lines
+- 2 new tests (52 total); on 91 inputs only the two U+2028 cases differ from the
+  previous commit; time unchanged

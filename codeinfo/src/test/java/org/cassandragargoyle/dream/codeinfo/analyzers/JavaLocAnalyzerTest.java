@@ -271,6 +271,27 @@ class JavaLocAnalyzerTest {
     }
 
     @Test
+    void testOnlyJavaWhitespaceMakesEmptyLine() throws Exception {
+        // JLS 3.6: space, tab and form feed; U+2028, U+3000 and vertical tab are not whitespace
+        String content = "class A {\n"
+            + "    \t" + (char) 0x0C + "\n"
+            + "    " + (char) 0x2028 + "\n"
+            + "    " + (char) 0x3000 + "\n"
+            + "    " + (char) 0x0B + "\n"
+            + "}\n";
+        File file = writeTempFile("JavaWhitespace.java", content);
+
+        assertCounts(analyzer.analyze(file), 6, 5, 0, 1);
+    }
+
+    @Test
+    void testEscapedNonJavaWhitespaceIsCode() throws Exception {
+        File file = writeTempFile("EscapedSeparator.java", "class A {\n    \\u2028\n    \\u3000\n}\n");
+
+        assertCounts(analyzer.analyze(file), 4, 4, 0, 0);
+    }
+
+    @Test
     void testCountsAlwaysSumToTotal() throws Exception {
         for (String name : new String[] {"SimpleClass.java", "MixedContent.java", "MultipleComments.java",
                 "StringLiterals.java", "UnicodeContent.java", "SyntaxError.java"}) {
