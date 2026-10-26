@@ -19,11 +19,13 @@ import com.github.javaparser.UnicodeEscapeProcessingProvider.PositionMapping;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.comments.Comment;
 import com.github.javaparser.ast.comments.CommentsCollection;
+import com.github.javaparser.ast.expr.LiteralStringValueExpr;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -38,12 +40,14 @@ import java.util.List;
  *
  * Comments are taken from the lexer, so files with syntax errors are still classified.
  * Unicode escapes are decoded before lexing, as in javac: escaped whitespace is
- * whitespace and an invalid escape is a syntax error. An unclosed block comment runs
- * to the end of the file
+ * whitespace and an invalid escape is a syntax error. Unicode spaces that are not Java
+ * whitespace (e.g. U+3000) are a syntax error outside comments and literals. An unclosed
+ * block comment runs to the end of the file
  */
 public class JavaLocAnalyzer {
 
     private final JavaParser parser;
+    private final JavaParser literalParser;
 
     public JavaLocAnalyzer() {
         // RAW skips language level validators: they reject modern syntax such as text blocks
@@ -53,6 +57,10 @@ public class JavaLocAnalyzer {
         this.parser = new JavaParser(new ParserConfiguration()
             .setLanguageLevel(LanguageLevel.RAW)
             .setStoreTokens(false)
+            .setAttributeComments(false));
+        // AST nodes get ranges only with stored tokens; used for rare files with unicode spaces
+        this.literalParser = new JavaParser(new ParserConfiguration()
+            .setLanguageLevel(LanguageLevel.RAW)
             .setAttributeComments(false));
     }
 
@@ -89,15 +97,19 @@ public class JavaLocAnalyzer {
         int codeLines = 0;
         int commentLines = 0;
         boolean invalidEscape = false;
+        List<Position> illegalSpaces = new ArrayList<>();
 
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
             // Escapes need a backslash, other lines skip the escape scan
             boolean[] whitespaceMask = null;
+            boolean[] illegalSpaceMask = null;
             if (line.indexOf('\\') >= 0) {
                 whitespaceMask = new boolean[line.length()];
-                invalidEscape |= !markEscapedWhitespace(line, whitespaceMask);
+                illegalSpaceMask = new boolean[line.length()];
+                invalidEscape |= !markEscapedWhitespace(line, whitespaceMask, illegalSpaceMask);
             }
+            collectIllegalSpaces(line, i + 1, commentMask[i], illegalSpaceMask, illegalSpaces);
 
             if (isBlank(line, whitespaceMask)) {
                 emptyLines++;
@@ -109,8 +121,50 @@ public class JavaLocAnalyzer {
             }
         }
 
+        // With a failed parse the warning is printed anyway, literal ranges are only needed otherwise
+        boolean illegalSpace = scan.successful() && !illegalSpaces.isEmpty()
+                && !insideLiterals(source, illegalSpaces);
+
         return new LocResult(lines.size(), codeLines, commentLines, emptyLines,
-                !scan.successful() || invalidEscape);
+                !scan.successful() || invalidEscape || illegalSpace);
+    }
+
+    /**
+     * Check if all positions are inside string, character or text block literals
+     */
+    private boolean insideLiterals(String source, List<Position> positions) {
+        UnicodeEscapeProcessingProvider provider = new UnicodeEscapeProcessingProvider(Providers.provider(source));
+        ParseResult<CompilationUnit> result = literalParser.parse(ParseStart.COMPILATION_UNIT, provider);
+
+        PositionMapping mapping = provider.getPositionMapping();
+        List<Range> literals = result.getResult()
+            .map(unit -> unit.findAll(LiteralStringValueExpr.class))
+            .orElse(List.of())
+            .stream()
+            .flatMap(literal -> literal.getRange().stream())
+            .map(range -> mapping.isEmpty() ? range : mapping.transform(range))
+            .toList();
+        return positions.stream().allMatch(position -> literals.stream().anyMatch(range -> range.contains(position)));
+    }
+
+    /**
+     * Collect positions outside comments of unicode spaces that are not Java whitespace
+     */
+    private static void collectIllegalSpaces(String line, int lineNumber, boolean[] commentMask,
+                                             boolean[] illegalSpaceMask, List<Position> positions) {
+        for (int col = 0; col < line.length(); col++) {
+            boolean illegal = isIllegalSpace(line.charAt(col)) || (illegalSpaceMask != null && illegalSpaceMask[col]);
+            if (illegal && !commentMask[col]) {
+                positions.add(new Position(lineNumber, col + 1));
+            }
+        }
+    }
+
+    /**
+     * Check for a character that Character.isWhitespace accepts but the Java language does not
+     */
+    private static boolean isIllegalSpace(char c) {
+        return Character.isWhitespace(c) && !isJavaWhitespace(c);
     }
 
     /**
@@ -149,11 +203,12 @@ public class JavaLocAnalyzer {
     }
 
     /**
-     * Mark unicode escapes that decode to whitespace
+     * Mark unicode escapes that decode to whitespace, and escapes that decode to unicode
+     * spaces which are not Java whitespace
      *
      * @return false if the line has an invalid unicode escape
      */
-    private static boolean markEscapedWhitespace(String line, boolean[] whitespaceMask) {
+    private static boolean markEscapedWhitespace(String line, boolean[] whitespaceMask, boolean[] illegalSpaceMask) {
         boolean valid = true;
         int i = 0;
         while (i < line.length()) {
@@ -181,6 +236,8 @@ public class JavaLocAnalyzer {
             i += 4;
             if (isJavaWhitespace(decoded)) {
                 Arrays.fill(whitespaceMask, escapeStart, i, true);
+            } else if (isIllegalSpace(decoded)) {
+                illegalSpaceMask[escapeStart] = true;
             }
         }
         return valid;

@@ -292,6 +292,47 @@ class JavaLocAnalyzerTest {
     }
 
     @Test
+    void testUnicodeSpacesInLiteralsAndCommentsAreValid() throws Exception {
+        LocResult result = analyzer.analyze(getFixtureFile("UnicodeSpaces.java"));
+
+        assertCounts(result, 12, 8, 4, 0);
+        assertFalse(result.hasParseErrors());
+    }
+
+    @Test
+    void testUnicodeSpaceInCodeIsSyntaxError() throws Exception {
+        // javac rejects U+3000 outside comments and literals as an illegal character
+        File file = writeTempFile("IllegalSpace.java", "class A {\n    int a;" + IDEOGRAPHIC_SPACE + "\n}\n");
+
+        LocResult result = analyzer.analyze(file);
+
+        assertCounts(result, 3, 3, 0, 0);
+        assertTrue(result.hasParseErrors());
+    }
+
+    @Test
+    void testEscapedUnicodeSpaceInCodeIsSyntaxError() throws Exception {
+        File file = writeTempFile("EscapedIllegalSpace.java", "class A {\n    int a;\\u2028\n}\n");
+
+        assertTrue(analyzer.analyze(file).hasParseErrors());
+    }
+
+    @Test
+    void testEscapedUnicodeSpaceInStringIsValid() throws Exception {
+        File file = writeTempFile("EscapedSpaceString.java", "class A { String s = \"\\u3000\"; }\n");
+
+        assertFalse(analyzer.analyze(file).hasParseErrors());
+    }
+
+    @Test
+    void testUnicodeSpaceOutsideLiteralIsSyntaxErrorNextToValidOne() throws Exception {
+        File file = writeTempFile("MixedSpaces.java",
+            "class A {\n    String s = \"" + IDEOGRAPHIC_SPACE + "\";" + IDEOGRAPHIC_SPACE + "\n}\n");
+
+        assertTrue(analyzer.analyze(file).hasParseErrors());
+    }
+
+    @Test
     void testCountsAlwaysSumToTotal() throws Exception {
         for (String name : new String[] {"SimpleClass.java", "MixedContent.java", "MultipleComments.java",
                 "StringLiterals.java", "UnicodeContent.java", "SyntaxError.java"}) {
@@ -300,6 +341,8 @@ class JavaLocAnalyzerTest {
                     result.getCodeLines() + result.getCommentLines() + result.getEmptyLines(), name);
         }
     }
+
+    private static final char IDEOGRAPHIC_SPACE = (char) 0x3000;
 
     private static void assertCounts(LocResult result, int total, int code, int comment, int empty) {
         assertAll(result.toString(),

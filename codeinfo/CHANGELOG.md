@@ -36,3 +36,5 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - An invalid unicode escape (`\u00G1`) prints the syntax error warning, as `javac` rejects it
 - Only Java whitespace (space, tab, form feed) makes a line empty; characters such as
   U+2028 or U+3000 count as code, as `javac` rejects them
+- Unicode spaces such as U+3000 outside comments and literals print the syntax error
+  warning

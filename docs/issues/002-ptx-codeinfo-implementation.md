@@ -559,3 +559,14 @@ Findings from `docs/testing/acceptance-002.md` (all also on `main`):
   unicode escapes. Lines with U+2028, U+3000 or a vertical tab are code lines
 - 2 new tests (52 total); on 91 inputs only the two U+2028 cases differ from the
   previous commit; time unchanged
+
+### 2026-10-26 - Fix for acceptance observation N2
+
+- Unicode spaces that `Character.isWhitespace` accepts but the Java language does not
+  (e.g. U+2028, U+3000), raw or as unicode escape, set the syntax error flag when they
+  are outside comments and literals; JavaParser accepts them, `javac` does not
+- Literal ranges need a second parser run with stored tokens (AST nodes have no ranges
+  without tokens); it runs only for files with such characters outside comments
+- 5 new tests and fixture `UnicodeSpaces.java` (57 tests); counts are unchanged on all
+  143 inputs, only the warning is added; normal files have no extra cost, the worst
+  case (555 literals with U+3000 in 5000 LOC) takes 83 ms instead of 29 ms
