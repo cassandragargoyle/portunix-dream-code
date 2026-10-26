@@ -415,7 +415,7 @@ Phase 4 (Week 4): Polish & Release
 - [JavaParser Documentation](https://javaparser.org/)
 - [Native Image Build Tools](https://graalvm.github.io/native-build-tools/)
 - ADR-001: [Migrate CLI Framework to Picocli](001-migrate-to-picocli.md)
-- Issue: [#002 - Implement ptx-codeinfo CLI Application](../issues/002-ptx-codeinfo-implementation.md)
+- Issue: [#002 - Implement ptx-codeinfo CLI Application](../issues/done/002-ptx-codeinfo-implementation.md)
 
 ## Supersedes
 

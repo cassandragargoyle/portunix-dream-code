@@ -1,6 +1,7 @@
 # Issue #002: Implement ptx-codeinfo CLI Application
 
-**Status**: Open
+**Status**: ✅ Implemented
+**Closed**: 2026-10-26
 **Priority**: High
 **GitHub**: #2
 **Type**: Feature
@@ -14,7 +15,7 @@ Implement a new standalone CLI application named `ptx-codeinfo` that provides fa
 
 ## Related ADR
 
-See [ADR-002: Create ptx-codeinfo CLI Application with GraalVM Native Image](../adr/002-ptx-codeinfo-cli-application.md) for architectural decision and rationale.
+See [ADR-002: Create ptx-codeinfo CLI Application with GraalVM Native Image](../../adr/002-ptx-codeinfo-cli-application.md) for architectural decision and rationale.
 
 ## Objectives
 
@@ -174,13 +175,13 @@ Empty lines: 2
   - Test binary execution
   - Check binary size (target: < 20MB)
 
-- [ ] **Task 4.3**: Build optimization
+- [ ] **Task 4.3**: Build optimization (partly: time and memory optimized; binary size 22.7 MB above target, `-Os` needs a newer GraalVM)
   - Optimize for size vs speed trade-offs
   - Enable compression if needed
   - Test startup time (target: < 50ms)
   - Profile memory usage (target: < 30MB)
 
-- [ ] **Task 4.4**: Platform-specific builds
+- [ ] **Task 4.4**: Platform-specific builds (not done: Windows build documented, not built or tested)
   - Build Linux x64 binary
   - Build Windows x64 binary
   - Test on target platforms
@@ -219,7 +220,7 @@ Empty lines: 2
   - Compare native vs JAR performance
   - Document results
 
-- [ ] **Task 5.5**: Release preparation
+- [ ] **Task 5.5**: Release preparation (partly: CHANGELOG created; tag and packages not done, version number to decide)
   - Create CHANGELOG.md
   - Tag version 0.1.0
   - Package binaries (tar.gz, zip)
@@ -227,12 +228,12 @@ Empty lines: 2
 
 ### Phase 6: CI/CD Integration (Optional for v0.1.0)
 
-- [ ] **Task 6.1**: GitHub Actions workflow
+- [ ] **Task 6.1**: GitHub Actions workflow (not done: tracked in #10)
   - Build and test on push
   - Build native images for releases
   - Multi-platform builds (Linux, Windows)
 
-- [ ] **Task 6.2**: Release automation
+- [ ] **Task 6.2**: Release automation (not done: optional for v0.1.0)
   - Automatic GitHub releases
   - Upload binary artifacts
   - Generate release notes
@@ -393,17 +394,17 @@ public class LinesOfCodeCommand implements Callable<Integer> {
 
 ## Success Criteria
 
-- [ ] Native binary builds successfully on Linux and Windows
+- [ ] Native binary builds successfully on Linux and Windows (Linux only, Windows not tested)
 - [x] Startup time < 50ms
 - [x] Single file analysis < 100ms
-- [ ] Binary size < 20MB
-- [ ] Memory usage < 30MB
+- [ ] Binary size < 20MB (22.7 MB with GraalVM CE 21.0.2)
+- [ ] Memory usage < 30MB (met for 100 LOC with 19.5 MB; 35.4 MB for 5000 LOC)
 - [x] 95% test coverage
 - [x] All unit and integration tests passing
 - [x] Accurate LOC counting per specification
 - [x] Clear error messages and help text
 - [x] Complete user and developer documentation
-- [ ] Ready for v0.1.0 release
+- [ ] Ready for v0.1.0 release (no tag and no packages yet)
 
 ## Performance Targets
 
@@ -459,8 +460,9 @@ public class LinesOfCodeCommand implements Callable<Integer> {
 
 ## References
 
-- ADR: [docs/adr/002-ptx-codeinfo-cli-application.md](../adr/002-ptx-codeinfo-cli-application.md)
-- ADR: [docs/adr/003-ai-assisted-code-transformation.md](../adr/003-ai-assisted-code-transformation.md)
+- ADR: [docs/adr/002-ptx-codeinfo-cli-application.md](../../adr/002-ptx-codeinfo-cli-application.md)
+- ADR: [docs/adr/003-ai-assisted-code-transformation.md](../../adr/003-ai-assisted-code-transformation.md)
+- Acceptance: [docs/testing/acceptance-002.md](../../testing/acceptance-002.md)
 - GraalVM: https://www.graalvm.org/
 - Picocli: https://picocli.info/
 - JavaParser: https://javaparser.org/
@@ -570,3 +572,10 @@ Findings from `docs/testing/acceptance-002.md` (all also on `main`):
 - 5 new tests and fixture `UnicodeSpaces.java` (57 tests); counts are unchanged on all
   143 inputs, only the warning is added; normal files have no extra cost, the worst
   case (555 literals with U+3000 in 5000 LOC) takes 83 ms instead of 29 ms
+
+### 2026-10-26 - Closed
+
+Closed after acceptance (`docs/testing/acceptance-002.md`, PASS). Open points from
+this issue that need new issues when work continues: Windows build, binary size,
+memory for large files, release tag and packages. CI is tracked in #10, root
+`--help` in #6, unterminated string literals in #11.
