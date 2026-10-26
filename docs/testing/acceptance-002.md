@@ -2,7 +2,7 @@
 
 **Issue**: #2 — Implement ptx-codeinfo CLI Application
 **Branch**: `feature/002-ptx-codeinfo-polish`
-**Tested commit**: `b1793f9`; re-test of fixes F1-F3: `e4d22dd` (see [Re-test](#re-test-after-fixes-f1-f3))
+**Tested commit**: `b1793f9`; re-test of fixes F1-F3: `e4d22dd` (see [Re-test](#re-test-after-fixes-f1-f3)); re-test of fixes O1, O3, O4: `9a34a3d` (see [Re-test](#re-test-after-fixes-o1-o3-o4))
 **Date**: 2026-10-26
 **Tester role**: QA/Test Engineer
 **STATUS**: PASS
@@ -154,10 +154,42 @@ Observations (not blocking, same as on `main`):
 
 | ID | Observation |
 | --- | --- |
-| O1 | A line with only `\u0020` counts as code; `javac` sees whitespace |
-| O2 | An unterminated string literal stops the lexer, so later line comments count as code |
-| O3 | An invalid escape such as `\u00G1` in a comment is accepted without a warning; `javac` rejects the file |
-| O4 | Files with syntax errors are parsed twice: about 2.5x time and 1.5x memory of a valid file |
+| O1 | Fixed in `9a34a3d`: a line with only `\u0020` counted as code; `javac` sees whitespace |
+| O2 | Not fixed, documented in the issue: an unterminated string literal stops the lexer, so later line comments count as code |
+| O3 | Fixed in `9a34a3d`: an invalid escape such as `\u00G1` in a comment was accepted without a warning; `javac` rejects the file |
+| O4 | Fixed in `9a34a3d`: files with syntax errors were parsed twice (about 2.5x time of a valid file). The 1.5x memory comes from parser error recovery and stays |
+
+## Re-test After Fixes O1, O3, O4
+
+Fixes: unicode escapes that decode to whitespace count as whitespace (O1), an invalid
+unicode escape sets the syntax error flag (O3), and the second parser run happens only
+after a lexical error at the end of the file (O4).
+
+- `make build`, `make test` (JUnit 50/50, pytest 12/12), `make coverage-codeinfo`
+  (98.3%), `make test-codeinfo-native`: PASS
+- 71 inputs compared with `e185b2e`: only the O1 and O3 inputs differ, as intended
+- All F1/F2 re-test cases (TC40-TC51) still pass
+
+| ID | Given / When / Then | Result |
+| --- | --- | --- |
+| TC60 | Given lines with only `\u0020`, `\u000C`, `\uuuu0020`, or `\u0020` with CRLF, then they are empty lines | PASS |
+| TC61 | Given `// c \u0009`, then the line is a comment line | PASS |
+| TC62 | Given `int\u0020a;`, then the line is code | PASS |
+| TC63 | Given `\u00A0` (no-break space, not whitespace for `javac`), then the line is code | PASS |
+| TC64 | Given `\\\u0020` (three backslashes) or `\u005cu0020`, then the line is code | PASS |
+| TC65 | Given a `\u0020` only line inside a block comment, then it is an empty line, as a plain blank line there | PASS |
+| TC66 | Given `\u` at line end, `\uGGGG`, `"\u00"` in a string, or fullwidth digits after `\u`, then the syntax error warning is printed | PASS |
+| TC67 | Given `\u00e9`, `\U0041` (capital U is no escape) or `"\\\\u00G1"` (escaped backslash), then no warning | PASS |
+| TC68 | Given a missing closing brace (parse error at end, not lexical), then counts are unchanged and no second run is needed | PASS |
+| TC69 | Given locale `cs`, `tr`, `ja` (JAR) or `LANG=cs_CZ` (native), then an unclosed comment is still detected | PASS |
+| TC70 | Given 5000 LOC with a syntax error, then 20.6 ms instead of 40.6 ms (in-process median) | PASS |
+| TC71 | Given 5000 LOC with or without escapes, then time is unchanged (17.2 ms vs 16.8 ms) and memory 35.5 MB | PASS |
+
+New finding (not blocking, behavior existed before for the raw character):
+
+| ID | Severity | Finding |
+| --- | --- | --- |
+| N1 | Low | `\u2028` (line separator) and the raw U+2028 character count as whitespace, because `Character.isWhitespace` is wider than Java whitespace (JLS 3.6: space, tab, form feed, line terminators); `javac` reports an illegal character |
 
 ## CI Notes
 
