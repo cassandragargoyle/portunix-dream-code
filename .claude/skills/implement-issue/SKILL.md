@@ -1,102 +1,100 @@
 ---
 name: implement-issue
-description: Průvodce implementací issue - od přečtení zadání přes vytvoření branch, implementaci kódu, commit až po přípravu PR popisu.
+description: Guide for implementing an issue - from reading the assignment through creating a branch, implementing the code, and committing to preparing the PR description.
 argument-hint: "[issue-id]"
 disable-model-invocation: true
 ---
 
-@.claude\prompts\assistant-programming.md
+<!-- The chat language comes from AGENTS.md (section Communication Language), the role from CLAUDE.local.md. This file adds the workflow. -->
 
-<!-- Výše uvedený soubor definuje základní kontext (jazyk, role). Tento soubor přidává workflow. -->
+## STEP 0: Check the role
 
-## KROK 0: Kontrola role
+Check the current role in `CLAUDE.local.md`. If the role is not **Developer**:
 
-Zkontroluj aktuální roli v `CLAUDE.local.md`. Pokud role není **Developer**:
+1. Tell the user that implementation requires the Developer role
+2. Offer to switch the role with `/role developer`
+3. **STOP** - Do not continue until the Developer role is active
 
-1. Informuj uživatele, že implementace vyžaduje roli Developer
-2. Nabídni přepnutí role příkazem `/role developer`
-3. **STOP** - Nepokračuj dokud není role Developer aktivní
+## STEP 1: Get the issue
 
-## KROK 1: Získej issue
+If the issue ID was passed as an argument (`$ARGUMENTS`), use it and continue with step 2.
 
-Pokud bylo ID issue předáno jako argument (`$ARGUMENTS`), použij ho a pokračuj krokem 2.
+Otherwise ask for the GitHub issue number (e.g. `7` or `#7`). Wait for the answer.
 
-Jinak se zeptej na číslo GitHub issue (např. `7` nebo `#7`). Počkej na mou odpověď.
+## STEP 2: Confirm understanding
 
-## KROK 2: Potvrzení porozumění
+After the user gives the issue:
 
-Poté, co ti poskytnu issue:
-
-1. Přečti soubor issue `docs/issues/<NNN>-*.md` (`<NNN>` = číslo doplněné nulami na tři
-   místa). Pokud tam není, zkus `docs/issues/done/<NNN>-*.md` — může jít o už uzavřené
-   issue. Stav a assignee ověř na GitHubu:
+1. Read the issue file `docs/issues/<NNN>-*.md` (`<NNN>` = number padded with zeros to
+   three digits). If it is not there, try `docs/issues/done/<NNN>-*.md` — the issue may
+   already be closed. Check the status and assignee on GitHub:
    `gh issue view <N> --repo cassandragargoyle/portunix-dream-code --json state,assignees,title`
-2. Přeformuluj issue vlastními slovy
-3. Vysvětli potřebné změny v kódu
-4. Požádej mě o potvrzení
+2. Restate the issue in your own words
+3. Explain the needed code changes
+4. Ask for confirmation
 
-**STOP** - Počkej na mé výslovné potvrzení než budeš pokračovat.
+**STOP** - Wait for explicit confirmation before continuing.
 
-## KROK 3: Vytvoř branch
+## STEP 3: Create the branch
 
-Vytvoř git branch: `feature/<NNN>-<kratky-popis>` nebo `fix/<NNN>-<kratky-popis>`
+Create the git branch: `feature/<NNN>-<short-description>` or `fix/<NNN>-<short-description>`
 
-- `<NNN>` je číslo GitHub issue doplněné nulami na tři místa (`#12` → `012`)
-- Použij malá písmena a pomlčky pro popis
-- Příklad: `feature/012-codeinfo-json-output`
+- `<NNN>` is the GitHub issue number padded with zeros to three digits (`#12` → `012`)
+- Use lowercase letters and hyphens in the description
+- Example: `feature/012-codeinfo-json-output`
 
-Pak si issue přiřaď a označ jako rozpracované:
+Then assign the issue to yourself and mark it as in progress:
 
 ```bash
 gh issue edit <N> --repo cassandragargoyle/portunix-dream-code --add-assignee @me --add-label in-progress
 ```
 
-Zobraz git příkaz před jeho spuštěním.
+Show the git command before running it.
 
-## KROK 4: Implementace
+## STEP 4: Implementation
 
-- Proveď všechny změny kódu v jedné souvislé fázi
-- NEPTEJ se na otázky, pokud to není skutečně nejednoznačné
-- Modifikuj pouze relevantní soubory
-- Dodržuj coding style projektu
+- Make all code changes in one continuous phase
+- Do NOT ask questions unless something is truly ambiguous
+- Modify only relevant files
+- Follow the project coding style
 
-Na konci poskytni shrnutí:
+At the end give a summary:
 
-- Modifikované soubory
-- Přidané metody/třídy
-- Odstraněný kód
-- Klíčová rozhodnutí
+- Modified files
+- Added methods/classes
+- Removed code
+- Key decisions
 
-Zeptej se mě, co chci:
+Ask the user what they want:
 
-- a) Přijmout tak jak je
-- b) Upravit konkrétní části
-- c) Předělat kompletně
+- a) Accept as is
+- b) Change specific parts
+- c) Redo completely
 
-**STOP** - Počkej na mé schválení než budeš pokračovat.
+**STOP** - Wait for approval before continuing.
 
-## KROK 5: Commit
+## STEP 5: Commit
 
-Připrav commit message:
+Prepare the commit message:
 
 ```
-<type>(<N>): <krátké shrnutí>
+<type>(<N>): <short summary>
 
-- klíčová změna 1
-- klíčová změna 2
+- key change 1
+- key change 2
 
 refs #<N>
 ```
 
-Povolené typy: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`
+Allowed types: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`
 
-**STOP** - Zeptej se mě na potvrzení commit message před commitnutím.
+**STOP** - Ask for confirmation of the commit message before committing.
 
-## KROK 6: PR popis
+## STEP 6: PR description
 
-Připrav PR/MR popis:
+Prepare the PR/MR description:
 
-- **Summary**: Co tento PR dělá
-- **Motivation**: Proč (odkaz na issue)
-- **Changes**: Seznam změn
-- **Testing**: Kroky pro ověření
+- **Summary**: What this PR does
+- **Motivation**: Why (link to the issue)
+- **Changes**: List of changes
+- **Testing**: Steps to verify

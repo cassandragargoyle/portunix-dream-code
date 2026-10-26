@@ -36,8 +36,8 @@ See [docs/MODULES.md](docs/MODULES.md) for module details.
 
 ### Strict Rules
 
-- Code, code comments, and user messages must be in English
-- Communication with team members can be in their preferred language, but documentation remains in English
+- Code, code comments, and program messages must be in English
+- Chat with the AI assistant follows [Communication Language](#communication-language); everything written to the repository or GitHub stays in English
 - When implementing new features, always check existing project structure first
 - Prefer editing existing files over creating new ones
 - Do not add "Generated with …" signatures or AI co-author lines to code, files, or commits
@@ -72,6 +72,20 @@ See `docs/contributing/CODE-STYLE-*.md` for language-specific guidelines.
 - Use simple, clear English to accommodate non-native speakers
 - Avoid idioms, colloquialisms, and culture-specific references
 - Team initials assignment follows collision resolution (JS → JSm if JS exists)
+
+### Communication Language
+
+- Default language for chat with the AI assistant is English
+- If the user's personal instructions set a different communication language, that
+  language wins for the chat — for Claude Code the global `~/.claude/CLAUDE.md` or the
+  untracked `CLAUDE.local.md`, for other tools their user-level instructions
+- The setting changes only the chat (answers, questions, explanations). These always
+  stay in English: code, code comments, program messages, commit messages, branch
+  names, issues (GitHub and `docs/issues/`), PR descriptions, and documentation
+- Skills, roles, and prompts in `.claude/` are written in English too; the chat language
+  comes only from the user's personal instructions. A translation may sit next to the
+  English file as `<NAME>.<lang>.md` (for example `SKILL.cs.md`); only the English file
+  is loaded by the assistant
 
 ### AI Assistant Guidelines
 

@@ -1,95 +1,93 @@
 ---
 name: finish-branch
-description: Dokončení práce na feature branch - merge do hlavní větve, úklid branch a volitelná aktualizace stavu issue.
+description: Finish work on a feature branch - merge into the main branch, clean up the branch, and optionally update the issue status.
 ---
 
-@.claude/prompts/assistant-programming.md
+**IMPORTANT: NEVER add "Co-Authored-By: Claude <noreply@anthropic.com>" to code files or git commits.**
 
-**DŮLEŽITÉ: NIKDY nepřidávej "Co-Authored-By: Claude <noreply@anthropic.com>" do kódových souborů ani git commitů.**
+## STEP 1: Get the context
 
-## KROK 1: Zjisti kontext
+1. Get the current branch (`git branch --show-current`) — it should follow the convention `feature/NNN-short-name` (or `fix/NNN-short-name`), where `NNN` = GitHub issue number padded with zeros to three digits, details in `docs/issues/NNN-*.md` (see skill `implement-issue`)
+2. The target branch for the merge is `main` (unless the user says otherwise)
+3. Remote: `origin` = GitHub (`git@github.com:cassandragargoyle/portunix-dream-code`, public) — code, issues, and PRs
 
-1. Zjisti aktuální branch (`git branch --show-current`) — měla by odpovídat konvenci `feature/NNN-short-name` (nebo `fix/NNN-short-name`), kde `NNN` = číslo GitHub issue doplněné nulami na tři místa, detail v `docs/issues/NNN-*.md` (viz skill `implement-issue`)
-2. Cílová větev pro merge je `main` (pokud uživatel neřekne jinak)
-3. Remote: `origin` = GitHub (`git@github.com:cassandragargoyle/portunix-dream-code`, public) — kód, issues i PR
+Check that the branch exists and has commits compared to `main`.
 
-Ověř, že branch existuje a obsahuje commity oproti `main`.
+List the commits that will be merged (`git log --oneline main..HEAD`). If the branch contains commits not related to the issue, tell the user before the merge.
 
-Vypiš commity, které se budou mergovat (`git log --oneline main..HEAD`). Pokud branch obsahuje commity, které nesouvisí s issue, upozorni na to uživatele ještě před merge.
+## STEP 2: Check the acceptance protocol
 
-## KROK 2: Ověření acceptance protokolu
+**CRITICAL**: According to the Developer role (`.claude/roles/developer.md`), merging into `main` is NOT allowed without a tester acceptance protocol for the issue.
 
-**KRITICKÉ**: Podle role Developer (`.claude/roles/developer.md`) se NESMÍ mergovat do `main` bez tester acceptance protokolu pro dané issue.
+1. Check that the file `docs/testing/acceptance-<issue-number>.md` exists
+2. Check that it contains `**STATUS**: PASS` and `**Approval for merge**: YES`
 
-1. Zkontroluj, zda existuje soubor `docs/testing/acceptance-<issue-number>.md`
-2. Ověř, že obsahuje `**STATUS**: PASS` a `**Approval for merge**: YES`
+> **To be completed:** the methodology (`ISSUE-DEVELOPMENT-METHODOLOGY.md`) does not exist in this project yet. Until it does, the protocol from the Tester role may exist only in the conversation — in that case ask the user whether acceptance took place, for which commit, and whether the tester verified changes made after the protocol.
 
-> **K doplnění:** adresář `docs/testing/` ani metodika (`ISSUE-DEVELOPMENT-METHODOLOGY.md`) v tomto projektu zatím neexistují. Dokud nejsou, protokol od role Tester bývá jen v konverzaci — v takovém případě se uživatele zeptej, zda acceptance proběhla, pro jaký commit, a zda změny po protokolu tester znovu ověřil.
+If the acceptance protocol **does not exist or is not PASS**:
 
-Pokud acceptance protokol **neexistuje nebo není PASS**:
+- Tell the user that the merge is not allowed without tester approval
+- Ask: "Do you want to continue anyway? (hotfix / exception approved by the architect?)"
+- If the user does not confirm an exception → **STOP**
 
-- Informuj uživatele, že merge není povolený bez tester approval
-- Zeptej se: "Chceš pokračovat přesto? (hotfix / výjimka schválená architektem?)"
-- Pokud uživatel nepotvrdí výjimku → **STOP**
+## STEP 3: Merge and clean up
 
-## KROK 3: Merge a úklid
+Ask the user for the preferred way:
 
-Zeptej se uživatele na preferovaný postup:
-
-### Varianta A: Přímý merge (výchozí pro solo vývoj)
+### Option A: Direct merge (default for solo development)
 
 ```bash
 git checkout main
-git merge feature/<NNN>-<popis>
-git branch -d feature/<NNN>-<popis>
+git merge feature/<NNN>-<description>
+git branch -d feature/<NNN>-<description>
 git push origin main
-git push origin --delete feature/<NNN>-<popis>
+git push origin --delete feature/<NNN>-<description>
 ```
 
-Poslední příkaz spusť jen pokud byla feature branch pushnutá na `origin`.
+Run the last command only if the feature branch was pushed to `origin`.
 
-**STOP** - Počkej na potvrzení před provedením merge.
+**STOP** - Wait for confirmation before the merge.
 
-### Varianta B: Pull Request (pro týmovou spolupráci)
+### Option B: Pull Request (for team work)
 
-Připrav PR popis:
+Prepare the PR description:
 
-- **Summary**: Co tento PR dělá
-- **Motivation**: Proč (odkaz na issue)
-- **Changes**: Seznam změn
-- **Testing**: Kroky pro ověření
-- **Acceptance**: Odkaz na acceptance protokol
+- **Summary**: What this PR does
+- **Motivation**: Why (link to the issue)
+- **Changes**: List of changes
+- **Testing**: Steps to verify
+- **Acceptance**: Link to the acceptance protocol
 
-Vytvoř PR na GitHubu: `gh pr create --repo CassandraGargoyle/portunix-dream-code --base main` (v těle `Fixes #NNN`, pokud issue existuje i na GitHubu).
+Create the PR on GitHub: `gh pr create --repo CassandraGargoyle/portunix-dream-code --base main` (with `Fixes #NNN` in the body if the issue exists on GitHub).
 
-## KROK 4: Aktualizace issue (volitelné)
+## STEP 4: Update the issue (optional)
 
-Zeptej se uživatele: "Je tímto issue kompletně dokončeno?"
+Ask the user: "Is the issue fully done with this?"
 
-### Pokud ANO:
+### If YES:
 
-1. Uprav soubor issue `docs/issues/NNN-*.md`:
+1. Update the issue file `docs/issues/NNN-*.md`:
 
-   - Změň `**Status**` na `✅ Implemented`
-   - Přidej datum uzavření
-   - Odškrtni splněná acceptance criteria (`- [ ]` → `- [x]`); nesplněná nech `- [ ]` s poznámkou proč
+   - Change `**Status**` to `✅ Implemented`
+   - Add the closing date
+   - Check the met acceptance criteria (`- [ ]` → `- [x]`); leave unmet ones as `- [ ]` with a note why
 
-2. Přesuň soubor do archivu `done/`. Žádné tabulky v README se neaktualizují — seznam issues je na GitHubu:
+2. Move the file to the `done/` archive. No README tables are updated — the issue list is on GitHub:
 
    ```bash
    git mv docs/issues/NNN-*.md docs/issues/done/
    git add docs/issues/done/NNN-*.md
    ```
 
-   `git mv` stageuje jen přesun — `git add` je nutný kvůli úpravám z bodu 1.
+   `git mv` stages only the move — `git add` is needed for the changes from point 1.
 
-3. Commitni změnu stavu spolu s přesunem (jeden commit):
+3. Commit the status change together with the move (one commit):
 
    ```text
    docs(<N>): close issue — archive to done/
    ```
 
-4. Uzavři GitHub issue (`<N>` = číslo bez úvodních nul) a oprav cestu v těle na `done/`:
+4. Close the GitHub issue (`<N>` = number without leading zeros) and fix the path in the body to `done/`:
 
    ```bash
    REPO="cassandragargoyle/portunix-dream-code"
@@ -100,15 +98,15 @@ Zeptej se uživatele: "Je tímto issue kompletně dokončeno?"
      | gh issue edit <N> --repo "$REPO" --body-file -
    ```
 
-### Pokud NE:
+### If NO:
 
-Přeskoč aktualizaci stavu. Issue zůstává otevřené pro další práci.
+Skip the status update. The issue stays open for more work.
 
-## KROK 5: Shrnutí
+## STEP 5: Summary
 
-Zobraz shrnutí:
+Show a summary:
 
-- Merge provedený do větve: `<název>`
-- Feature branch smazána: ano/ne
-- Issue status aktualizován: ano/ne/přeskočeno
-- Další kroky (pokud jsou)
+- Merged into branch: `<name>`
+- Feature branch deleted: yes/no
+- Issue status updated: yes/no/skipped
+- Next steps (if any)
