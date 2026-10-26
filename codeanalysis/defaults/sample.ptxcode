@@ -1,0 +1,47 @@
+apiVersion: portunix.ai/v1
+kind: CodeAnalysis
+metadata:
+  name: "sample-project"
+  description: "Sample configuration for code analysis"
+
+spec:
+  targets:
+    include:
+      - "src/**/*.java"
+      - "src/**/*.ts"
+      - "src/**/*.js"
+      - "src/**/*.py"
+    exclude:
+      - "**/node_modules/**"
+      - "**/build/**"
+      - "**/target/**"
+      - "**/dist/**"
+      - "**/*.test.*"
+      - "**/*.spec.*"
+
+  engines:
+    sonarlint:
+      enabled: true
+      languages: [java, typescript, javascript, python]
+      rules:
+        disable:
+          - "java:S106"  # Allow System.out in development
+
+    codescan:
+      enabled: true
+      annotations: [TODO, FIXME, HACK, XXX]
+      severityMapping:
+        TODO: INFO
+        FIXME: MAJOR
+        HACK: MAJOR
+        XXX: MINOR
+
+  thresholds:
+    blocker: 0
+    critical: 5
+    major: 50
+    minor: -1  # No limit
+
+  reports:
+    formats:
+      - type: console

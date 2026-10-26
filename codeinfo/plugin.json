@@ -1,0 +1,42 @@
+{
+  "name": "code-info",
+  "version": "1.0.0",
+  "description": "Fast code analysis tool powered by GraalVM Native Image",
+  "author": "CassandraGargoyle Team",
+  "license": "Proprietary",
+  "plugin": {
+    "type": "helper",
+    "binary": "ptx-codeinfo",
+    "runtime": "native",
+    "fallback": {
+      "binary": "dream-code-codeinfo.jar",
+      "runtime": "java",
+      "runtime_version": ">=21"
+    }
+  },
+  "dependencies": {
+    "portunix_min_version": "1.10.0",
+    "os_support": ["linux", "windows", "darwin"]
+  },
+  "ai_integration": {
+    "mcp_tools": [
+      {"name": "count_lines_of_code", "description": "Count lines of code in Java source files"}
+    ]
+  },
+  "permissions": {
+    "filesystem": ["read"],
+    "network": [],
+    "level": "limited"
+  },
+  "commands": [
+    {
+      "name": "code-info",
+      "description": "Code analysis commands",
+      "subcommands": ["loc"],
+      "examples": [
+        "portunix code-info loc Example.java",
+        "portunix code-info loc Example.java --verbose"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "name": "code-analysis",
+  "version": "1.0.0",
+  "description": "Code analysis plugin integrating SonarLint and CodeScan engines",
+  "author": "CassandraGargoyle Team",
+  "license": "MIT",
+  "plugin": {
+    "type": "helper",
+    "binary": "ptx-codeanalysis",
+    "runtime": "native",
+    "bridges": [
+      {
+        "name": "sonarlint",
+        "binary": "bridges/sonarlint/target/ptx-sonarlint-bridge.jar",
+        "runtime": "java",
+        "runtime_version": ">=21"
+      }
+    ]
+  },
+  "dependencies": {
+    "portunix_min_version": "1.10.0",
+    "os_support": ["linux", "windows", "darwin"],
+    "required_tools": [
+      {"name": "java", "version": ">=21", "reason": "SonarLint engine execution"}
+    ]
+  },
+  "ai_integration": {
+    "mcp_tools": [
+      {"name": "analyze_code", "description": "Run static code analysis on source files"},
+      {"name": "validate_config", "description": "Validate .ptxcode configuration file"},
+      {"name": "list_rules", "description": "List available analysis rules by engine and language"}
+    ]
+  },
+  "permissions": {
+    "filesystem": ["read"],
+    "network": [],
+    "level": "limited"
+  },
+  "commands": [
+    {
+      "name": "analyze",
+      "description": "Code analysis commands",
+      "subcommands": ["init", "validate", "rules"],
+      "examples": [
+        "portunix code-analysis",
+        "portunix code-analysis --config ./custom.ptxcode",
+        "portunix code-analysis ./src",
+        "portunix code-analysis init --template java",
+        "portunix code-analysis validate ./project.ptxcode",
+        "portunix code-analysis rules --engine sonarlint --language java"
+      ]
+    }
+  ]
+}

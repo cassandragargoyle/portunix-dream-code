@@ -1,0 +1,35 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "args": [],
+            "justMyCode": true
+        },
+        {
+            "name": "Python: Direct Question",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/ai-rag-???/ai_rag_???.py",
+            "console": "integratedTerminal",
+            "args": [
+                "-q",
+                " Program nekomunikuje se serverem a potřebuji opravit zdrojový kód"
+            ],
+            "justMyCode": true
+        },
+        {
+            "name": "Python:Ai Code Sleuth",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/ai-development/ai_codesleuth.py",
+            "console": "integratedTerminal",
+            "args": [],
+            "justMyCode": true
+        }
+    ]
+}

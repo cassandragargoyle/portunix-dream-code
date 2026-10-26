@@ -1,0 +1,41 @@
+# Java compiled files
+*.class
+*.jar
+*.war
+*.ear
+
+# Build directories
+*/target/*
+target/
+bin/
+**/bin/
+out/
+
+# IDE files
+.idea/
+*.iml
+*.ipr
+*.iws
+nbproject/private/
+build/
+nbbuild/
+nbdist/
+.nb-gradle/
+
+# Python
+venv/
+.venv/
+.vs/
+Debug/
+__pycache__
+/ai/nbproject/
+/core/bin/nbproject/
+core/node-v23.3.0-x64.msi
+java-to-uml/output.puml
+CLAUDE.local.md
+
+# Distribution artifacts
+dist/
+
+# Personal scratch notes
+NOTES.md

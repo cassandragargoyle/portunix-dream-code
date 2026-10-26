@@ -1,0 +1,20 @@
+[
+  {
+    "name": "org.cassandragargoyle.dream.codeinfo.PtxCodeInfoCLI",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "org.cassandragargoyle.dream.codeinfo.commands.LinesOfCodeCommand",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  }
+]

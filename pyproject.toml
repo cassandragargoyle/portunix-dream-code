@@ -1,0 +1,18 @@
+# Python tooling for portunix-dream-code (release scripts and integration tests)
+# Managed by uv: https://docs.astral.sh/uv/
+
+[project]
+name = "portunix-dream-code"
+version = "0.0.0"
+description = "Python tooling for portunix-dream-code scripts and testing"
+requires-python = ">=3.10"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "pytest>=7.0.0",
+]
+
+[tool.uv]
+# Not an installable package, only a managed environment
+package = false

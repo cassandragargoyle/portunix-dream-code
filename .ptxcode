@@ -1,0 +1,47 @@
+apiVersion: portunix.ai/v1
+kind: CodeAnalysis
+metadata:
+  name: "portunix-dream-code"
+  description: "Project self-analysis for TODOs and code quality"
+
+spec:
+  targets:
+    include:
+      - "**/*.java"
+      - "**/*.go"
+      - "**/*.py"
+      - "**/*.ts"
+      - "**/*.js"
+    exclude:
+      - "**/target/**"
+      - "**/generated/**"
+      - "**/node_modules/**"
+      - "**/vendor/**"
+      - "**/.git/**"
+      - "**/venv/**"
+      - "**/.venv/**"
+      - "**/*_test.go"
+      - "**/*_test.py"
+      - "**/test/**"
+      - "**/testdata/**"
+
+  engines:
+    sonarlint:
+      enabled: false
+    codescan:
+      enabled: true
+      annotations: [TODO, FIXME, HACK, XXX]
+      severity_mapping:
+        TODO: INFO
+        FIXME: MAJOR
+        HACK: MAJOR
+        XXX: MINOR
+
+  thresholds:
+    blocker: 0
+    critical: 0
+    major: 100
+
+  reports:
+    formats:
+      - type: console
