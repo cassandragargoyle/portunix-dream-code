@@ -14,10 +14,6 @@ public class LocResult {
     private final int emptyLines;
     private final boolean parseErrors;
 
-    public LocResult(int totalLines, int codeLines, int commentLines, int emptyLines) {
-        this(totalLines, codeLines, commentLines, emptyLines, false);
-    }
-
     public LocResult(int totalLines, int codeLines, int commentLines, int emptyLines, boolean parseErrors) {
         this.totalLines = totalLines;
         this.codeLines = codeLines;

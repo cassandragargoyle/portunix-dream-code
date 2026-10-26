@@ -37,8 +37,13 @@ public class JavaLocAnalyzer {
 
     public JavaLocAnalyzer() {
         // RAW skips language level validators: they reject modern syntax such as text blocks
-        // and walk the AST via reflection, which fails in GraalVM Native Image
-        this.parser = new JavaParser(new ParserConfiguration().setLanguageLevel(LanguageLevel.RAW));
+        // and walk the AST via reflection, which fails in GraalVM Native Image.
+        // Only comment ranges are needed, so the token list and comment attribution
+        // are turned off to lower memory use on large files
+        this.parser = new JavaParser(new ParserConfiguration()
+            .setLanguageLevel(LanguageLevel.RAW)
+            .setStoreTokens(false)
+            .setAttributeComments(false));
     }
 
     /**

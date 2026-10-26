@@ -134,7 +134,7 @@ Empty lines: 2
 
 ### Phase 3: Testing (Week 3)
 
-- [ ] **Task 3.1**: Unit tests for JavaLocAnalyzer
+- [x] **Task 3.1**: Unit tests for JavaLocAnalyzer
   - Test basic code counting
   - Test comment handling (single-line, multi-line)
   - Test empty line detection
@@ -194,19 +194,19 @@ Empty lines: 2
 
 ### Phase 5: Documentation & Polish (Week 4)
 
-- [ ] **Task 5.1**: User documentation
+- [x] **Task 5.1**: User documentation
   - Write comprehensive README.md
   - Document installation instructions
   - Document usage examples
   - Add troubleshooting section
 
-- [ ] **Task 5.2**: Developer documentation
+- [x] **Task 5.2**: Developer documentation
   - Document build process
   - Document GraalVM setup
   - Document architecture overview
   - Add contribution guidelines
 
-- [ ] **Task 5.3**: CLI help and messages
+- [x] **Task 5.3**: CLI help and messages
   - Write clear help text for all commands
   - Add usage examples in help
   - Improve error messages
@@ -398,11 +398,11 @@ public class LinesOfCodeCommand implements Callable<Integer> {
 - [x] Single file analysis < 100ms
 - [ ] Binary size < 20MB
 - [ ] Memory usage < 30MB
-- [ ] 95% test coverage
+- [x] 95% test coverage
 - [x] All unit and integration tests passing
 - [x] Accurate LOC counting per specification
-- [ ] Clear error messages and help text
-- [ ] Complete user and developer documentation
+- [x] Clear error messages and help text
+- [x] Complete user and developer documentation
 - [ ] Ready for v0.1.0 release
 
 ## Performance Targets
@@ -495,3 +495,29 @@ public class LinesOfCodeCommand implements Callable<Integer> {
 - Task 5.1-5.3 partly done (README updated); ANSI colors not done
 - Task 5.5 and Phase 6 (release, CI) not done
 - Root `--help` is broken, tracked in #6
+
+### 2026-10-26 - Coverage, memory, help and docs
+
+- Coverage: JaCoCo in `codeinfo/pom.xml`, `make coverage-codeinfo` fails below 95% line
+  coverage; now 97.4% (38 tests). Only `main()` with `System.exit` is not covered
+  - `PtxCodeInfoCLI.run()` holds the entry point logic so it can be tested
+  - `LinesOfCodeCommand` accepts an analyzer, tests use a failing stub for exit code 1
+- Memory: parser runs without the token list and without comment attribution (output
+  is identical to the previous version on all 27 Java files in the repository); native
+  image uses `-R:MaxNewSize=8m`. 5000 LOC: 110 MB / 132 ms -> 35.4 MB / 58 ms
+- Binary size stays at 22.7 MB: GraalVM 23.1 has no `-Os`, other options save little
+  (details in `codeinfo/GRAALVM-COMPATIBILITY.md`)
+- Help: `loc --help` shows examples and exit codes; `Error:` / `Warning:` prefixes
+  are colored on terminals, `NO_COLOR` turns colors off
+- Docs: README with plugin install, platform requirements (Windows build documented),
+  troubleshooting, coverage and architecture overview; new `codeinfo/CHANGELOG.md`
+- Removed the unused 4-argument `LocResult` constructor
+
+**Remaining:**
+
+- Task 4.3 binary size (22.7 MB) and memory for 5000 LOC (35.4 MB) above target;
+  next step: try `-Os` with a newer GraalVM release
+- Task 4.4 Windows build not tested
+- Task 5.5 tag and binary packages not done (version number to decide: pom
+  `1.0.0.2-SNAPSHOT`, CLI `1.0.2`)
+- Phase 6 CI tracked in #10, root `--help` in #6

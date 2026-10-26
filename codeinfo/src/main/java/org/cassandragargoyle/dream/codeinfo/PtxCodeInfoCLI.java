@@ -8,8 +8,11 @@ package org.cassandragargoyle.dream.codeinfo;
 import org.cassandragargoyle.dream.codeinfo.commands.LinesOfCodeCommand;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.Spec;
 
+import java.io.PrintWriter;
 import java.util.concurrent.Callable;
 
 /**
@@ -28,6 +31,9 @@ import java.util.concurrent.Callable;
 )
 public class PtxCodeInfoCLI implements Callable<Integer> {
 
+    @Spec
+    private CommandSpec spec;
+
     @Option(names = {"-v", "--version"}, versionHelp = true, description = "Display version information")
     boolean versionRequested;
 
@@ -35,20 +41,28 @@ public class PtxCodeInfoCLI implements Callable<Integer> {
     boolean helpAI;
 
     public static void main(String[] args) {
+        System.exit(run(args, new PrintWriter(System.out, true), new PrintWriter(System.err, true)));
+    }
+
+    /**
+     * Run the CLI with the given output writers and return the exit code
+     */
+    static int run(String[] args, PrintWriter out, PrintWriter err) {
         PtxCodeInfoCLI app = new PtxCodeInfoCLI();
         CommandLine cmd = new CommandLine(app);
+        cmd.setOut(out);
+        cmd.setErr(err);
         try {
             cmd.parseArgs(args);
             if (app.helpAI) {
-                System.out.println(helpAIJson(cmd.getCommandSpec().version()[0]));
-                System.exit(0);
+                out.println(helpAIJson(cmd.getCommandSpec().version()[0]));
+                return 0;
             }
         } catch (CommandLine.ParameterException e) {
             // Let execute() report invalid arguments in the standard way
         }
 
-        int exitCode = cmd.execute(args);
-        System.exit(exitCode);
+        return cmd.execute(args);
     }
 
     /**
@@ -76,7 +90,7 @@ public class PtxCodeInfoCLI implements Callable<Integer> {
     @Override
     public Integer call() {
         // Show help when no command specified
-        CommandLine.usage(this, System.out);
+        spec.commandLine().usage(spec.commandLine().getOut());
         return 0;
     }
 }

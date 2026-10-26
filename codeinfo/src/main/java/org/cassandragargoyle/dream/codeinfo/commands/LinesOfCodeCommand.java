@@ -7,6 +7,7 @@ package org.cassandragargoyle.dream.codeinfo.commands;
 import org.cassandragargoyle.dream.codeinfo.analyzers.JavaLocAnalyzer;
 import org.cassandragargoyle.dream.codeinfo.analyzers.LocResult;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Help.Ansi;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -22,8 +23,23 @@ import java.util.concurrent.Callable;
  */
 @Command(
     name = "loc",
-    description = "Count lines of code in a Java source file",
-    mixinStandardHelpOptions = true
+    description = {
+        "Count lines of code in a Java source file.",
+        "Code lines include lines with code and a trailing comment.",
+        "Empty lines and comment-only lines are not counted as code."
+    },
+    mixinStandardHelpOptions = true,
+    exitCodeListHeading = "%nExit codes:%n",
+    exitCodeList = {
+        "0:Success",
+        "1:Unexpected error during analysis",
+        "2:Invalid input (missing file, not a .java file, not UTF-8, bad option)"
+    },
+    footerHeading = "%nExamples:%n",
+    footer = {
+        "  ptx-codeinfo loc Example.java",
+        "  ptx-codeinfo loc --verbose src/main/java/Example.java"
+    }
 )
 public class LinesOfCodeCommand implements Callable<Integer> {
 
@@ -33,6 +49,8 @@ public class LinesOfCodeCommand implements Callable<Integer> {
 
     @Spec
     private CommandSpec spec;
+
+    private final JavaLocAnalyzer analyzer;
 
     @Parameters(
         index = "0",
@@ -46,6 +64,17 @@ public class LinesOfCodeCommand implements Callable<Integer> {
     )
     private boolean verbose;
 
+    public LinesOfCodeCommand() {
+        this(new JavaLocAnalyzer());
+    }
+
+    /**
+     * Create the command with a custom analyzer, used by tests
+     */
+    LinesOfCodeCommand(JavaLocAnalyzer analyzer) {
+        this.analyzer = analyzer;
+    }
+
     @Override
     public Integer call() {
         // Use picocli writers so output can be redirected in tests
@@ -55,34 +84,33 @@ public class LinesOfCodeCommand implements Callable<Integer> {
         try {
             // Validate file exists
             if (!sourceFile.exists()) {
-                err.println("Error: File not found: " + sourceFile.getPath());
+                error(err, "File not found: " + sourceFile.getPath());
                 return EXIT_INVALID_INPUT;
             }
 
             // Validate path is a regular file
             if (!sourceFile.isFile()) {
-                err.println("Error: Not a regular file: " + sourceFile.getPath());
+                error(err, "Not a regular file: " + sourceFile.getPath());
                 return EXIT_INVALID_INPUT;
             }
 
             // Validate file is readable
             if (!sourceFile.canRead()) {
-                err.println("Error: File is not readable: " + sourceFile.getPath());
+                error(err, "File is not readable: " + sourceFile.getPath());
                 return EXIT_INVALID_INPUT;
             }
 
             // Validate file is a Java file
             if (!sourceFile.getName().endsWith(".java")) {
-                err.println("Error: File must be a Java source file (.java): " + sourceFile.getPath());
+                error(err, "File must be a Java source file (.java): " + sourceFile.getPath());
                 return EXIT_INVALID_INPUT;
             }
 
             // Analyze file
-            JavaLocAnalyzer analyzer = new JavaLocAnalyzer();
             LocResult result = analyzer.analyze(sourceFile);
 
             if (result.hasParseErrors()) {
-                err.println("Warning: " + sourceFile.getName()
+                warning(err, sourceFile.getName()
                         + " has syntax errors, counts are based on lexical analysis only");
             }
 
@@ -100,14 +128,28 @@ public class LinesOfCodeCommand implements Callable<Integer> {
             return EXIT_OK;
 
         } catch (MalformedInputException e) {
-            err.println("Error: File is not valid UTF-8 text: " + sourceFile.getPath());
+            error(err, "File is not valid UTF-8 text: " + sourceFile.getPath());
             return EXIT_INVALID_INPUT;
         } catch (Exception e) {
-            err.println("Error analyzing file: " + e.getMessage());
+            error(err, "Analysis failed for " + sourceFile.getPath() + ": " + e.getMessage());
             if (verbose) {
                 e.printStackTrace(err);
             }
             return EXIT_ERROR;
         }
+    }
+
+    /**
+     * Print an error message, the prefix is colored when the terminal supports it
+     */
+    private static void error(PrintWriter err, String message) {
+        err.println(Ansi.AUTO.string("@|bold,red Error:|@ ") + message);
+    }
+
+    /**
+     * Print a warning message, the prefix is colored when the terminal supports it
+     */
+    private static void warning(PrintWriter err, String message) {
+        err.println(Ansi.AUTO.string("@|bold,yellow Warning:|@ ") + message);
     }
 }

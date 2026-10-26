@@ -1,4 +1,4 @@
-.PHONY: all build build-java build-java-native build-codeinfo build-codeinfo-native build-codeanalysis clean test test-java test-codeinfo test-codeinfo-native test-codeanalysis test-quick test-codescan deps dev loc loc-all loc-file dist dist-codeanalysis dist-codeinfo dist-codeinfo-native release deploy-local undeploy-local help
+.PHONY: all build build-java build-java-native build-codeinfo build-codeinfo-native build-codeanalysis clean test test-java test-codeinfo test-codeinfo-native coverage-codeinfo test-codeanalysis test-quick test-codescan deps dev loc loc-all loc-file dist dist-codeanalysis dist-codeinfo dist-codeinfo-native release deploy-local undeploy-local help
 
 # Default target
 all: build
@@ -48,6 +48,12 @@ test-java:
 test-codeinfo:
 	@echo "Running codeinfo tests..."
 	mvn test -pl codeinfo
+
+# Run codeinfo tests with coverage report and 95% line coverage gate
+coverage-codeinfo:
+	@echo "Running codeinfo tests with coverage..."
+	mvn verify -DskipNativeBuild=true -pl codeinfo
+	@echo "Report: codeinfo/target/site/jacoco/index.html"
 
 # Compare codeinfo native binary with JAR (run after build-codeinfo-native)
 test-codeinfo-native:
@@ -188,6 +194,7 @@ help:
 	@echo "  test-java          - Run Java tests only"
 	@echo "  test-codeinfo      - Run codeinfo tests only"
 	@echo "  test-codeinfo-native - Compare codeinfo native binary with JAR"
+	@echo "  coverage-codeinfo  - Run codeinfo tests with coverage gate (95%)"
 	@echo "  test-codeanalysis  - Run codeanalysis tests only"
 	@echo "  test-quick         - Run quick tests (codeanalysis)"
 	@echo "  test-codescan      - Run CodeScan tests only"

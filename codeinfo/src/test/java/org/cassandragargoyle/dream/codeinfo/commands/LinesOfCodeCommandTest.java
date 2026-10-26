@@ -5,12 +5,15 @@
 package org.cassandragargoyle.dream.codeinfo.commands;
 
 import org.cassandragargoyle.dream.codeinfo.PtxCodeInfoCLI;
+import org.cassandragargoyle.dream.codeinfo.analyzers.JavaLocAnalyzer;
+import org.cassandragargoyle.dream.codeinfo.analyzers.LocResult;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import picocli.CommandLine;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URL;
@@ -165,11 +168,66 @@ class LinesOfCodeCommandTest {
         assertTrue(out.toString().contains("Usage: ptx-codeinfo loc"));
     }
 
+    @Test
+    void testCommandHelpShowsExamplesAndExitCodes() {
+        run("loc", "--help");
+
+        String help = out.toString();
+        assertTrue(help.contains("Examples:"));
+        assertTrue(help.contains("ptx-codeinfo loc --verbose"));
+        assertTrue(help.contains("Exit codes:"));
+        assertTrue(help.contains("Invalid input"));
+    }
+
+    @Test
+    void testAnalysisFailureReturnsError() throws Exception {
+        int exitCode = runWithAnalyzer(new FailingAnalyzer(), fixturePath("SimpleClass.java"));
+
+        assertEquals(LinesOfCodeCommand.EXIT_ERROR, exitCode);
+        assertEquals("", out.toString());
+        assertTrue(err.toString().startsWith("Error: Analysis failed for "));
+        assertTrue(err.toString().contains("disk read failed"));
+        assertFalse(err.toString().contains("at org."), "Stack trace only in verbose mode");
+    }
+
+    @Test
+    void testAnalysisFailurePrintsStackTraceInVerboseMode() throws Exception {
+        int exitCode = runWithAnalyzer(new FailingAnalyzer(), "--verbose", fixturePath("SimpleClass.java"));
+
+        assertEquals(LinesOfCodeCommand.EXIT_ERROR, exitCode);
+        assertTrue(err.toString().contains("java.io.IOException: disk read failed"));
+    }
+
+    @Test
+    void testMessagesHaveNoAnsiCodesWithoutTerminal() {
+        // Tests run without a console, so colors must be disabled automatically
+        run("loc", tempDir.resolve("Missing.java").toString());
+
+        assertFalse(err.toString().contains("\u001B["));
+    }
+
     private int run(String... args) {
         CommandLine cmd = new CommandLine(new PtxCodeInfoCLI());
         cmd.setOut(new PrintWriter(out, true));
         cmd.setErr(new PrintWriter(err, true));
         return cmd.execute(args);
+    }
+
+    private int runWithAnalyzer(JavaLocAnalyzer analyzer, String... args) {
+        CommandLine cmd = new CommandLine(new LinesOfCodeCommand(analyzer));
+        cmd.setOut(new PrintWriter(out, true));
+        cmd.setErr(new PrintWriter(err, true));
+        return cmd.execute(args);
+    }
+
+    /**
+     * Analyzer that always fails, simulates an unexpected I/O error
+     */
+    private static class FailingAnalyzer extends JavaLocAnalyzer {
+        @Override
+        public LocResult analyze(File sourceFile) throws IOException {
+            throw new IOException("disk read failed");
+        }
     }
 
     private String fixturePath(String filename) throws Exception {

@@ -8,10 +8,13 @@ package org.cassandragargoyle.dream.codeinfo;
 import org.junit.jupiter.api.Test;
 import picocli.CommandLine;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit tests for PtxCodeInfoCLI --help-ai flag
+ * Unit tests for PtxCodeInfoCLI entry point and --help-ai flag
  */
 class PtxCodeInfoCLITest {
 
@@ -59,6 +62,39 @@ class PtxCodeInfoCLITest {
             .filter(name -> !name.equals("help"))
             .forEach(name -> assertTrue(json.contains("\"name\":\"" + name + "\""),
                 "Subcommand missing in --help-ai output: " + name));
+    }
+
+    @Test
+    void testRunHelpAIPrintsJson() {
+        StringWriter out = new StringWriter();
+        int exitCode = PtxCodeInfoCLI.run(new String[] {"--help-ai"}, writer(out), writer(new StringWriter()));
+
+        assertEquals(0, exitCode);
+        assertTrue(out.toString().strip().startsWith("{"));
+        assertTrue(out.toString().contains("\"tool\": \"ptx-codeinfo\""));
+    }
+
+    @Test
+    void testRunWithoutCommandShowsUsage() {
+        StringWriter out = new StringWriter();
+        int exitCode = PtxCodeInfoCLI.run(new String[0], writer(out), writer(new StringWriter()));
+
+        assertEquals(0, exitCode);
+        assertTrue(out.toString().contains("Usage: ptx-codeinfo"));
+        assertTrue(out.toString().contains("loc"));
+    }
+
+    @Test
+    void testRunReportsInvalidOption() {
+        StringWriter err = new StringWriter();
+        int exitCode = PtxCodeInfoCLI.run(new String[] {"--unknown"}, writer(new StringWriter()), writer(err));
+
+        assertEquals(CommandLine.ExitCode.USAGE, exitCode);
+        assertTrue(err.toString().contains("Unknown option"));
+    }
+
+    private static PrintWriter writer(StringWriter target) {
+        return new PrintWriter(target, true);
     }
 
     private static String helpAIJsonCompact(String version) {

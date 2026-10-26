@@ -152,9 +152,10 @@ native-image -jar target/dream-code-codeinfo-1.0.0.2-SNAPSHOT.jar \
 
 ## Known Limitations
 
-### Reflection Configuration Required
+### Reflection Configuration for New Features
 
-JavaParser uses reflection extensively. The tracing agent approach is recommended:
+The current `loc` command needs no JavaParser reflection metadata (see above). A new
+feature that uses reflective JavaParser APIs needs the tracing agent:
 
 1. Run application with various inputs using tracing agent
 2. Merge configurations from multiple runs
@@ -169,19 +170,35 @@ GraalVM does not support cross-compilation:
 
 ### Binary Size
 
-Native image may be larger than expected (15-25MB) due to:
-- JavaParser dependencies
-- Full AST implementation
-- String processing libraries
+The Linux x64 binary is 22.7 MB with GraalVM CE 21.0.2 (target: < 20 MB). About half
+is code (`java.base` 4.9 MB, JavaParser and ptx-codeinfo 4.0 MB), the rest is image heap.
+Tried options:
+
+- `-Os` (optimize for size): not available in GraalVM 23.1, only in newer releases
+- `-O1`: no size change
+- `strip`: saves 0.2 MB
+- `-H:-IncludeMethodData`: saves 1 MB, but removes method data used for stack traces
+
+### Memory Settings
+
+Peak memory depends on the young generation size of the serial GC. The default lets a
+5000 LOC file use 57 MB. `native-image.properties` sets `-R:MaxNewSize=8m`, which
+lowers this to 35 MB with about 10 ms more run time. The value can be overridden at
+run time, for example `ptx-codeinfo -Xmn16m loc Large.java`.
 
 ## Performance Targets
 
-| Metric | JAR (JVM) | Native Image | Target Met? |
-|--------|-----------|--------------|-------------|
-| Startup Time | ~500ms | <50ms | ✅ Yes |
-| Single File (100 LOC) | ~600ms | <100ms | ✅ Yes |
-| Memory Usage | ~80MB | <30MB | ✅ Yes |
-| Binary Size | N/A | <20MB | ⚠️ May exceed slightly |
+Measured on Linux x64 with GraalVM CE 21.0.2, see [README.md](README.md#performance)
+for details.
+
+| Metric | JAR (JVM) | Native Image | Target | Target Met? |
+|--------|-----------|--------------|--------|-------------|
+| Startup Time | 112 ms | 2.5 ms | < 50 ms | ✅ Yes |
+| Single File (100 LOC) | 171 ms | 2.5 ms | < 100 ms | ✅ Yes |
+| Large File (5000 LOC) | 209 ms | 58 ms | < 500 ms | ✅ Yes |
+| Memory Usage (100 LOC) | 77 MB | 19.5 MB | < 30 MB | ✅ Yes |
+| Memory Usage (5000 LOC) | 202 MB | 35.4 MB | < 30 MB | ❌ No |
+| Binary Size | N/A | 22.7 MB | < 20 MB | ❌ No |
 
 ## Troubleshooting
 
