@@ -1,6 +1,7 @@
 # Issue #001: Migrate CLI Framework to Picocli
 
-**Status**: Open
+**Status**: ✅ Implemented
+**Closed**: 2026-10-26
 **Priority**: Medium
 **GitHub**: #1
 **Type**: Enhancement
@@ -15,7 +16,7 @@ Migrate all CLI implementations from Apache Commons CLI to Picocli framework to 
 
 ## Related ADR
 
-See [ADR-001: Migrate CLI Framework from Apache Commons CLI to Picocli](../adr/001-migrate-to-picocli.md) for architectural decision and rationale.
+See [ADR-001: Migrate CLI Framework from Apache Commons CLI to Picocli](../../adr/001-migrate-to-picocli.md) for architectural decision and rationale.
 
 ## Scope
 
@@ -178,12 +179,12 @@ public class CodeAnalyzeCLI implements Callable<Integer> {
 
 ## Success Criteria
 
-- [ ] All CLI modules migrated to Picocli
-- [ ] Zero regressions in existing CLI functionality
-- [ ] Help output improved with colors and better formatting
-- [ ] Code size reduced by at least 30% in CLI classes
-- [ ] All tests passing
-- [ ] Documentation updated
+- [x] All CLI modules migrated to Picocli
+- [x] Zero regressions in existing CLI functionality
+- [ ] Help output improved with colors and better formatting — not verified separately; Picocli default help is used
+- [ ] Code size reduced by at least 30% in CLI classes — not measurable, the Commons CLI code is no longer in this repository
+- [x] All tests passing
+- [x] Documentation updated
 
 ## Risks and Mitigation
 
@@ -203,10 +204,20 @@ public class CodeAnalyzeCLI implements Callable<Integer> {
 
 ## References
 
-- ADR: [docs/adr/001-migrate-to-picocli.md](../adr/001-migrate-to-picocli.md)
+- ADR: [docs/adr/001-migrate-to-picocli.md](../../adr/001-migrate-to-picocli.md)
 - Picocli: https://picocli.info/
 - Migration Guide: https://picocli.info/#_migrating_from_commons_cli
 
 ## Comments
 
 <!-- Add implementation notes and progress updates here -->
+
+### 2026-10-26 — Closed
+
+- The modules named in this issue (`core`, `cli`, `devtools`, `ai`) are not part of this
+  repository; no Apache Commons CLI usage remains
+- All Java CLIs (`codeinfo`, SonarLint bridge, CodeScan bridge) already use Picocli, so the
+  phase tasks above are obsolete and stay unchecked
+- Remaining work done: Picocli aligned to 4.7.7 in all modules (`e060406`)
+- Acceptance: [docs/testing/acceptance-001.md](../../testing/acceptance-001.md)
+- Pre-existing defects found during testing (`--help` handling) are out of scope
