@@ -9,26 +9,22 @@ build: build-java build-codeanalysis
 # Build Java modules (Maven) - skip native image
 build-java:
 	@echo "Building Java modules..."
-	mvn clean package -DskipTests -DskipNativeBuild=true -q
+	mvn clean package -DskipTests -q
 	@echo "Done: Java modules"
 
 # Build Java modules with GraalVM native image (requires GRAALVM_HOME)
 build-java-native:
 	@echo "Building Java modules with native image..."
-	mvn clean package -DskipTests -q
+	mvn clean package -DskipTests -Pnative -q
 	@echo "Done: Java modules (native)"
 
 # Build codeinfo JAR only
 build-codeinfo:
-	@echo "Building codeinfo..."
-	mvn clean package -DskipTests -DskipNativeBuild=true -q -pl codeinfo
-	@echo "Done: codeinfo/target/dream-code-codeinfo-*.jar"
+	$(MAKE) -C codeinfo build
 
 # Build codeinfo with GraalVM native image (requires GRAALVM_HOME)
 build-codeinfo-native:
-	@echo "Building codeinfo native image..."
-	mvn clean package -DskipTests -q -pl codeinfo
-	@echo "Done: codeinfo/target/ptx-codeinfo"
+	$(MAKE) -C codeinfo build-native
 
 # Build codeanalysis (Go + Java bridges)
 build-codeanalysis:
@@ -46,19 +42,15 @@ test-java:
 
 # Run codeinfo tests
 test-codeinfo:
-	@echo "Running codeinfo tests..."
-	mvn test -pl codeinfo
+	$(MAKE) -C codeinfo test
 
 # Run codeinfo tests with coverage report and 95% line coverage gate
 coverage-codeinfo:
-	@echo "Running codeinfo tests with coverage..."
-	mvn verify -DskipNativeBuild=true -pl codeinfo
-	@echo "Report: codeinfo/target/site/jacoco/index.html"
+	$(MAKE) -C codeinfo coverage
 
 # Compare codeinfo native binary with JAR (run after build-codeinfo-native)
 test-codeinfo-native:
-	@echo "Running codeinfo native image tests..."
-	./scripts/test-codeinfo-native.sh
+	$(MAKE) -C codeinfo test-native
 
 # Run codeanalysis tests
 test-codeanalysis:
@@ -99,7 +91,7 @@ dev: build-java
 loc:
 	@echo "Analyzing lines of code in project..."
 	@find . -path '*/target' -prune -o -type f -name "*.java" -print | while read f; do \
-		mvn -q -pl codeinfo exec:java -Dexec.mainClass="org.cassandragargoyle.dream.codeinfo.PtxCodeInfoCLI" -Dexec.args="loc $$f" 2>/dev/null; \
+		mvn -q -pl codeinfo exec:java -Dexec.mainClass="org.cassandragargoyle.portunix.codeinfo.Main" -Dexec.args="loc $$f" 2>/dev/null; \
 	done | sort -t' ' -k1 -rn | head -20
 	@echo ""
 	@echo "Top 20 files by LOC (use 'make loc-all' for full list)"
@@ -108,7 +100,7 @@ loc:
 loc-all:
 	@echo "Analyzing lines of code in project (all files)..."
 	@find . -path '*/target' -prune -o -type f -name "*.java" -print | while read f; do \
-		mvn -q -pl codeinfo exec:java -Dexec.mainClass="org.cassandragargoyle.dream.codeinfo.PtxCodeInfoCLI" -Dexec.args="loc $$f" 2>/dev/null; \
+		mvn -q -pl codeinfo exec:java -Dexec.mainClass="org.cassandragargoyle.portunix.codeinfo.Main" -Dexec.args="loc $$f" 2>/dev/null; \
 	done | sort -t' ' -k1 -rn
 
 # Run codeinfo LOC with verbose output on specific file
@@ -118,7 +110,7 @@ loc-file:
 		echo "Usage: make loc-file FILE=path/to/File.java"; \
 		exit 1; \
 	fi
-	@mvn -q -pl codeinfo exec:java -Dexec.mainClass="org.cassandragargoyle.dream.codeinfo.PtxCodeInfoCLI" -Dexec.args="loc $(FILE) --verbose"
+	@mvn -q -pl codeinfo exec:java -Dexec.mainClass="org.cassandragargoyle.portunix.codeinfo.Main" -Dexec.args="loc $(FILE) --verbose"
 
 # Distribution targets
 # Python environment managed by uv (shared with codeanalysis, see pyproject.toml)
@@ -224,3 +216,6 @@ help:
 	@echo "Submodule targets (via codeanalysis/Makefile):"
 	@echo "  make -C codeanalysis dist-all   - Build for all platforms"
 	@echo "  make -C codeanalysis <target>"
+	@echo ""
+	@echo "Submodule targets (via codeinfo/Makefile):"
+	@echo "  make -C codeinfo help           - Show codeinfo targets"

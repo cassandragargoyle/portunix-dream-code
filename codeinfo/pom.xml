@@ -10,9 +10,9 @@
         <version>1.0.0.2-SNAPSHOT</version>
     </parent>
 
-    <artifactId>dream-code-codeinfo</artifactId>
+    <artifactId>ptx-codeinfo</artifactId>
     <packaging>jar</packaging>
-    <name>Dream Code - Code Info CLI</name>
+    <name>Dream Code - Code Info Plugin</name>
     <description>Fast code analysis tool powered by GraalVM Native Image</description>
 
     <properties>
@@ -59,6 +59,8 @@
     </dependencies>
 
     <build>
+        <!-- Stable JAR name, referenced by plugin.json as the fallback binary -->
+        <finalName>ptx-codeinfo</finalName>
         <plugins>
             <!-- Compiler Plugin -->
             <plugin>
@@ -87,9 +89,10 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>org.cassandragargoyle.dream.codeinfo.PtxCodeInfoCLI</mainClass>
+                                    <mainClass>org.cassandragargoyle.portunix.codeinfo.Main</mainClass>
                                 </transformer>
                             </transformers>
                             <filters>
@@ -103,31 +106,6 @@
                                 </filter>
                             </filters>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <!-- Native Image Plugin -->
-            <plugin>
-                <groupId>org.graalvm.buildtools</groupId>
-                <artifactId>native-maven-plugin</artifactId>
-                <version>${native.maven.plugin.version}</version>
-                <configuration>
-                    <imageName>ptx-codeinfo</imageName>
-                    <mainClass>org.cassandragargoyle.dream.codeinfo.PtxCodeInfoCLI</mainClass>
-                    <buildArgs>
-                        <buildArg>--no-fallback</buildArg>
-                        <buildArg>--report-unsupported-elements-at-runtime</buildArg>
-                        <buildArg>-H:+ReportExceptionStackTraces</buildArg>
-                    </buildArgs>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>build-native</id>
-                        <goals>
-                            <goal>compile-no-fork</goal>
-                        </goals>
-                        <phase>package</phase>
                     </execution>
                 </executions>
             </plugin>
@@ -182,4 +160,39 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- GraalVM native image, activate with -Pnative (requires GRAALVM_HOME) -->
+        <profile>
+            <id>native</id>
+            <build>
+                <plugins>
+                    <!-- Native Image Plugin -->
+                    <plugin>
+                        <groupId>org.graalvm.buildtools</groupId>
+                        <artifactId>native-maven-plugin</artifactId>
+                        <version>${native.maven.plugin.version}</version>
+                        <configuration>
+                            <imageName>ptx-codeinfo</imageName>
+                            <mainClass>org.cassandragargoyle.portunix.codeinfo.Main</mainClass>
+                            <buildArgs>
+                                <buildArg>--no-fallback</buildArg>
+                                <buildArg>--report-unsupported-elements-at-runtime</buildArg>
+                                <buildArg>-H:+ReportExceptionStackTraces</buildArg>
+                            </buildArgs>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>build-native</id>
+                                <goals>
+                                    <goal>compile-no-fork</goal>
+                                </goals>
+                                <phase>package</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

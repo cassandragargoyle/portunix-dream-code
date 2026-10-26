@@ -3,11 +3,11 @@
  *  This file is part of CassandraGargoyle Community Project
  *  Licensed under the MIT License - see LICENSE file for details
  */
-package org.cassandragargoyle.dream.codeinfo.commands;
+package org.cassandragargoyle.portunix.codeinfo.commands;
 
-import org.cassandragargoyle.dream.codeinfo.PtxCodeInfoCLI;
-import org.cassandragargoyle.dream.codeinfo.analyzers.JavaLocAnalyzer;
-import org.cassandragargoyle.dream.codeinfo.analyzers.LocResult;
+import org.cassandragargoyle.portunix.codeinfo.Main;
+import org.cassandragargoyle.portunix.codeinfo.analyzers.JavaLocAnalyzer;
+import org.cassandragargoyle.portunix.codeinfo.analyzers.LocResult;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -218,7 +218,7 @@ class LinesOfCodeCommandTest {
     }
 
     private int run(String... args) {
-        CommandLine cmd = new CommandLine(new PtxCodeInfoCLI());
+        CommandLine cmd = new CommandLine(new Main());
         cmd.setOut(new PrintWriter(out, true));
         cmd.setErr(new PrintWriter(err, true));
         return cmd.execute(args);

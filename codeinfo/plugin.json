@@ -9,7 +9,7 @@
     "binary": "ptx-codeinfo",
     "runtime": "native",
     "fallback": {
-      "binary": "dream-code-codeinfo.jar",
+      "binary": "ptx-codeinfo.jar",
       "runtime": "java",
       "runtime_version": ">=21"
     }

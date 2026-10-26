@@ -1,6 +1,6 @@
 [
   {
-    "name": "org.cassandragargoyle.dream.codeinfo.PtxCodeInfoCLI",
+    "name": "org.cassandragargoyle.portunix.codeinfo.Main",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -9,7 +9,7 @@
     "allPublicFields": true
   },
   {
-    "name": "org.cassandragargoyle.dream.codeinfo.commands.LinesOfCodeCommand",
+    "name": "org.cassandragargoyle.portunix.codeinfo.commands.LinesOfCodeCommand",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,

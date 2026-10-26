@@ -1,11 +1,11 @@
 # Issue #005: Convert codeinfo to Portunix Plugin (ptx-codeinfo)
 
-**Status**: Open
+**Status**: In Progress
 **Priority**: Medium
 **GitHub**: #5
 **Type**: Refactoring
 **Created**: 2026-01-20
-**Assigned**: TBD
+**Assigned**: Zdenek
 **Estimated Effort**: 40-60 hours
 **Target Version**: 1.3.0
 
@@ -114,34 +114,34 @@ codeinfo/
 
 ### Phase 1: Plugin Structure
 
-- [ ] **Task 1.1**: Create `plugin.json` manifest with experimental flag
-- [ ] **Task 1.2**: Refactor package structure to `org.cassandragargoyle.portunix.codeinfo`
-- [ ] **Task 1.3**: Create Makefile with build targets (jar, native, test, clean)
-- [ ] **Task 1.4**: Add `defaults/` directory with sample configurations
-- [ ] **Task 1.5**: Add `testdata/` directory with test fixtures
+- [x] **Task 1.1**: Create `plugin.json` manifest with experimental flag
+- [x] **Task 1.2**: Refactor package structure to `org.cassandragargoyle.portunix.codeinfo`
+- [x] **Task 1.3**: Create Makefile with build targets (jar, native, test, clean)
+- [x] **Task 1.4**: Add `defaults/` directory with sample configurations (README only, no configuration yet)
+- [x] **Task 1.5**: Add `testdata/` directory with test fixtures
 
 ### Phase 2: Build System
 
-- [ ] **Task 2.1**: Update `pom.xml` for plugin artifact naming
-- [ ] **Task 2.2**: Configure Maven profiles: `jar` (default) and `native`
-- [ ] **Task 2.3**: Verify GraalVM native-image build works
-- [ ] **Task 2.4**: Add fallback JAR execution mode for non-GraalVM environments
-- [ ] **Task 2.5**: Document GraalVM installation requirements
+- [x] **Task 2.1**: Update `pom.xml` for plugin artifact naming
+- [x] **Task 2.2**: Configure Maven profiles: `jar` (default) and `native` (JAR is the default build without a profile)
+- [x] **Task 2.3**: Verify GraalVM native-image build works
+- [x] **Task 2.4**: Add fallback JAR execution mode for non-GraalVM environments
+- [x] **Task 2.5**: Document GraalVM installation requirements
 
 ### Phase 3: Integration with Portunix
 
-- [ ] **Task 3.1**: Register plugin with Portunix plugin registry
-- [ ] **Task 3.2**: Implement plugin discovery mechanism
-- [ ] **Task 3.3**: Add `portunix codeinfo` command integration
-- [ ] **Task 3.4**: JSON output format for machine consumption
+- [ ] **Task 3.1**: Register plugin with Portunix plugin registry (out of scope: Portunix repository)
+- [ ] **Task 3.2**: Implement plugin discovery mechanism (out of scope: Portunix repository)
+- [ ] **Task 3.3**: Add `portunix codeinfo` command integration (out of scope: Portunix repository; `plugin.json` and `make deploy-local` are ready)
+- [ ] **Task 3.4**: JSON output format for machine consumption (moved to a separate issue)
 
 ### Phase 4: Testing & Documentation
 
-- [ ] **Task 4.1**: Unit tests for all analyzers
-- [ ] **Task 4.2**: Integration tests with sample projects
-- [ ] **Task 4.3**: Performance benchmarks (startup time, analysis speed)
-- [ ] **Task 4.4**: User documentation
-- [ ] **Task 4.5**: GraalVM troubleshooting guide
+- [x] **Task 4.1**: Unit tests for all analyzers
+- [x] **Task 4.2**: Integration tests with sample projects (`testdata/Sample.java`, `PluginManifestTest`)
+- [ ] **Task 4.3**: Performance benchmarks (startup time, analysis speed) (moved to a separate issue; current numbers in codeinfo/README.md)
+- [x] **Task 4.4**: User documentation
+- [x] **Task 4.5**: GraalVM troubleshooting guide
 
 ## Architecture Decision
 

@@ -164,20 +164,38 @@ platform with Java 21.
 
 ```text
 codeinfo/
-├── src/main/java/org/cassandragargoyle/dream/codeinfo/
-│   ├── PtxCodeInfoCLI.java          # Main entry point
+├── src/main/java/org/cassandragargoyle/portunix/codeinfo/
+│   ├── Main.java                     # Main entry point
 │   ├── commands/
 │   │   └── LinesOfCodeCommand.java   # LOC command implementation
 │   └── analyzers/
 │       ├── JavaLocAnalyzer.java      # LOC analysis logic
 │       └── LocResult.java            # Result container
+├── src/main/resources/META-INF/native-image/  # GraalVM Native Image configuration
 ├── src/test/java/                    # Unit tests
-└── src/test/resources/fixtures/      # Test fixtures
+├── src/test/resources/fixtures/      # Unit test fixtures
+├── defaults/                         # Default configuration templates (none yet)
+├── testdata/                         # Sample sources for manual and integration tests
+├── plugin.json                       # Portunix plugin manifest
+├── pom.xml                           # Maven build (profiles: default JAR, native)
+└── Makefile                          # Module build targets
 ```
+
+### Plugin Manifest
+
+`plugin.json` registers `ptx-codeinfo` as a Portunix helper plugin named `code-info`.
+Portunix dispatches `portunix code-info <args>` to the plugin binary:
+
+- `binary` - the native image `ptx-codeinfo` (primary)
+- `fallback` - `ptx-codeinfo.jar`, used where no native binary is available (requires Java 21+)
+
+The JAR distribution (`make dist-codeinfo`) contains only the fallback JAR, the native
+distribution (`make dist-codeinfo-native`) only the native binary.
 
 ### Running Tests
 
-Run from the repository root:
+Run from the repository root (or the same targets without the `codeinfo` suffix with
+`make -C codeinfo`, see `make -C codeinfo help`):
 
 ```bash
 # Unit tests (analyzer and loc command)
@@ -202,10 +220,13 @@ make build-codeinfo
 make build-codeinfo-native
 ```
 
+The JAR is the default Maven build. The native image is built by the Maven profile
+`native` (`mvn package -Pnative`), which the `build-codeinfo-native` target activates.
+
 ### Running from JAR
 
 ```bash
-java -jar codeinfo/target/dream-code-codeinfo-1.0.0.2-SNAPSHOT.jar loc Example.java
+java -jar codeinfo/target/ptx-codeinfo.jar loc codeinfo/testdata/Sample.java
 ```
 
 ## Architecture
@@ -218,7 +239,7 @@ This tool uses:
 
 Flow of `ptx-codeinfo loc <file>`:
 
-1. `PtxCodeInfoCLI` parses arguments with Picocli and dispatches to the `loc` subcommand
+1. `Main` parses arguments with Picocli and dispatches to the `loc` subcommand
 2. `LinesOfCodeCommand` validates the file and prints the result or an error
 3. `JavaLocAnalyzer` parses the file with JavaParser (`LanguageLevel.RAW`, no token
    list), marks the columns covered by comments, and classifies each line as code,

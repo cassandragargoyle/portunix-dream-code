@@ -19,6 +19,8 @@ make test-quick
 | `make test` | Run all tests (Java + codeanalysis) |
 | `make test-java` | Run Java module tests only |
 | `make test-codeinfo` | Run codeinfo tests only |
+| `make coverage-codeinfo` | Run codeinfo tests with 95% line coverage gate |
+| `make test-codeinfo-native` | Compare codeinfo native binary with JAR (after `make build-codeinfo-native`) |
 | `make test-codeanalysis` | Run codeanalysis tests only |
 | `make test-quick` | Run quick tests (codeanalysis) |
 | `make test-codescan` | Run CodeScan bridge tests |
@@ -49,8 +51,10 @@ The environment is located at `.venv/` and includes pytest.
 
 ```text
 portunix-dream-code/
-├── codeinfo/                    # Java module
-│   └── src/test/java/           # Java unit tests
+├── codeinfo/                    # Java module (Portunix plugin ptx-codeinfo)
+│   ├── src/test/java/           # Java unit tests
+│   ├── src/test/resources/      # Unit test fixtures
+│   └── testdata/                # Samples for manual and integration tests
 ├── codeanalysis/                # Go + Java bridges
 │   ├── test/                    # Python integration tests
 │   ├── testdata/                # Test fixtures
@@ -65,7 +69,7 @@ portunix-dream-code/
 ```bash
 make test-codeinfo
 # or
-mvn test -pl codeinfo
+make -C codeinfo test
 ```
 
 ### codeanalysis (Python + Go + Java)

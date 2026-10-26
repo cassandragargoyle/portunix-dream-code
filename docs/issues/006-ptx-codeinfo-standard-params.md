@@ -120,7 +120,7 @@ public class PtxCodeInfoCLI implements Callable<Integer> {
 
 ## Files to Modify
 
-- `codeinfo/src/main/java/org/cassandragargoyle/dream/codeinfo/PtxCodeInfoCLI.java`
+- `codeinfo/src/main/java/org/cassandragargoyle/portunix/codeinfo/Main.java` (renamed from `PtxCodeInfoCLI` in #5)
 
 ## Testing
 

@@ -237,11 +237,10 @@ def create_codeinfo_release(version: str, target_os: str, target_arch: str) -> b
     # Check for native binary first, fall back to JAR
     binary_ext = ".exe" if target_os == "windows" else ""
     native_binary = plugin_dir / "target" / f"ptx-codeinfo{binary_ext}"
-    jar_path = list((plugin_dir / "target").glob("dream-code-codeinfo-*.jar"))
-    jar_path = jar_path[0] if jar_path else None
+    jar_path = plugin_dir / "target" / "ptx-codeinfo.jar"
 
     has_native = native_binary.exists()
-    has_jar = jar_path and jar_path.exists()
+    has_jar = jar_path.exists()
 
     if not has_native and not has_jar:
         print_error("No build artifacts found in codeinfo/target/")
@@ -269,10 +268,10 @@ def create_codeinfo_release(version: str, target_os: str, target_arch: str) -> b
         print_info(f"Copied native binary: ptx-codeinfo{binary_ext}")
         is_native_dist = True
     else:
-        # JAR distribution (platform-independent)
-        dest_jar = plugin_dist / f"ptx-codeinfo-{version}.jar"
+        # JAR distribution (platform-independent), name must match the fallback in plugin.json
+        dest_jar = plugin_dist / "ptx-codeinfo.jar"
         shutil.copy2(jar_path, dest_jar)
-        print_info(f"Copied JAR: ptx-codeinfo-{version}.jar")
+        print_info("Copied JAR: ptx-codeinfo.jar")
         is_native_dist = False
 
     # Copy README
@@ -341,8 +340,8 @@ def create_codeinfo_release_notes(dist_dir: Path, version: str, target_os: str, 
         run_cmd = "./ptx-codeinfo"
         platform_line = f"**Platform:** {target_os}/{target_arch}"
     else:
-        binary_info = f"ptx-codeinfo-{version}.jar (requires Java 21+)"
-        run_cmd = f"java -jar ptx-codeinfo-{version}.jar"
+        binary_info = "ptx-codeinfo.jar (requires Java 21+)"
+        run_cmd = "java -jar ptx-codeinfo.jar"
         platform_line = "**Platform:** All (requires Java 21+)"
 
     notes = f"""# ptx-codeinfo v{version}

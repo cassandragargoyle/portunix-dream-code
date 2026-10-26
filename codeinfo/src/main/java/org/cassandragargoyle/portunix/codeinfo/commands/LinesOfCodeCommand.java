@@ -3,10 +3,10 @@
  *  This file is part of CassandraGargoyle Community Project
  *  Licensed under the MIT License - see LICENSE file for details
  */
-package org.cassandragargoyle.dream.codeinfo.commands;
+package org.cassandragargoyle.portunix.codeinfo.commands;
 
-import org.cassandragargoyle.dream.codeinfo.analyzers.JavaLocAnalyzer;
-import org.cassandragargoyle.dream.codeinfo.analyzers.LocResult;
+import org.cassandragargoyle.portunix.codeinfo.analyzers.JavaLocAnalyzer;
+import org.cassandragargoyle.portunix.codeinfo.analyzers.LocResult;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Help.Ansi;
 import picocli.CommandLine.Model.CommandSpec;

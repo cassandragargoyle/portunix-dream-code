@@ -3,9 +3,9 @@
  *  This file is part of CassandraGargoyle Community Project
  *  Licensed under the MIT License - see LICENSE file for details
  */
-package org.cassandragargoyle.dream.codeinfo;
+package org.cassandragargoyle.portunix.codeinfo;
 
-import org.cassandragargoyle.dream.codeinfo.commands.LinesOfCodeCommand;
+import org.cassandragargoyle.portunix.codeinfo.commands.LinesOfCodeCommand;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
@@ -29,7 +29,7 @@ import java.util.concurrent.Callable;
     },
     mixinStandardHelpOptions = true
 )
-public class PtxCodeInfoCLI implements Callable<Integer> {
+public class Main implements Callable<Integer> {
 
     @Spec
     private CommandSpec spec;
@@ -48,7 +48,7 @@ public class PtxCodeInfoCLI implements Callable<Integer> {
      * Run the CLI with the given output writers and return the exit code
      */
     static int run(String[] args, PrintWriter out, PrintWriter err) {
-        PtxCodeInfoCLI app = new PtxCodeInfoCLI();
+        Main app = new Main();
         CommandLine cmd = new CommandLine(app);
         cmd.setOut(out);
         cmd.setErr(err);

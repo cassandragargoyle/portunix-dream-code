@@ -42,7 +42,7 @@ metadata with the GraalVM Tracing Agent:
 ```bash
 # Run with tracing agent to collect metadata
 java -agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image \
-     -jar target/dream-code-codeinfo-1.0.0.2-SNAPSHOT.jar loc Example.java
+     -jar target/ptx-codeinfo.jar loc Example.java
 ```
 
 ## Build Requirements
@@ -108,14 +108,14 @@ mvn clean package -DskipTests
 # Run with tracing agent
 mkdir -p src/main/resources/META-INF/native-image
 java -agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image \
-     -jar target/dream-code-codeinfo-1.0.0.2-SNAPSHOT.jar loc src/test/resources/fixtures/SimpleClass.java
+     -jar target/ptx-codeinfo.jar loc src/test/resources/fixtures/SimpleClass.java
 
 # Test with different inputs to capture all code paths
 java -agentlib:native-image-agent=config-merge-dir=src/main/resources/META-INF/native-image \
-     -jar target/dream-code-codeinfo-1.0.0.2-SNAPSHOT.jar loc src/test/resources/fixtures/MixedContent.java
+     -jar target/ptx-codeinfo.jar loc src/test/resources/fixtures/MixedContent.java
 
 java -agentlib:native-image-agent=config-merge-dir=src/main/resources/META-INF/native-image \
-     -jar target/dream-code-codeinfo-1.0.0.2-SNAPSHOT.jar loc --verbose src/test/resources/fixtures/CommentOnlyFile.java
+     -jar target/ptx-codeinfo.jar loc --verbose src/test/resources/fixtures/CommentOnlyFile.java
 ```
 
 This generates:
@@ -131,7 +131,7 @@ This generates:
 mvn clean package -Pnative
 
 # Or build manually with native-image command
-native-image -jar target/dream-code-codeinfo-1.0.0.2-SNAPSHOT.jar \
+native-image -jar target/ptx-codeinfo.jar \
              --no-fallback \
              -H:+ReportExceptionStackTraces \
              ptx-codeinfo
@@ -222,7 +222,7 @@ If you see `ClassNotFoundException` or `NoSuchMethodException`:
 
 Increase native-image memory:
 ```bash
-native-image -J-Xmx8g -jar target/dream-code-codeinfo-1.0.0.2-SNAPSHOT.jar
+native-image -J-Xmx8g -jar target/ptx-codeinfo.jar
 ```
 
 ## References

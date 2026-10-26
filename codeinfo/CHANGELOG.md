@@ -7,6 +7,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Portunix plugin structure: module `Makefile`, `defaults/`, `testdata/` with a sample
+  and its expected counts, tests that keep `plugin.json` in sync with the CLI
+
 - `loc <file>` command: counts code, comment and empty lines of a Java source file
 - `--verbose` option with a detailed breakdown of line counts
 - `--help-ai` option with machine-readable help in JSON format
@@ -17,6 +20,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Test coverage report with 95% line coverage gate (`make coverage-codeinfo`)
 
 ### Changed
+
+- Package renamed to `org.cassandragargoyle.portunix.codeinfo`, entry point class to `Main`
+- Maven artifact renamed to `ptx-codeinfo`, the JAR is always `target/ptx-codeinfo.jar`
+- Native image is built by the Maven profile `native` (`-Pnative`) instead of by default;
+  `-DskipNativeBuild` is no longer needed
+- JAR distribution ships `ptx-codeinfo.jar`, matching the fallback in `plugin.json`
 
 - Lower memory use on large files: the parser no longer stores the token list, and the
   native image limits the young generation to 8 MB (5000 LOC: 110 MB -> 35 MB,

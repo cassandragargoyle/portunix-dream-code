@@ -3,7 +3,7 @@
  *  This file is part of CassandraGargoyle Community Project
  *  Licensed under the MIT License - see LICENSE file for details
  */
-package org.cassandragargoyle.dream.codeinfo;
+package org.cassandragargoyle.portunix.codeinfo;
 
 import org.junit.jupiter.api.Test;
 import picocli.CommandLine;
@@ -14,13 +14,13 @@ import java.io.StringWriter;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit tests for PtxCodeInfoCLI entry point and --help-ai flag
+ * Unit tests for Main entry point and --help-ai flag
  */
-class PtxCodeInfoCLITest {
+class MainTest {
 
     @Test
     void testHelpAIFlagIsParsed() {
-        PtxCodeInfoCLI app = new PtxCodeInfoCLI();
+        Main app = new Main();
         new CommandLine(app).parseArgs("--help-ai");
         assertTrue(app.helpAI);
     }
@@ -28,21 +28,21 @@ class PtxCodeInfoCLITest {
     @Test
     void testHelpAIFlagSkipsRequiredSubcommandParameters() {
         // Missing <sourceFile> for loc must not prevent --help-ai
-        PtxCodeInfoCLI app = new PtxCodeInfoCLI();
+        Main app = new Main();
         assertDoesNotThrow(() -> new CommandLine(app).parseArgs("--help-ai", "loc"));
         assertTrue(app.helpAI);
     }
 
     @Test
     void testHelpAIFlagDefaultsToFalse() {
-        PtxCodeInfoCLI app = new PtxCodeInfoCLI();
+        Main app = new Main();
         new CommandLine(app).parseArgs();
         assertFalse(app.helpAI);
     }
 
     @Test
     void testHelpAIJsonContainsRequiredFields() {
-        String version = new CommandLine(new PtxCodeInfoCLI()).getCommandSpec().version()[0];
+        String version = new CommandLine(new Main()).getCommandSpec().version()[0];
         String json = helpAIJsonCompact(version);
 
         assertTrue(json.startsWith("{") && json.endsWith("}"));
@@ -55,7 +55,7 @@ class PtxCodeInfoCLITest {
 
     @Test
     void testHelpAIJsonListsAllSubcommands() {
-        CommandLine cmd = new CommandLine(new PtxCodeInfoCLI());
+        CommandLine cmd = new CommandLine(new Main());
         String json = helpAIJsonCompact(cmd.getCommandSpec().version()[0]);
 
         cmd.getSubcommands().keySet().stream()
@@ -67,7 +67,7 @@ class PtxCodeInfoCLITest {
     @Test
     void testRunHelpAIPrintsJson() {
         StringWriter out = new StringWriter();
-        int exitCode = PtxCodeInfoCLI.run(new String[] {"--help-ai"}, writer(out), writer(new StringWriter()));
+        int exitCode = Main.run(new String[] {"--help-ai"}, writer(out), writer(new StringWriter()));
 
         assertEquals(0, exitCode);
         assertTrue(out.toString().strip().startsWith("{"));
@@ -77,7 +77,7 @@ class PtxCodeInfoCLITest {
     @Test
     void testRunWithoutCommandShowsUsage() {
         StringWriter out = new StringWriter();
-        int exitCode = PtxCodeInfoCLI.run(new String[0], writer(out), writer(new StringWriter()));
+        int exitCode = Main.run(new String[0], writer(out), writer(new StringWriter()));
 
         assertEquals(0, exitCode);
         assertTrue(out.toString().contains("Usage: ptx-codeinfo"));
@@ -87,10 +87,24 @@ class PtxCodeInfoCLITest {
     @Test
     void testRunReportsInvalidOption() {
         StringWriter err = new StringWriter();
-        int exitCode = PtxCodeInfoCLI.run(new String[] {"--unknown"}, writer(new StringWriter()), writer(err));
+        int exitCode = Main.run(new String[] {"--unknown"}, writer(new StringWriter()), writer(err));
 
         assertEquals(CommandLine.ExitCode.USAGE, exitCode);
         assertTrue(err.toString().contains("Unknown option"));
+    }
+
+    @Test
+    void testRunLocOnTestdataSample() {
+        // Expected counts are documented in testdata/README.md
+        StringWriter out = new StringWriter();
+        int exitCode = Main.run(new String[] {"loc", "--verbose", "testdata/Sample.java"},
+            writer(out), writer(new StringWriter()));
+
+        assertEquals(0, exitCode);
+        assertTrue(out.toString().contains("Total lines: 26"));
+        assertTrue(out.toString().contains("Code lines: 15"));
+        assertTrue(out.toString().contains("Comment lines: 6"));
+        assertTrue(out.toString().contains("Empty lines: 5"));
     }
 
     private static PrintWriter writer(StringWriter target) {
@@ -99,6 +113,6 @@ class PtxCodeInfoCLITest {
 
     private static String helpAIJsonCompact(String version) {
         // Strip formatting whitespace outside of string values
-        return PtxCodeInfoCLI.helpAIJson(version).trim().replaceAll("\\s*([{}\\[\\]:,])\\s*", "$1");
+        return Main.helpAIJson(version).trim().replaceAll("\\s*([{}\\[\\]:,])\\s*", "$1");
     }
 }

@@ -7,9 +7,9 @@
 TARGET_DIR="codeinfo/target"
 FIXTURES_DIR="codeinfo/src/test/resources/fixtures"
 NATIVE="$TARGET_DIR/ptx-codeinfo"
-JAR=$(ls "$TARGET_DIR"/dream-code-codeinfo-*.jar 2>/dev/null | grep -v original- | head -1)
+JAR="$TARGET_DIR/ptx-codeinfo.jar"
 
-if [ ! -x "$NATIVE" ] || [ -z "$JAR" ]; then
+if [ ! -x "$NATIVE" ] || [ ! -f "$JAR" ]; then
     echo "Error: native binary or JAR not found, run 'make build-codeinfo-native' first"
     exit 1
 fi
