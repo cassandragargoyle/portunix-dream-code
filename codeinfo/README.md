@@ -140,7 +140,7 @@ java -jar target/dream-code-codeinfo-1.0.0.2-SNAPSHOT.jar loc Example.java
 
 This tool uses:
 
-- **Picocli 4.7.5** for CLI parsing and command structure (excellent GraalVM support)
+- **Picocli 4.7.7** for CLI parsing and command structure (excellent GraalVM support)
 - **JavaParser 3.27.1** for Java source code parsing and AST analysis
 - **GraalVM Community Edition** for ahead-of-time compilation to native binary
 

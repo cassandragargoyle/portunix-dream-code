@@ -16,7 +16,7 @@
     <description>Fast code analysis tool powered by GraalVM Native Image</description>
 
     <properties>
-        <picocli.version>4.7.5</picocli.version>
+        <picocli.version>4.7.7</picocli.version>
         <graalvm.version>23.1.0</graalvm.version>
         <native.maven.plugin.version>0.10.0</native.maven.plugin.version>
     </properties>

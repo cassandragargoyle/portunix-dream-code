@@ -13,7 +13,7 @@ This document describes the compatibility of ptx-codeinfo with GraalVM Native Im
 
 ## Dependency Compatibility
 
-### Picocli 4.7.5 - ✅ Excellent Support
+### Picocli 4.7.7 - ✅ Excellent Support
 
 Picocli has first-class support for GraalVM Native Image:
 
