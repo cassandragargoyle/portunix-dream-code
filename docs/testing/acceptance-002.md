@@ -2,7 +2,7 @@
 
 **Issue**: #2 — Implement ptx-codeinfo CLI Application
 **Branch**: `feature/002-ptx-codeinfo-polish`
-**Tested commit**: `b1793f9`; re-test of fixes F1-F3: `e4d22dd` (see [Re-test](#re-test-after-fixes-f1-f3)); re-test of fixes O1, O3, O4: `9a34a3d` (see [Re-test](#re-test-after-fixes-o1-o3-o4))
+**Tested commit**: `b1793f9`; re-test of fixes F1-F3: `e4d22dd` (see [Re-test](#re-test-after-fixes-f1-f3)); re-test of fixes O1, O3, O4: `9a34a3d` (see [Re-test](#re-test-after-fixes-o1-o3-o4)); re-test of fix N1: `9c9aed4` (see [Re-test](#re-test-after-fix-n1))
 **Date**: 2026-10-26
 **Tester role**: QA/Test Engineer
 **STATUS**: PASS
@@ -189,7 +189,33 @@ New finding (not blocking, behavior existed before for the raw character):
 
 | ID | Severity | Finding |
 | --- | --- | --- |
-| N1 | Low | `\u2028` (line separator) and the raw U+2028 character count as whitespace, because `Character.isWhitespace` is wider than Java whitespace (JLS 3.6: space, tab, form feed, line terminators); `javac` reports an illegal character |
+| N1 | Low, fixed in `9c9aed4` | `\u2028` (line separator) and the raw U+2028 character count as whitespace, because `Character.isWhitespace` is wider than Java whitespace (JLS 3.6: space, tab, form feed, line terminators); `javac` reports an illegal character |
+
+## Re-test After Fix N1
+
+Fix: whitespace follows JLS 3.6 (space, tab, form feed, line terminators) instead of
+`Character.isWhitespace`, for raw characters and unicode escapes. `88d03ea` on top of
+the fix only adds the detail file of #11 and changes no code.
+
+- `make build`, `make test` (JUnit 52/52, pytest 12/12), `make coverage-codeinfo`,
+  `make test-codeinfo-native`: PASS
+- 91 inputs compared with `0ffc8ac`: only the two U+2028 inputs differ, as intended
+- All F1/F2 cases (TC40-TC51) and O1/O3/O4 cases (TC60-TC71) still pass
+- Time and memory unchanged (5000 LOC: 47.9 ms, 35.3 MB native)
+
+| ID | Given / When / Then | Result |
+| --- | --- | --- |
+| TC80 | Given each of the 21 characters that `Character.isWhitespace` accepts but JLS does not (U+000B, U+001C-U+001F, U+1680, U+2000-U+2006, U+2008-U+200A, U+2028, U+2029, U+205F, U+3000), raw and as unicode escape, then the line is code (42 cases) | PASS |
+| TC81 | Given space, tab and form feed raw, or `\u0009`, `\u000C`, `\u0020`, `\u000A`, `\u000D`, then the line is empty | PASS |
+| TC82 | Given U+3000 inside a line comment or a block comment, then the line stays a comment line | PASS |
+| TC83 | Given U+3000 before `//`, then the line is code | PASS |
+| TC84 | Given U+00A0 (no-break space) or a BOM, then counts are unchanged | PASS |
+
+New observation (not blocking):
+
+| ID | Observation |
+| --- | --- |
+| N2 | Lines with U+2028, U+3000 and similar characters count as code, but no syntax error warning is printed, because the JavaParser lexer accepts them; `javac` reports an illegal character |
 
 ## CI Notes
 
