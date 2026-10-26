@@ -1,6 +1,8 @@
 # Issue #005: Convert codeinfo to Portunix Plugin (ptx-codeinfo)
 
-**Status**: In Progress
+**Status**: ✅ Implemented
+**Closed**: 2026-10-26
+**Acceptance**: [acceptance-005.md](../../testing/acceptance-005.md)
 **Priority**: Medium
 **GitHub**: #5
 **Type**: Refactoring
