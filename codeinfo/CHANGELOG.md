@@ -32,3 +32,5 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Comments written with unicode escapes (`\u002F\u002F`) are comments, as in `javac`
 - An unclosed block comment makes all following lines comment lines instead of code
 - `.java` extension is matched case insensitively (`Example.JAVA` is accepted)
+- Unicode escapes that decode to whitespace (`\u0020`, `\u000A`) count as whitespace
+- An invalid unicode escape (`\u00G1`) prints the syntax error warning, as `javac` rejects it

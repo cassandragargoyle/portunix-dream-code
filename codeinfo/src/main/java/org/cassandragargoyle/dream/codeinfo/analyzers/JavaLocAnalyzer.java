@@ -11,6 +11,7 @@ import com.github.javaparser.ParseStart;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ParserConfiguration.LanguageLevel;
 import com.github.javaparser.Position;
+import com.github.javaparser.Problem;
 import com.github.javaparser.Providers;
 import com.github.javaparser.Range;
 import com.github.javaparser.UnicodeEscapeProcessingProvider;
@@ -23,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -35,8 +37,9 @@ import java.util.List;
  * - Skip: Comment-only lines (single-line // or multi-line)
  *
  * Comments are taken from the lexer, so files with syntax errors are still classified.
- * Unicode escapes are decoded before lexing, as in javac, and an unclosed block
- * comment runs to the end of the file
+ * Unicode escapes are decoded before lexing, as in javac: escaped whitespace is
+ * whitespace and an invalid escape is a syntax error. An unclosed block comment runs
+ * to the end of the file
  */
 public class JavaLocAnalyzer {
 
@@ -72,7 +75,7 @@ public class JavaLocAnalyzer {
 
         CommentScan scan = scanComments(source);
         List<Range> commentRanges = scan.commentRanges();
-        if (!scan.successful()) {
+        if (scan.lexerReachedEnd()) {
             // The lexer stops at an unclosed block comment and drops it. Closing it at
             // the end of the file brings it back with its real start position
             CommentScan closed = scanComments(source + "*/");
@@ -85,12 +88,20 @@ public class JavaLocAnalyzer {
         int emptyLines = 0;
         int codeLines = 0;
         int commentLines = 0;
+        boolean invalidEscape = false;
 
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
-            if (line.isBlank()) {
+            // Escapes need a backslash, other lines skip the escape scan
+            boolean[] whitespaceMask = null;
+            if (line.indexOf('\\') >= 0) {
+                whitespaceMask = new boolean[line.length()];
+                invalidEscape |= !markEscapedWhitespace(line, whitespaceMask);
+            }
+
+            if (isBlank(line, whitespaceMask)) {
                 emptyLines++;
-            } else if (hasCodeOutsideComments(line, commentMask[i])) {
+            } else if (hasCodeOutsideComments(line, commentMask[i], whitespaceMask)) {
                 // Code-only and mixed code+comment lines
                 codeLines++;
             } else {
@@ -98,7 +109,8 @@ public class JavaLocAnalyzer {
             }
         }
 
-        return new LocResult(lines.size(), codeLines, commentLines, emptyLines, !scan.successful());
+        return new LocResult(lines.size(), codeLines, commentLines, emptyLines,
+                !scan.successful() || invalidEscape);
     }
 
     /**
@@ -119,14 +131,76 @@ public class JavaLocAnalyzer {
             .map(range -> mapping.isEmpty() ? range : mapping.transform(range))
             .toList();
         long blockComments = comments.stream().filter(comment -> !comment.isLineComment()).count();
+        boolean lexerReachedEnd = result.getProblems().stream()
+            .map(Problem::getMessage)
+            .anyMatch(message -> message.startsWith("Lexical error") && message.contains("<EOF>"));
 
-        return new CommentScan(ranges, blockComments, result.isSuccessful());
+        return new CommentScan(ranges, blockComments, result.isSuccessful(), lexerReachedEnd);
     }
 
     /**
      * Comments found by one parser run
+     *
+     * lexerReachedEnd is true when the lexer failed at the end of the file, which happens
+     * for an unclosed block comment or text block
      */
-    private record CommentScan(List<Range> commentRanges, long blockComments, boolean successful) {
+    private record CommentScan(List<Range> commentRanges, long blockComments, boolean successful,
+                               boolean lexerReachedEnd) {
+    }
+
+    /**
+     * Mark unicode escapes that decode to whitespace
+     *
+     * @return false if the line has an invalid unicode escape
+     */
+    private static boolean markEscapedWhitespace(String line, boolean[] whitespaceMask) {
+        boolean valid = true;
+        int i = 0;
+        while (i < line.length()) {
+            if (line.charAt(i) != '\\') {
+                i++;
+                continue;
+            }
+            int backslashes = i;
+            while (i < line.length() && line.charAt(i) == '\\') {
+                i++;
+            }
+            // Only a backslash after an even number of backslashes starts an escape
+            if ((i - backslashes) % 2 == 0 || i == line.length() || line.charAt(i) != 'u') {
+                continue;
+            }
+            int escapeStart = i - 1;
+            while (i < line.length() && line.charAt(i) == 'u') {
+                i++;
+            }
+            if (!isHexDigits(line, i, 4)) {
+                valid = false;
+                continue;
+            }
+            char decoded = (char) Integer.parseInt(line, i, i + 4, 16);
+            i += 4;
+            if (Character.isWhitespace(decoded)) {
+                Arrays.fill(whitespaceMask, escapeStart, i, true);
+            }
+        }
+        return valid;
+    }
+
+    /**
+     * Check if count characters from start are ASCII hex digits
+     */
+    private static boolean isHexDigits(String line, int start, int count) {
+        if (start + count > line.length()) {
+            return false;
+        }
+        for (int i = start; i < start + count; i++) {
+            char c = line.charAt(i);
+            boolean hex = (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
+            if (!hex) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -148,11 +222,30 @@ public class JavaLocAnalyzer {
     }
 
     /**
+     * Check if a column is whitespace, written directly or as part of a unicode escape
+     */
+    private static boolean isWhitespace(String line, int col, boolean[] whitespaceMask) {
+        return Character.isWhitespace(line.charAt(col)) || (whitespaceMask != null && whitespaceMask[col]);
+    }
+
+    /**
+     * Check if a line has only whitespace, written directly or as unicode escapes
+     */
+    private boolean isBlank(String line, boolean[] whitespaceMask) {
+        for (int col = 0; col < line.length(); col++) {
+            if (!isWhitespace(line, col, whitespaceMask)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Check if a line contains a non-whitespace character outside of comments
      */
-    private boolean hasCodeOutsideComments(String line, boolean[] mask) {
+    private boolean hasCodeOutsideComments(String line, boolean[] commentMask, boolean[] whitespaceMask) {
         for (int col = 0; col < line.length(); col++) {
-            if (!mask[col] && !Character.isWhitespace(line.charAt(col))) {
+            if (!commentMask[col] && !isWhitespace(line, col, whitespaceMask)) {
                 return true;
             }
         }

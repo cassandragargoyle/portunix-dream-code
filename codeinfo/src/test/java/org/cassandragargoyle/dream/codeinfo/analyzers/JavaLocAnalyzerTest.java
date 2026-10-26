@@ -216,6 +216,61 @@ class JavaLocAnalyzerTest {
     }
 
     @Test
+    void testEscapedWhitespaceLineIsEmpty() throws Exception {
+        File file = writeTempFile("EscapedSpace.java", "class A {\n    \\u0020\\u0009\n}\n");
+
+        LocResult result = analyzer.analyze(file);
+
+        assertCounts(result, 3, 2, 0, 1);
+        assertFalse(result.hasParseErrors());
+    }
+
+    @Test
+    void testEscapedLineFeedAfterCommentIsComment() throws Exception {
+        File file = writeTempFile("EscapedFeed.java", "class A {\n    // c \\u000A\n    int a;\n}\n");
+
+        assertCounts(analyzer.analyze(file), 4, 3, 1, 0);
+    }
+
+    @Test
+    void testEscapedBackslashDoesNotStartEscape() throws Exception {
+        // Two backslashes are an escaped backslash followed by plain text
+        File file = writeTempFile("EscapedBackslash.java", "class A {\n    String s = \"\\\\u00G1\";\n    \\\\u0020\n}\n");
+
+        LocResult result = analyzer.analyze(file);
+
+        assertCounts(result, 4, 4, 0, 0);
+    }
+
+    @Test
+    void testInvalidEscapeIsSyntaxError() throws Exception {
+        // javac rejects a unicode escape without four hex digits, also inside comments
+        File file = writeTempFile("InvalidEscape.java", "class A {\n    // bad \\u00G1 escape\n    int a;\n}\n");
+
+        LocResult result = analyzer.analyze(file);
+
+        assertCounts(result, 4, 3, 1, 0);
+        assertTrue(result.hasParseErrors());
+    }
+
+    @Test
+    void testTruncatedEscapeIsSyntaxError() throws Exception {
+        File file = writeTempFile("TruncatedEscape.java", "class A {} // end \\u00");
+
+        assertTrue(analyzer.analyze(file).hasParseErrors());
+    }
+
+    @Test
+    void testValidEscapesAreNotSyntaxErrors() throws Exception {
+        File file = writeTempFile("ValidEscapes.java", "class A {\n    char c = '\\uuu0041'; // \\u00e9\n}\n");
+
+        LocResult result = analyzer.analyze(file);
+
+        assertCounts(result, 3, 3, 0, 0);
+        assertFalse(result.hasParseErrors());
+    }
+
+    @Test
     void testCountsAlwaysSumToTotal() throws Exception {
         for (String name : new String[] {"SimpleClass.java", "MixedContent.java", "MultipleComments.java",
                 "StringLiterals.java", "UnicodeContent.java", "SyntaxError.java"}) {

@@ -126,8 +126,9 @@ and text blocks are not treated as comments. A line with several comments and no
 (e.g. `/* a */ /* b */`) is a comment line.
 
 Unicode escapes are decoded before comments are detected, as in `javac`, so
-`\u002F\u002F text` is a comment line. An unclosed `/*` makes all following lines
-comment lines.
+`\u002F\u002F text` is a comment line and a line with only `\u0020` is an empty line.
+An invalid escape such as `\u00G1` is a syntax error, also inside comments. An
+unclosed `/*` makes all following lines comment lines.
 
 Files are read as UTF-8. The `.java` extension is matched case insensitively. Files with
 syntax errors are still counted: a warning is printed to stderr and the counts are

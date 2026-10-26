@@ -535,3 +535,19 @@ Findings from `docs/testing/acceptance-002.md` (all also on `main`):
 - 6 new tests (44 total); output is unchanged on all other inputs; memory and time
   unchanged (5000 LOC: 35.5 MB)
 - F4 (memory for 50 000 line files) has no target and is not changed
+
+### 2026-10-26 - Fixes for acceptance observations O1, O3, O4
+
+- O1: unicode escapes that decode to whitespace count as whitespace when a line is
+  classified (`\u0020` only line is empty, `// c \u000A` is a comment line)
+- O3: an invalid unicode escape (no four hex digits after `\u`) sets the syntax error
+  flag, also inside comments, as `javac` rejects the file
+- O4: the second parser run (unclosed block comment) runs only after a lexical error
+  at the end of the file; a file with a syntax error takes 22 ms instead of 39 ms
+  (5000 LOC, in-process). The higher memory for such files comes from parser error
+  recovery, not from the second run
+- Only lines with a backslash are scanned for escapes
+- 6 new tests (50 total); on 70 inputs only the two escape cases differ from the
+  previous commit
+- O2 (unterminated string literal hides later comments) is not changed: the lexer
+  stops in the middle of the file and recovery would need an own lexer
