@@ -26,15 +26,19 @@ Picocli has first-class support for GraalVM Native Image:
 
 **Build Configuration**: Already configured in `pom.xml` with annotation processor
 
-### JavaParser 3.27.1 - ⚠️ Requires Configuration
+### JavaParser 3.27.1 - ✅ Works Without Extra Configuration
 
-JavaParser can work with GraalVM Native Image but needs reflection metadata:
+JavaParser uses reflection in its language level validators (`PropertyMetaModel.getValue`).
+In a native image these fail with `NoSuchFieldError` because the AST fields are not
+registered for reflection.
 
-- **Known Working**: The `codeanalyzer-java` project successfully uses JavaParser with Native Image
-- **Challenge**: JavaParser uses extensive reflection for parsing and AST manipulation
-- **Solution**: Use GraalVM Tracing Agent to generate reflection metadata
+ptx-codeinfo avoids this by parsing with `LanguageLevel.RAW`, which skips the validators.
+LOC counting needs only the grammar and the lexer (comments), so no reflection metadata
+for JavaParser is needed. The validators also rejected modern syntax such as text blocks
+at the default language level.
 
-**Configuration Method**:
+If a future feature needs validators or other reflective JavaParser APIs, generate the
+metadata with the GraalVM Tracing Agent:
 ```bash
 # Run with tracing agent to collect metadata
 java -agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image \

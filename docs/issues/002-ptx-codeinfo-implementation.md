@@ -60,31 +60,31 @@ Empty lines: 2
 
 ### Phase 1: Foundation (Week 1)
 
-- [ ] **Task 1.1**: Create codeinfo Maven module
+- [x] **Task 1.1**: Create codeinfo Maven module
   - Create `codeinfo/pom.xml` with project metadata
   - Add to root POM `<modules>` section
   - Set artifact ID: `dream-code-codeinfo`
   - Configure Java 21 compatibility
 
-- [ ] **Task 1.2**: Configure dependencies
+- [x] **Task 1.2**: Configure dependencies
   - Add Picocli 4.7.5 dependency
   - Add JavaParser 3.27.1 (from parent POM)
   - Add GraalVM SDK (provided scope)
   - Add JUnit 5 for testing
 
-- [ ] **Task 1.3**: Setup GraalVM Native Image plugin
+- [x] **Task 1.3**: Setup GraalVM Native Image plugin
   - Add `native-maven-plugin` configuration
   - Set image name: `ptx-codeinfo`
   - Configure main class
   - Add build arguments (`--no-fallback`, etc.)
 
-- [ ] **Task 1.4**: Create basic project structure
+- [x] **Task 1.4**: Create basic project structure
   - Create package: `org.cassandragargoyle.dream.codeinfo`
   - Create subpackages: `commands`, `analyzers`
   - Create main class: `PtxCodeInfoCLI.java`
   - Create README.md with project description
 
-- [ ] **Task 1.5**: Implement main CLI entry point
+- [x] **Task 1.5**: Implement main CLI entry point
   - Annotate with Picocli `@Command`
   - Configure application metadata (name, version, description)
   - Implement `Callable<Integer>` interface
@@ -93,14 +93,14 @@ Empty lines: 2
 
 ### Phase 2: Core Feature - LOC Counter (Week 2)
 
-- [ ] **Task 2.1**: Create LinesOfCodeCommand
+- [x] **Task 2.1**: Create LinesOfCodeCommand
   - Location: `commands/LinesOfCodeCommand.java`
   - Annotate with `@Command(name = "loc")`
   - Add `@Parameters` for file input
   - Add `@Option` for verbose mode
   - Implement command execution logic
 
-- [ ] **Task 2.2**: Implement JavaLocAnalyzer
+- [x] **Task 2.2**: Implement JavaLocAnalyzer
   - Location: `analyzers/JavaLocAnalyzer.java`
   - Use JavaParser to parse source file
   - Build AST and traverse nodes
@@ -110,7 +110,7 @@ Empty lines: 2
     - Identify empty lines
     - Handle mixed code+comment lines
 
-- [ ] **Task 2.3**: Handle edge cases
+- [x] **Task 2.3**: Handle edge cases
   - Empty files
   - Files with only comments
   - Files with syntax errors (partial parsing)
@@ -119,14 +119,14 @@ Empty lines: 2
   - Javadoc comments
   - Unicode and special characters
 
-- [ ] **Task 2.4**: Error handling and validation
+- [x] **Task 2.4**: Error handling and validation
   - File not found
   - File not readable
   - Invalid Java syntax (graceful degradation)
   - Non-Java files (clear error message)
   - Permission errors
 
-- [ ] **Task 2.5**: Output formatting
+- [x] **Task 2.5**: Output formatting
   - Simple mode: Just line count
   - Verbose mode: Detailed breakdown
   - Error messages with actionable guidance
@@ -142,19 +142,19 @@ Empty lines: 2
   - Test edge cases
   - Target: 95% code coverage
 
-- [ ] **Task 3.2**: Unit tests for LinesOfCodeCommand
+- [x] **Task 3.2**: Unit tests for LinesOfCodeCommand
   - Test command parsing
   - Test option handling
   - Test file validation
   - Mock analyzer for isolated testing
 
-- [ ] **Task 3.3**: Integration tests
+- [x] **Task 3.3**: Integration tests
   - Test end-to-end execution
   - Test with real Java files
   - Test error scenarios
   - Verify output format
 
-- [ ] **Task 3.4**: Create test fixtures
+- [x] **Task 3.4**: Create test fixtures
   - Sample Java files with known LOC counts
   - Files with various comment styles
   - Edge case files (empty, comment-only, etc.)
@@ -162,13 +162,13 @@ Empty lines: 2
 
 ### Phase 4: GraalVM Native Image (Week 3-4)
 
-- [ ] **Task 4.1**: Configure reflection for JavaParser
+- [x] **Task 4.1**: Configure reflection for JavaParser
   - Create `reflect-config.json`
   - Add JavaParser reflection entries
   - Test with native image agent
   - Location: `src/main/resources/META-INF/native-image/`
 
-- [ ] **Task 4.2**: Native image build
+- [x] **Task 4.2**: Native image build
   - Build native image with Maven plugin
   - Verify binary is created
   - Test binary execution
@@ -186,7 +186,7 @@ Empty lines: 2
   - Test on target platforms
   - Document platform requirements
 
-- [ ] **Task 4.5**: Integration tests for native binary
+- [x] **Task 4.5**: Integration tests for native binary
   - Run full test suite against native binary
   - Verify functionality matches JAR version
   - Test performance meets targets
@@ -212,7 +212,7 @@ Empty lines: 2
   - Improve error messages
   - Add color output with ANSI codes
 
-- [ ] **Task 5.4**: Performance benchmarking
+- [x] **Task 5.4**: Performance benchmarking
   - Benchmark startup time
   - Benchmark single file analysis
   - Benchmark large file analysis (5000+ LOC)
@@ -394,13 +394,13 @@ public class LinesOfCodeCommand implements Callable<Integer> {
 ## Success Criteria
 
 - [ ] Native binary builds successfully on Linux and Windows
-- [ ] Startup time < 50ms
-- [ ] Single file analysis < 100ms
+- [x] Startup time < 50ms
+- [x] Single file analysis < 100ms
 - [ ] Binary size < 20MB
 - [ ] Memory usage < 30MB
 - [ ] 95% test coverage
-- [ ] All unit and integration tests passing
-- [ ] Accurate LOC counting per specification
+- [x] All unit and integration tests passing
+- [x] Accurate LOC counting per specification
 - [ ] Clear error messages and help text
 - [ ] Complete user and developer documentation
 - [ ] Ready for v0.1.0 release
@@ -468,3 +468,30 @@ public class LinesOfCodeCommand implements Callable<Integer> {
 ## Comments
 
 <!-- Add implementation notes and progress updates here -->
+
+### 2026-10-26 - LOC accuracy, tests, native image
+
+- Phases 1-2 already existed; fixed counting bugs found during review:
+  - Comment detection is column based (comment ranges from the lexer), so a line
+    like `/* a */ /* b */` is a comment line, and `//` inside strings is code
+  - Comments come from `ParseResult.getCommentsCollection()`, so files with syntax
+    errors are still classified; the command prints a warning to stderr
+  - Parser uses `LanguageLevel.RAW`: the default level rejected text blocks, and the
+    validators use reflection that crashed the native binary (`NoSuchFieldError`)
+  - Directories and non-UTF-8 files end with exit code 2 and a clear message
+- Tests: exact counts for all fixtures, new fixtures (multiple comments, string
+  literals, Unicode, syntax error), CRLF, tabs, modern syntax; new `LinesOfCodeCommandTest`
+  for output format and exit codes (31 tests)
+- Native: `make test-codeinfo-native` compares binary and JAR output on all fixtures
+- Removed `--enable-url-protocols=http,https` from the native image (39 MB -> 22.7 MB)
+- Measured on Linux x64 (see codeinfo/README.md): startup 1.8 ms, 100 LOC 2.6 ms,
+  5000 LOC 132 ms; binary 22.7 MB and memory for 5000 LOC (110 MB) are above target
+
+**Remaining:**
+
+- Task 3.1 coverage target (95%) not measured, no coverage tool in the build yet
+- Task 4.3 binary size and large file memory above target
+- Task 4.4 Windows build not done
+- Task 5.1-5.3 partly done (README updated); ANSI colors not done
+- Task 5.5 and Phase 6 (release, CI) not done
+- Root `--help` is broken, tracked in #6

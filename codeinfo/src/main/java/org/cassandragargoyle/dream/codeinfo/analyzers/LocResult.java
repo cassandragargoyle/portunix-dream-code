@@ -12,12 +12,18 @@ public class LocResult {
     private final int codeLines;
     private final int commentLines;
     private final int emptyLines;
+    private final boolean parseErrors;
 
     public LocResult(int totalLines, int codeLines, int commentLines, int emptyLines) {
+        this(totalLines, codeLines, commentLines, emptyLines, false);
+    }
+
+    public LocResult(int totalLines, int codeLines, int commentLines, int emptyLines, boolean parseErrors) {
         this.totalLines = totalLines;
         this.codeLines = codeLines;
         this.commentLines = commentLines;
         this.emptyLines = emptyLines;
+        this.parseErrors = parseErrors;
     }
 
     public int getTotalLines() {
@@ -36,6 +42,13 @@ public class LocResult {
         return emptyLines;
     }
 
+    /**
+     * True if the source has syntax errors and counts rely on lexical analysis only
+     */
+    public boolean hasParseErrors() {
+        return parseErrors;
+    }
+
     @Override
     public String toString() {
         return "LocResult{" +
@@ -43,6 +56,7 @@ public class LocResult {
                 ", codeLines=" + codeLines +
                 ", commentLines=" + commentLines +
                 ", emptyLines=" + emptyLines +
+                ", parseErrors=" + parseErrors +
                 '}';
     }
 }
