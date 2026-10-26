@@ -2,7 +2,7 @@
 
 **Issue**: #2 — Implement ptx-codeinfo CLI Application
 **Branch**: `feature/002-ptx-codeinfo-polish`
-**Tested commit**: `b1793f9`
+**Tested commit**: `b1793f9`; re-test of fixes F1-F3: `e4d22dd` (see [Re-test](#re-test-after-fixes-f1-f3))
 **Date**: 2026-10-26
 **Tester role**: QA/Test Engineer
 **STATUS**: PASS
@@ -113,11 +113,51 @@ No regressions. All findings below also happen on `main` and do not block the me
 
 | ID | Severity | Finding |
 | --- | --- | --- |
-| F1 | Low | Comments written with Unicode escapes (`// text`) are counted as code and produce a syntax error warning; `javac` treats them as comments |
-| F2 | Low | An unclosed `/*` makes all following lines code lines; `javac` treats them as comment (the file does not compile) |
-| F3 | Low | The `.java` check is case sensitive, so `Example.JAVA` is rejected; this may matter on Windows |
+| F1 | Low, fixed | Comments written with Unicode escapes (`\u002F\u002F text`) are counted as code and produce a syntax error warning; `javac` treats them as comments |
+| F2 | Low, fixed | An unclosed `/*` makes all following lines code lines; `javac` treats them as comment (the file does not compile) |
+| F3 | Low, fixed | The `.java` check is case sensitive, so `Example.JAVA` is rejected; this may matter on Windows |
 | F4 | Low | Memory grows with file size: a 50 000 line file needs 204 MB and 1.3 s; there is no target for this size |
 | F5 | Known | Root `--help` and `-h` are rejected, tracked in #6 |
+
+## Re-test After Fixes F1-F3
+
+Fixes: unicode escapes are decoded before comments are detected (F1), a file that
+ends in an unclosed block comment is parsed again with `*/` appended (F2), and the
+`.java` check is case insensitive (F3).
+
+- `make build`, `make test` (JUnit 44/44, pytest 12/12), `make coverage-codeinfo`
+  (98.4%), `make test-codeinfo-native`: PASS
+- 50 inputs (repository Java files and all earlier cases) compared with `main`: only
+  the 4 inputs with unicode escape comments or unclosed comments differ, as intended
+- `--help-ai`, `--version`, `loc --help`: native output matches the JAR
+
+| ID | Given / When / Then | Result |
+| --- | --- | --- |
+| TC40 | Given `\uuuu002F\u002F` (several `u`), then the line is a comment | PASS |
+| TC41 | Given `"\\u002F\\u002F"` (escaped backslash), then the line is code | PASS |
+| TC42 | Given `/* x *\u002F int a;` (escaped close), then the line is code | PASS |
+| TC43 | Given `\u002F* block` over two lines (escaped open), then both lines are comments | PASS |
+| TC44 | Given an escape before a multi-line block comment, then columns are mapped and the middle line is a comment | PASS |
+| TC45 | Given `// a \u000D int x;` (escaped CR), then the line is code (wrong on `main`) | PASS |
+| TC46 | Given escaped `//` with CRLF line endings, then the line is a comment (wrong on `main`) | PASS |
+| TC47 | Given escaped `//` inside a text block, then the line is code | PASS |
+| TC48 | Given unclosed `/**`, unclosed `/*` without newline, or a file ending in `/*`, then following lines are comments | PASS |
+| TC49 | Given `"/*"` in a string or `/*` in a line comment before the unclosed comment, then only the real comment counts | PASS |
+| TC50 | Given `"""` inside an unclosed comment, or an escaped `/*` that is not closed, then following lines are comments | PASS |
+| TC51 | Given a syntax error and a last `// comment` without newline, then counts are the same as on `main` | PASS |
+| TC52 | Given `Lower.Java` and `Mixed.jAvA`, then exit 0; `Notes.java.txt` and `java`, then exit 2 | PASS |
+| TC53 | Given Turkish locale (JAR and native), when `loc FILE.JAVA`, then exit 0 | PASS |
+| TC54 | Given 5000 LOC with a syntax error (two parser runs), then 0.11 s and 55 MB (valid file: 0.04 s, 36 MB) | PASS |
+| TC55 | Given 5000 LOC with an unclosed comment or 555 escaped comments, then counts are correct and time stays < 0.1 s | PASS |
+
+Observations (not blocking, same as on `main`):
+
+| ID | Observation |
+| --- | --- |
+| O1 | A line with only `\u0020` counts as code; `javac` sees whitespace |
+| O2 | An unterminated string literal stops the lexer, so later line comments count as code |
+| O3 | An invalid escape such as `\u00G1` in a comment is accepted without a warning; `javac` rejects the file |
+| O4 | Files with syntax errors are parsed twice: about 2.5x time and 1.5x memory of a valid file |
 
 ## CI Notes
 
