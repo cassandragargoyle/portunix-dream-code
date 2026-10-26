@@ -1,4 +1,5 @@
 /*
+ *  SPDX-License-Identifier: MIT
  *  This file is part of CassandraGargoyle Community Project
  *  Licensed under the MIT License - see LICENSE file for details
  */
@@ -114,6 +115,16 @@ class LinesOfCodeCommandTest {
 
         assertEquals(LinesOfCodeCommand.EXIT_INVALID_INPUT, exitCode);
         assertTrue(err.toString().startsWith("Error: File must be a Java source file (.java):"));
+    }
+
+    @Test
+    void testUppercaseJavaExtensionAccepted() throws Exception {
+        Path file = Files.writeString(tempDir.resolve("Upper.JAVA"), "class Upper {}\n");
+
+        int exitCode = run("loc", file.toString());
+
+        assertEquals(LinesOfCodeCommand.EXIT_OK, exitCode);
+        assertEquals("1 lines of code in Upper.JAVA", out.toString().strip());
     }
 
     @Test

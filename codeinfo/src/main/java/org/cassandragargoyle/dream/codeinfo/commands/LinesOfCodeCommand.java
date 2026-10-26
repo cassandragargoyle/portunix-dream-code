@@ -1,4 +1,5 @@
 /*
+ *  SPDX-License-Identifier: MIT
  *  This file is part of CassandraGargoyle Community Project
  *  Licensed under the MIT License - see LICENSE file for details
  */
@@ -16,6 +17,7 @@ import picocli.CommandLine.Spec;
 import java.io.File;
 import java.io.PrintWriter;
 import java.nio.charset.MalformedInputException;
+import java.util.Locale;
 import java.util.concurrent.Callable;
 
 /**
@@ -100,8 +102,8 @@ public class LinesOfCodeCommand implements Callable<Integer> {
                 return EXIT_INVALID_INPUT;
             }
 
-            // Validate file is a Java file
-            if (!sourceFile.getName().endsWith(".java")) {
+            // Validate file is a Java file, case insensitive for Windows file names
+            if (!sourceFile.getName().toLowerCase(Locale.ROOT).endsWith(".java")) {
                 error(err, "File must be a Java source file (.java): " + sourceFile.getPath());
                 return EXIT_INVALID_INPUT;
             }

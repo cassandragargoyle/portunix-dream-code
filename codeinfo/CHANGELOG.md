@@ -29,3 +29,6 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Files with syntax errors are counted with a warning instead of failing
 - Text blocks and other modern syntax no longer fail to parse
 - Native binary no longer crashes on JavaParser validators
+- Comments written with unicode escapes (`\u002F\u002F`) are comments, as in `javac`
+- An unclosed block comment makes all following lines comment lines instead of code
+- `.java` extension is matched case insensitively (`Example.JAVA` is accepted)

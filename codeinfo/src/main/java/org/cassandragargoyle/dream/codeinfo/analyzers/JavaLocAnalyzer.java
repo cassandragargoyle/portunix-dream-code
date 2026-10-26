@@ -1,4 +1,5 @@
 /*
+ *  SPDX-License-Identifier: MIT
  *  This file is part of CassandraGargoyle Community Project
  *  Licensed under the MIT License - see LICENSE file for details
  */
@@ -6,10 +7,14 @@ package org.cassandragargoyle.dream.codeinfo.analyzers;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
+import com.github.javaparser.ParseStart;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ParserConfiguration.LanguageLevel;
 import com.github.javaparser.Position;
+import com.github.javaparser.Providers;
 import com.github.javaparser.Range;
+import com.github.javaparser.UnicodeEscapeProcessingProvider;
+import com.github.javaparser.UnicodeEscapeProcessingProvider.PositionMapping;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.comments.Comment;
 import com.github.javaparser.ast.comments.CommentsCollection;
@@ -29,7 +34,9 @@ import java.util.List;
  * - Skip: Empty lines (whitespace only)
  * - Skip: Comment-only lines (single-line // or multi-line)
  *
- * Comments are taken from the lexer, so files with syntax errors are still classified
+ * Comments are taken from the lexer, so files with syntax errors are still classified.
+ * Unicode escapes are decoded before lexing, as in javac, and an unclosed block
+ * comment runs to the end of the file
  */
 public class JavaLocAnalyzer {
 
@@ -54,7 +61,8 @@ public class JavaLocAnalyzer {
      * @throws IOException if file cannot be read
      */
     public LocResult analyze(File sourceFile) throws IOException {
-        List<String> lines = Files.readAllLines(sourceFile.toPath(), StandardCharsets.UTF_8);
+        String source = Files.readString(sourceFile.toPath(), StandardCharsets.UTF_8);
+        List<String> lines = source.lines().toList();
 
         // Mark columns covered by comments, one mask per line
         boolean[][] commentMask = new boolean[lines.size()][];
@@ -62,10 +70,17 @@ public class JavaLocAnalyzer {
             commentMask[i] = new boolean[lines.get(i).length()];
         }
 
-        ParseResult<CompilationUnit> parseResult = parser.parse(sourceFile.toPath());
-        parseResult.getCommentsCollection()
-            .map(CommentsCollection::getComments)
-            .ifPresent(comments -> comments.forEach(comment -> markComment(comment, lines, commentMask)));
+        CommentScan scan = scanComments(source);
+        List<Range> commentRanges = scan.commentRanges();
+        if (!scan.successful()) {
+            // The lexer stops at an unclosed block comment and drops it. Closing it at
+            // the end of the file brings it back with its real start position
+            CommentScan closed = scanComments(source + "*/");
+            if (closed.blockComments() > scan.blockComments()) {
+                commentRanges = closed.commentRanges();
+            }
+        }
+        commentRanges.forEach(range -> markComment(range, lines, commentMask));
 
         int emptyLines = 0;
         int codeLines = 0;
@@ -83,17 +98,41 @@ public class JavaLocAnalyzer {
             }
         }
 
-        return new LocResult(lines.size(), codeLines, commentLines, emptyLines, !parseResult.isSuccessful());
+        return new LocResult(lines.size(), codeLines, commentLines, emptyLines, !scan.successful());
+    }
+
+    /**
+     * Parse the source and return comment ranges in positions of the original text
+     */
+    private CommentScan scanComments(String source) {
+        UnicodeEscapeProcessingProvider provider = new UnicodeEscapeProcessingProvider(Providers.provider(source));
+        ParseResult<CompilationUnit> result = parser.parse(ParseStart.COMPILATION_UNIT, provider);
+
+        // Ranges refer to the decoded text, map them back when the source has unicode escapes
+        PositionMapping mapping = provider.getPositionMapping();
+        List<Comment> comments = result.getCommentsCollection()
+            .map(CommentsCollection::getComments)
+            .map(List::<Comment>copyOf)
+            .orElse(List.of());
+        List<Range> ranges = comments.stream()
+            .flatMap(comment -> comment.getRange().stream())
+            .map(range -> mapping.isEmpty() ? range : mapping.transform(range))
+            .toList();
+        long blockComments = comments.stream().filter(comment -> !comment.isLineComment()).count();
+
+        return new CommentScan(ranges, blockComments, result.isSuccessful());
+    }
+
+    /**
+     * Comments found by one parser run
+     */
+    private record CommentScan(List<Range> commentRanges, long blockComments, boolean successful) {
     }
 
     /**
      * Mark all columns covered by a comment
      */
-    private void markComment(Comment comment, List<String> lines, boolean[][] commentMask) {
-        if (comment.getRange().isEmpty()) {
-            return;
-        }
-        Range range = comment.getRange().get();
+    private void markComment(Range range, List<String> lines, boolean[][] commentMask) {
         Position begin = range.begin;
         Position end = range.end;
 

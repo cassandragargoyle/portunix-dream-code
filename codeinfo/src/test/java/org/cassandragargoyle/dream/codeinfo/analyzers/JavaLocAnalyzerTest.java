@@ -1,4 +1,5 @@
 /*
+ *  SPDX-License-Identifier: MIT
  *  This file is part of CassandraGargoyle Community Project
  *  Licensed under the MIT License - see LICENSE file for details
  */
@@ -152,6 +153,66 @@ class JavaLocAnalyzerTest {
         Files.write(path, new byte[] {(byte) 0xff, (byte) 0xfe, 'c', 'l', 'a', 's', 's'});
 
         assertThrows(MalformedInputException.class, () -> analyzer.analyze(path.toFile()));
+    }
+
+    @Test
+    void testUnicodeEscapedCommentIsComment() throws Exception {
+        // javac decodes unicode escapes first, so this line is a line comment
+        File file = writeTempFile("Escaped.java", "class U {\n    \\u002F\\u002F hidden comment\n    int a;\n}\n");
+
+        LocResult result = analyzer.analyze(file);
+
+        assertCounts(result, 4, 3, 1, 0);
+        assertFalse(result.hasParseErrors());
+    }
+
+    @Test
+    void testUnicodeEscapesKeepCommentColumns() throws Exception {
+        // Escapes are longer than the decoded characters, comment ranges must still match
+        File file = writeTempFile("Columns.java", """
+            class U {
+                int \\u0061 = 1; /* c */ int b;
+                /* \\u0041\\u0042\\u0043 */
+                char c = '\\u0041'; // tail
+            }
+            """);
+
+        assertCounts(analyzer.analyze(file), 5, 4, 1, 0);
+    }
+
+    @Test
+    void testEscapedNewlineEndsLineComment() throws Exception {
+        // An escaped line feed ends the line comment for javac, so the rest of the line is code
+        File file = writeTempFile("Newline.java", "class E {\n    // note \\u000A int x;\n}\n");
+
+        assertCounts(analyzer.analyze(file), 3, 3, 0, 0);
+    }
+
+    @Test
+    void testUnclosedBlockCommentRunsToEndOfFile() throws Exception {
+        File file = writeTempFile("Unclosed.java", """
+            class X { /* ok */
+                int a; // c
+                /* unterminated
+                int b;
+            }
+            """);
+
+        LocResult result = analyzer.analyze(file);
+
+        assertCounts(result, 5, 2, 3, 0);
+        assertTrue(result.hasParseErrors());
+    }
+
+    @Test
+    void testUnclosedTextBlockStaysCode() throws Exception {
+        // An unclosed text block is not a comment, its lines stay code
+        File file = writeTempFile("TextBlock.java", "class T {\n    String s = \"\"\"\n        /* not a comment\n}\n");
+
+        LocResult result = analyzer.analyze(file);
+
+        assertCounts(result, 4, 4, 0, 0);
+        assertTrue(result.hasParseErrors());
     }
 
     @Test

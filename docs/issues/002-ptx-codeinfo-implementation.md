@@ -521,3 +521,17 @@ public class LinesOfCodeCommand implements Callable<Integer> {
 - Task 5.5 tag and binary packages not done (version number to decide: pom
   `1.0.0.2-SNAPSHOT`, CLI `1.0.2`)
 - Phase 6 CI tracked in #10, root `--help` in #6
+
+### 2026-10-26 - Fixes for acceptance findings F1-F3
+
+Findings from `docs/testing/acceptance-002.md` (all also on `main`):
+
+- F1: unicode escapes are decoded before lexing (`UnicodeEscapeProcessingProvider`);
+  comment ranges are mapped back to the original columns
+- F2: when the parse fails, the source is parsed again with `*/` appended; if this
+  finds more block comments, the file ended in an unclosed comment and those ranges
+  are used. An unclosed text block stays code
+- F3: `.java` extension check is case insensitive
+- 6 new tests (44 total); output is unchanged on all other inputs; memory and time
+  unchanged (5000 LOC: 35.5 MB)
+- F4 (memory for 50 000 line files) has no target and is not changed
