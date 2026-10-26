@@ -2,7 +2,7 @@
 
 **Issue**: #2 — Implement ptx-codeinfo CLI Application
 **Branch**: `feature/002-ptx-codeinfo-polish`
-**Tested commit**: `b1793f9`; re-test of fixes F1-F3: `e4d22dd` (see [Re-test](#re-test-after-fixes-f1-f3)); re-test of fixes O1, O3, O4: `9a34a3d` (see [Re-test](#re-test-after-fixes-o1-o3-o4)); re-test of fix N1: `9c9aed4` (see [Re-test](#re-test-after-fix-n1))
+**Tested commit**: `b1793f9`; re-test of fixes F1-F3: `e4d22dd` (see [Re-test](#re-test-after-fixes-f1-f3)); re-test of fixes O1, O3, O4: `9a34a3d` (see [Re-test](#re-test-after-fixes-o1-o3-o4)); re-test of fix N1: `9c9aed4` (see [Re-test](#re-test-after-fix-n1)); re-test of fix N2: `8ffc154` (see [Re-test](#re-test-after-fix-n2))
 **Date**: 2026-10-26
 **Tester role**: QA/Test Engineer
 **STATUS**: PASS
@@ -215,7 +215,31 @@ New observation (not blocking):
 
 | ID | Observation |
 | --- | --- |
-| N2 | Lines with U+2028, U+3000 and similar characters count as code, but no syntax error warning is printed, because the JavaParser lexer accepts them; `javac` reports an illegal character |
+| N2 | Fixed in `8ffc154`: lines with U+2028, U+3000 and similar characters count as code, but no syntax error warning is printed, because the JavaParser lexer accepts them; `javac` reports an illegal character |
+
+## Re-test After Fix N2
+
+Fix: unicode spaces that `javac` rejects (e.g. U+2028, U+3000), raw or as unicode
+escape, set the syntax error flag outside comments and literals. Literal ranges come
+from a second parser run with stored tokens, only for files with such characters
+outside comments.
+
+- `make build`, `make test` (JUnit 57/57, pytest 12/12), `make coverage-codeinfo`,
+  `make test-codeinfo-native` (with new fixture `UnicodeSpaces.java`): PASS
+- 144 inputs compared with `936bdd3`: no count changes; the warning is added on 33
+  inputs, all with such characters outside comments and literals
+- All earlier case sets (F1/F2, O1/O3/O4, N1) still pass
+
+| ID | Given / When / Then | Result |
+| --- | --- | --- |
+| TC90 | Given unicode escapes before a string with U+3000 on the same line (up to 6 escapes, 30 columns shift), then no warning | PASS |
+| TC91 | Given the same escapes and U+3000 right after the string, then the warning is printed | PASS |
+| TC92 | Given `'\u3000'`, or U+3000 after an escaped line feed in a comment, then no warning | PASS |
+| TC93 | Given U+3000 or U+2028 in an annotation value, an enum argument, a lambda, a multi-line text block, or 50 strings, then no warning | PASS |
+| TC94 | Given U+3000 directly before, directly after, or between string literals, then the warning is printed | PASS |
+| TC95 | Given U+3000 in a trailing line comment, a block comment in the middle of a line, or Javadoc, then no warning | PASS |
+| TC96 | Given U+3000 in a string and an unclosed block comment, then counts follow F2 and the warning is printed | PASS |
+| TC97 | Given 5000 LOC with 555 strings with U+3000 (worst case, second parser run), then 41.2 ms instead of 17.5 ms (in-process); normal files unchanged (16.5 ms) | PASS |
 
 ## CI Notes
 
