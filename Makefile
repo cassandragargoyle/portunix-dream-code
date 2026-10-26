@@ -1,4 +1,4 @@
-.PHONY: all build build-java build-java-native build-codeinfo build-codeinfo-native build-codeanalysis clean test test-java test-codeinfo test-codeanalysis test-quick test-codescan deps dev loc loc-all loc-file dist dist-codeanalysis dist-codeinfo dist-codeinfo-native release deploy-local undeploy-local help
+.PHONY: all build build-java build-java-native build-codeinfo build-codeinfo-native build-codeanalysis clean test test-java test-codeinfo test-codeinfo-native test-codeanalysis test-quick test-codescan deps dev loc loc-all loc-file dist dist-codeanalysis dist-codeinfo dist-codeinfo-native release deploy-local undeploy-local help
 
 # Default target
 all: build
@@ -48,6 +48,11 @@ test-java:
 test-codeinfo:
 	@echo "Running codeinfo tests..."
 	mvn test -pl codeinfo
+
+# Compare codeinfo native binary with JAR (run after build-codeinfo-native)
+test-codeinfo-native:
+	@echo "Running codeinfo native image tests..."
+	./scripts/test-codeinfo-native.sh
 
 # Run codeanalysis tests
 test-codeanalysis:
@@ -182,6 +187,7 @@ help:
 	@echo "  test               - Run all tests"
 	@echo "  test-java          - Run Java tests only"
 	@echo "  test-codeinfo      - Run codeinfo tests only"
+	@echo "  test-codeinfo-native - Compare codeinfo native binary with JAR"
 	@echo "  test-codeanalysis  - Run codeanalysis tests only"
 	@echo "  test-quick         - Run quick tests (codeanalysis)"
 	@echo "  test-codescan      - Run CodeScan tests only"

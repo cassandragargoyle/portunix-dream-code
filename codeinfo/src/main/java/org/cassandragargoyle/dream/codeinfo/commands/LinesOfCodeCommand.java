@@ -7,10 +7,14 @@ package org.cassandragargoyle.dream.codeinfo.commands;
 import org.cassandragargoyle.dream.codeinfo.analyzers.JavaLocAnalyzer;
 import org.cassandragargoyle.dream.codeinfo.analyzers.LocResult;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Spec;
 
 import java.io.File;
+import java.io.PrintWriter;
+import java.nio.charset.MalformedInputException;
 import java.util.concurrent.Callable;
 
 /**
@@ -22,6 +26,13 @@ import java.util.concurrent.Callable;
     mixinStandardHelpOptions = true
 )
 public class LinesOfCodeCommand implements Callable<Integer> {
+
+    static final int EXIT_OK = 0;
+    static final int EXIT_ERROR = 1;
+    static final int EXIT_INVALID_INPUT = 2;
+
+    @Spec
+    private CommandSpec spec;
 
     @Parameters(
         index = "0",
@@ -37,48 +48,66 @@ public class LinesOfCodeCommand implements Callable<Integer> {
 
     @Override
     public Integer call() {
+        // Use picocli writers so output can be redirected in tests
+        PrintWriter out = spec.commandLine().getOut();
+        PrintWriter err = spec.commandLine().getErr();
+
         try {
             // Validate file exists
             if (!sourceFile.exists()) {
-                System.err.println("Error: File not found: " + sourceFile.getPath());
-                return 2;
+                err.println("Error: File not found: " + sourceFile.getPath());
+                return EXIT_INVALID_INPUT;
+            }
+
+            // Validate path is a regular file
+            if (!sourceFile.isFile()) {
+                err.println("Error: Not a regular file: " + sourceFile.getPath());
+                return EXIT_INVALID_INPUT;
             }
 
             // Validate file is readable
             if (!sourceFile.canRead()) {
-                System.err.println("Error: File is not readable: " + sourceFile.getPath());
-                return 2;
+                err.println("Error: File is not readable: " + sourceFile.getPath());
+                return EXIT_INVALID_INPUT;
             }
 
             // Validate file is a Java file
             if (!sourceFile.getName().endsWith(".java")) {
-                System.err.println("Error: File must be a Java source file (.java): " + sourceFile.getPath());
-                return 2;
+                err.println("Error: File must be a Java source file (.java): " + sourceFile.getPath());
+                return EXIT_INVALID_INPUT;
             }
 
             // Analyze file
             JavaLocAnalyzer analyzer = new JavaLocAnalyzer();
             LocResult result = analyzer.analyze(sourceFile);
 
+            if (result.hasParseErrors()) {
+                err.println("Warning: " + sourceFile.getName()
+                        + " has syntax errors, counts are based on lexical analysis only");
+            }
+
             // Output results
             if (verbose) {
-                System.out.println("Analyzed: " + sourceFile.getName());
-                System.out.println("Total lines: " + result.getTotalLines());
-                System.out.println("Code lines: " + result.getCodeLines());
-                System.out.println("Comment lines: " + result.getCommentLines());
-                System.out.println("Empty lines: " + result.getEmptyLines());
+                out.println("Analyzed: " + sourceFile.getName());
+                out.println("Total lines: " + result.getTotalLines());
+                out.println("Code lines: " + result.getCodeLines());
+                out.println("Comment lines: " + result.getCommentLines());
+                out.println("Empty lines: " + result.getEmptyLines());
             } else {
-                System.out.println(result.getCodeLines() + " lines of code in " + sourceFile.getName());
+                out.println(result.getCodeLines() + " lines of code in " + sourceFile.getName());
             }
 
-            return 0;
+            return EXIT_OK;
 
+        } catch (MalformedInputException e) {
+            err.println("Error: File is not valid UTF-8 text: " + sourceFile.getPath());
+            return EXIT_INVALID_INPUT;
         } catch (Exception e) {
-            System.err.println("Error analyzing file: " + e.getMessage());
+            err.println("Error analyzing file: " + e.getMessage());
             if (verbose) {
-                e.printStackTrace(System.err);
+                e.printStackTrace(err);
             }
-            return 1;
+            return EXIT_ERROR;
         }
     }
 }
