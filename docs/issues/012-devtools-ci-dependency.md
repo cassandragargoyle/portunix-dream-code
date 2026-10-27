@@ -51,6 +51,19 @@ The bridge uses only four classes from the library (package
 The choice is a decision for this issue (architect / tech lead). Option C is the
 smallest change if the bridge is the only user of these classes in this repository.
 
+### Decision
+
+Option C. Option A would also need `org-cassandragargoyle-api` and `dream-code-core`
+in GitHub Packages, because `dream-code-devtools` depends on them.
+
+- The bridge uses six types, not four: also the interface `Rule` and the nested types
+  `CommentAnnotationIssue.AnnotationData` and `RuleFindCommentAnnotations.AnnotationType`
+- They are copied with the same names and behavior into
+  `org.cassandragargoyle.portunix.codeanalysis.codescan.devtools`
+- `javaparser-core` (3.27.1, the version that came through the library) is now a
+  direct dependency of the bridge
+- Known limitation: a change in the library must be copied into the bridge by hand
+
 ## Scope
 
 1. Make the dependency resolvable on a clean runner (option chosen above)

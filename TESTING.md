@@ -107,17 +107,25 @@ A failing build or test makes the check red.
 | --- | ------- | ------ |
 | Java (codeinfo) | `make build-java`, `make test-java` | Maven build and JUnit tests |
 | Go (codeanalysis) | `make test-go` | `go vet`, `go build`, `go test` |
-| Java bridge (SonarLint) | `make -C codeanalysis/bridges build-sonarlint test-sonarlint` | Bridge build and JUnit tests |
+| Java bridges (SonarLint, CodeScan) | `make -C codeanalysis/bridges build test` | Bridge builds and JUnit tests |
+| Python quick tests (codeanalysis) | `make -C codeanalysis/bridges build-codescan`, `make test-quick` | pytest quick tests against the CodeScan bridge JAR |
 
-Maven and Go module caches are enabled.
+Maven, Go module and uv caches are enabled.
+
+The Python job sets `PTX_REQUIRE_BRIDGES=1`. With this variable a missing bridge JAR or
+Java fails the test instead of skipping it, so the job cannot be green without running
+the tests. Without the variable (local runs) the tests are skipped as before.
+
+The CodeScan bridge needs no private dependency. The classes it used from
+`dream-code-devtools` are copied into the package
+`org.cassandragargoyle.portunix.codeanalysis.codescan.devtools` (issue #12); changes in
+the library must be copied there by hand.
 
 ### Manual checks (not in CI)
 
 Run these locally before a release or when you change the related code:
 
-- CodeScan bridge and Python tests (`make test-codeanalysis`, `make test-quick`,
-  `make test-codescan`) – the bridge depends on `dream-code-devtools`, which is not
-  in a public Maven repository
+- Full Python test suite (`make test-codeanalysis`, `make test-codescan`)
 - GraalVM native image (`make build-codeinfo-native`, `make test-codeinfo-native`)
 - Coverage gate (`make coverage-codeinfo`)
 - Windows and macOS

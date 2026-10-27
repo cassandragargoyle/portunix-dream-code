@@ -100,6 +100,7 @@
     </dependency>
   </dependencies>
   <properties>
+    <javaparser.version>3.27.1</javaparser.version>
     <maven.compiler.source>21</maven.compiler.source>
     <jackson.version>2.16.1</jackson.version>
     <maven.compiler.target>21</maven.compiler.target>

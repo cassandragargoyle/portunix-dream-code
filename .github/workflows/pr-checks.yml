@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 # Basic checks for pull requests and pushes to main (issue #10)
 # Scope and manual checks: see TESTING.md, section "Continuous Integration"
 name: PR checks
@@ -62,7 +63,7 @@ jobs:
         run: make test-go
 
   bridge:
-    name: Java bridge (SonarLint)
+    name: Java bridges (SonarLint, CodeScan)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -74,8 +75,40 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: maven
-          cache-dependency-path: codeanalysis/bridges/sonarlint/pom.xml
+          cache-dependency-path: |
+            codeanalysis/bridges/sonarlint/pom.xml
+            codeanalysis/bridges/codescan/pom.xml
 
-      # CodeScan bridge is skipped: dream-code-devtools is not in a public repository
       - name: Build and test
-        run: make -C codeanalysis/bridges build-sonarlint test-sonarlint
+        run: make -C codeanalysis/bridges build test
+
+  python:
+    name: Python quick tests (codeanalysis)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      # Missing bridge or Java fails the tests instead of skipping them
+      PTX_REQUIRE_BRIDGES: '1'
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          cache-dependency-path: codeanalysis/bridges/codescan/pom.xml
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      # Quick tests use the CodeScan bridge only
+      - name: Build CodeScan bridge
+        run: make -C codeanalysis/bridges build-codescan
+
+      - name: Quick tests
+        run: make test-quick

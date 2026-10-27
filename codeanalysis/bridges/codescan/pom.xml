@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-License-Identifier: MIT -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
@@ -23,6 +24,7 @@
         <slf4j.version>2.0.9</slf4j.version>
         <logback.version>1.4.14</logback.version>
         <picocli.version>4.7.7</picocli.version>
+        <javaparser.version>3.27.1</javaparser.version>
         <junit.version>5.10.1</junit.version>
     </properties>
 
@@ -54,11 +56,11 @@
             <version>${logback.version}</version>
         </dependency>
 
-        <!-- Dream Code Devtools - code analysis library -->
+        <!-- Java parser for comment-only annotation detection -->
         <dependency>
-            <groupId>org.cassandragargoyle.dream-code</groupId>
-            <artifactId>dream-code-devtools</artifactId>
-            <version>1.0.0.4-SNAPSHOT</version>
+            <groupId>com.github.javaparser</groupId>
+            <artifactId>javaparser-core</artifactId>
+            <version>${javaparser.version}</version>
         </dependency>
 
         <!-- Testing -->

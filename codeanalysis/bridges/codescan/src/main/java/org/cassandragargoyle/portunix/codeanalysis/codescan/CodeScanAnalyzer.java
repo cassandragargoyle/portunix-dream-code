@@ -1,4 +1,5 @@
 /*
+ *  SPDX-License-Identifier: MIT
  *  This file is part of CassandraGargoyle Community Project
  *  Licensed under the MIT License - see LICENSE file for details
  */
@@ -6,13 +7,13 @@ package org.cassandragargoyle.portunix.codeanalysis.codescan;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
-import org.cassandragargoyle.devtools.code.ClientFile;
-import org.cassandragargoyle.devtools.code.CodeIssue;
-import org.cassandragargoyle.devtools.code.CommentAnnotationIssue;
-import org.cassandragargoyle.devtools.code.RuleFindCommentAnnotations;
 import org.cassandragargoyle.portunix.codeanalysis.codescan.AnalyzeCommand.AnalysisIssue;
 import org.cassandragargoyle.portunix.codeanalysis.codescan.AnalyzeCommand.AnalysisRequest;
 import org.cassandragargoyle.portunix.codeanalysis.codescan.AnalyzeCommand.PatternConfig;
+import org.cassandragargoyle.portunix.codeanalysis.codescan.devtools.ClientFile;
+import org.cassandragargoyle.portunix.codeanalysis.codescan.devtools.CodeIssue;
+import org.cassandragargoyle.portunix.codeanalysis.codescan.devtools.CommentAnnotationIssue;
+import org.cassandragargoyle.portunix.codeanalysis.codescan.devtools.RuleFindCommentAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

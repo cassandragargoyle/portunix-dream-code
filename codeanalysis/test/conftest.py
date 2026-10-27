@@ -1,11 +1,23 @@
+# SPDX-License-Identifier: MIT
 """
 pytest configuration and shared fixtures for codeanalysis tests.
 """
 
+import os
 import pytest
 import subprocess
 import json
 from pathlib import Path
+
+# Set in CI: a missing bridge or Java fails the test instead of skipping it
+REQUIRE_BRIDGES = os.environ.get("PTX_REQUIRE_BRIDGES") == "1"
+
+
+def _missing(reason: str):
+    """Skip the test, or fail it when PTX_REQUIRE_BRIDGES=1."""
+    if REQUIRE_BRIDGES:
+        pytest.fail(f"{reason} (PTX_REQUIRE_BRIDGES=1)")
+    pytest.skip(reason)
 
 
 @pytest.fixture(scope="session")
@@ -25,7 +37,7 @@ def codescan_bridge(project_root):
     """CodeScan bridge JAR path fixture."""
     jar_path = project_root / "bridges" / "codescan" / "target" / "ptx-codescan-bridge.jar"
     if not jar_path.exists():
-        pytest.skip(f"CodeScan bridge not found at {jar_path}. Run 'make build-bridge' first.")
+        _missing(f"CodeScan bridge not found at {jar_path}. Run 'make build-bridge' first.")
     return jar_path
 
 
@@ -34,7 +46,7 @@ def sonarlint_bridge(project_root):
     """SonarLint bridge JAR path fixture."""
     jar_path = project_root / "bridges" / "sonarlint" / "target" / "ptx-sonarlint-bridge.jar"
     if not jar_path.exists():
-        pytest.skip(f"SonarLint bridge not found at {jar_path}. Run 'make build-bridge' first.")
+        _missing(f"SonarLint bridge not found at {jar_path}. Run 'make build-bridge' first.")
     return jar_path
 
 
@@ -44,10 +56,10 @@ def java_available():
     try:
         result = subprocess.run(["java", "-version"], capture_output=True)
         if result.returncode != 0:
-            pytest.skip("Java is not available")
+            _missing("Java is not available")
         return True
     except FileNotFoundError:
-        pytest.skip("Java is not installed")
+        _missing("Java is not installed")
 
 
 def run_bridge(jar_path: Path, command: str, input_data: dict) -> dict:
