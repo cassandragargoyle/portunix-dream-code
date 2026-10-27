@@ -6,8 +6,9 @@
 **Date**: 2026-10-27
 **Tester role**: QA/Test Engineer
 **STATUS**: PASS
-**Approval for merge**: YES, after the first real GitHub run on the PR is green (all four
-checks); no blocking findings; P1, P3, P4, P5 are fixed in `92066a3` and re-tested
+**Approval for merge**: YES, as an exception — merged directly into `main` before a real
+GitHub run (approved by the user); the first run on `main` after the merge must be green
+(all four checks); no blocking findings; P1, P3, P4, P5 are fixed in `92066a3` and re-tested
 (see [Re-test of `92066a3`](#re-test-of-92066a3)); P8 is fixed in `17b292c` and re-tested (see
 [Re-test of `17b292c`](#re-test-of-17b292c)); P2, P9, P10 are fixed in `9176012` and
 re-tested (see [Re-test of `9176012`](#re-test-of-9176012)); P11, P12, P13 are fixed in `55c6d50` and
