@@ -176,6 +176,12 @@ def create_codeanalysis_release(version: str, target_os: str, target_arch: str) 
         shutil.copy2(readme_src, plugin_dist / "README.md")
         print_info("Copied: README.md")
 
+    # Copy LICENSE (MIT requires the notice in all copies)
+    license_src = project_root / "LICENSE"
+    if license_src.exists():
+        shutil.copy2(license_src, plugin_dist / "LICENSE")
+        print_info("Copied: LICENSE")
+
     # Copy plugin.json
     plugin_json_src = plugin_dir / "plugin.json"
     if plugin_json_src.exists():
@@ -280,6 +286,12 @@ def create_codeinfo_release(version: str, target_os: str, target_arch: str) -> b
         shutil.copy2(readme_src, plugin_dist / "README.md")
         print_info("Copied: README.md")
 
+    # Copy LICENSE (MIT requires the notice in all copies)
+    license_src = project_root / "LICENSE"
+    if license_src.exists():
+        shutil.copy2(license_src, plugin_dist / "LICENSE")
+        print_info("Copied: LICENSE")
+
     # Copy plugin.json
     plugin_json_src = plugin_dir / "plugin.json"
     if plugin_json_src.exists():
@@ -379,6 +391,7 @@ Fast code analysis tool powered by GraalVM Native Image.
 ptx-codeinfo-{version}/
 ├── {binary_info.split()[0]}
 ├── plugin.json
+├── LICENSE
 └── README.md
 ```
 
@@ -456,6 +469,7 @@ ptx-codeanalysis-{version}/
 ├── defaults/
 │   └── sample.ptxcode                # Sample configuration
 ├── plugin.json                       # Plugin manifest
+├── LICENSE                           # MIT License
 └── README.md                         # Documentation
 ```
 
