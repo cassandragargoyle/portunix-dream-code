@@ -5,6 +5,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- JavaParser 3.27.1 -> 3.28.2 (same line counts on 330 JDK and fixture files, native image
+  works without extra configuration)
+
 ## [1.1.0] - 2026-10-27
 
 ### Added

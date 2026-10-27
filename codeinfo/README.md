@@ -234,7 +234,7 @@ java -jar codeinfo/target/ptx-codeinfo.jar loc codeinfo/testdata/Sample.java
 This tool uses:
 
 - **Picocli 4.7.7** for CLI parsing and command structure (excellent GraalVM support)
-- **JavaParser 3.27.1** for Java source code parsing and AST analysis
+- **JavaParser 3.28.2** for Java source code parsing and AST analysis
 - **GraalVM Community Edition** for ahead-of-time compilation to native binary
 
 Flow of `ptx-codeinfo loc <file>`:

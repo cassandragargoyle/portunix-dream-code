@@ -26,7 +26,7 @@ Picocli has first-class support for GraalVM Native Image:
 
 **Build Configuration**: Already configured in `pom.xml` with annotation processor
 
-### JavaParser 3.27.1 - ✅ Works Without Extra Configuration
+### JavaParser 3.28.2 - ✅ Works Without Extra Configuration
 
 JavaParser uses reflection in its language level validators (`PropertyMetaModel.getValue`).
 In a native image these fail with `NoSuchFieldError` because the AST fields are not
