@@ -2,7 +2,7 @@
 
 **Issue**: #12 — Make dream-code-devtools available to CI for the CodeScan bridge
 **Branch**: `feature/012-devtools-ci-dependency`
-**Tested commit**: `44ef9cf`, re-test of the finding fixes on `92066a3`, `17b292c`, `9176012`, `55c6d50` and `fc7dc19`
+**Tested commit**: `44ef9cf`, re-test of the finding fixes on `92066a3`, `17b292c`, `9176012`, `55c6d50`, `fc7dc19` and `38cd02b`
 **Date**: 2026-10-27
 **Tester role**: QA/Test Engineer
 **STATUS**: PASS
@@ -12,7 +12,7 @@ checks); no blocking findings; P1, P3, P4, P5 are fixed in `92066a3` and re-test
 [Re-test of `17b292c`](#re-test-of-17b292c)); P2, P9, P10 are fixed in `9176012` and
 re-tested (see [Re-test of `9176012`](#re-test-of-9176012)); P11, P12, P13 are fixed in `55c6d50` and
 `fc7dc19` and re-tested (see [Re-test of `55c6d50` and `fc7dc19`](#re-test-of-55c6d50-and-fc7dc19));
-no finding is open
+P14 is fixed in `38cd02b` and re-tested (see [Re-test of `38cd02b`](#re-test-of-38cd02b)); no finding is open
 
 ## Scope
 
@@ -170,7 +170,7 @@ No blocking findings.
 | P11 | Low | Release archives from `scripts/make-release.py` contain the binary, the bridge JARs, `README.md` and `plugin.json`, but not `LICENSE`. The MIT License requires the notice in all copies. Suggestion: copy `LICENSE` into the archive. **Fixed** in `55c6d50` (R30, R31) |
 | P12 | Info | Existing files still have older headers: 5 Java files have the MIT text without the SPDX line, 15 Go files have no header. The license is consistent (MIT); adding SPDX is a cleanup for a separate change. **Fixed** in `fc7dc19`: all 39 Java and Go source files have the MIT header with SPDX (R33) |
 | P13 | Low | Existing defect, found by the developer during the P11 fix: the archive filter skipped every `.md` and `.txt` file, so `README.md` was not in any release archive, although the release notes list it. **Fixed** in `fc7dc19`: new `is_package_file()` skips only archives, `checksums_*` and `RELEASE_NOTES_*` in the package root (R30, R32) |
-| P14 | Info | `gofmt -l` lists four Go files (`config.go`, `validator_test.go`, `codescan.go`, `sonarlint.go`, struct tag alignment). They were unformatted before this branch; the headers add no new case (R34) |
+| P14 | Info | `gofmt -l` lists four Go files (`config.go`, `validator_test.go`, `codescan.go`, `sonarlint.go`, struct tag alignment). They were unformatted before this branch; the headers add no new case (R34). **Fixed** in `38cd02b`: `gofmt -w`, whitespace only (R40-R44) |
 
 ## Re-test of `92066a3`
 
@@ -239,6 +239,18 @@ were built in a throwaway worktree, so the local `dist/` was not touched.
 | R35 | Two more codeinfo releases in a row: the archive still has 4 files, `sha256sum -c` passes | PASS |
 | R36 | Clean worktree: `make build`, `make test`, `make test-go`; tree clean afterwards | PASS, JUnit 76/76, bridges 3/3 and 9/9, pytest 12/12 |
 | R37 | Full workflow with `act` | PASS, all four jobs green, 77 s |
+
+## Re-test of `38cd02b`
+
+The commit runs `gofmt -w` on the four files from P14.
+
+| ID | Given / When / Then | Result |
+| --- | --- | --- |
+| R40 | Given the diff to `7c11a08`, then it changes only the four files and `git diff -w` is empty (whitespace only) | PASS, 14 lines changed, 0 non-whitespace lines |
+| R41 | When the binary is built with `-trimpath` from `7c11a08` and from `38cd02b`, then both binaries are identical | PASS, same SHA-256 |
+| R42 | `gofmt -l codeanalysis` reports nothing; `make test-go` passes | PASS |
+| R43 | Clean worktree: `make build`, `make test` | PASS, JUnit 76/76, bridges 3/3 and 9/9, pytest 12/12 |
+| R44 | Go job with `act` | PASS |
 
 ## CI Notes
 
