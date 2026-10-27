@@ -111,6 +111,17 @@ def calculate_sha256(file_path: Path) -> str:
     return sha256_hash.hexdigest()
 
 
+def is_package_file(item: Path, plugin_dist: Path) -> bool:
+    """Check if a file belongs into the archive (not archives, checksums or release notes)"""
+    if not item.is_file():
+        return False
+    if item.parent != plugin_dist:
+        return True
+    name = item.name
+    return not (name.endswith(('.tar.gz', '.zip'))
+                or name.startswith(('checksums_', 'RELEASE_NOTES_')))
+
+
 def create_codeanalysis_release(version: str, target_os: str, target_arch: str) -> bool:
     """Create release for codeanalysis hybrid plugin (Go + Java bridges)"""
     project_root = get_project_root()
@@ -205,7 +216,7 @@ def create_codeanalysis_release(version: str, target_os: str, target_arch: str) 
     tar_path = plugin_dist / f"{archive_filename}.tar.gz"
     with tarfile.open(tar_path, "w:gz") as tar:
         for item in plugin_dist.rglob("*"):
-            if item.is_file() and not item.name.endswith(('.tar.gz', '.zip', '.txt', '.md')):
+            if is_package_file(item, plugin_dist):
                 arcname = f"{archive_dir}/{item.relative_to(plugin_dist)}"
                 tar.add(item, arcname=arcname)
     print_info(f"Created: {tar_path.name}")
@@ -214,7 +225,7 @@ def create_codeanalysis_release(version: str, target_os: str, target_arch: str) 
     zip_path = plugin_dist / f"{archive_filename}.zip"
     with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
         for item in plugin_dist.rglob("*"):
-            if item.is_file() and not item.name.endswith(('.tar.gz', '.zip', '.txt', '.md')):
+            if is_package_file(item, plugin_dist):
                 arcname = f"{archive_dir}/{item.relative_to(plugin_dist)}"
                 zipf.write(item, arcname)
     print_info(f"Created: {zip_path.name}")
@@ -314,7 +325,7 @@ def create_codeinfo_release(version: str, target_os: str, target_arch: str) -> b
     tar_path = plugin_dist / f"{archive_filename}.tar.gz"
     with tarfile.open(tar_path, "w:gz") as tar:
         for item in plugin_dist.rglob("*"):
-            if item.is_file() and not item.name.endswith(('.tar.gz', '.zip', '.txt', '.md')):
+            if is_package_file(item, plugin_dist):
                 arcname = f"{archive_dir}/{item.relative_to(plugin_dist)}"
                 tar.add(item, arcname=arcname)
     print_info(f"Created: {tar_path.name}")
@@ -323,7 +334,7 @@ def create_codeinfo_release(version: str, target_os: str, target_arch: str) -> b
     zip_path = plugin_dist / f"{archive_filename}.zip"
     with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
         for item in plugin_dist.rglob("*"):
-            if item.is_file() and not item.name.endswith(('.tar.gz', '.zip', '.txt', '.md')):
+            if is_package_file(item, plugin_dist):
                 arcname = f"{archive_dir}/{item.relative_to(plugin_dist)}"
                 zipf.write(item, arcname)
     print_info(f"Created: {zip_path.name}")
