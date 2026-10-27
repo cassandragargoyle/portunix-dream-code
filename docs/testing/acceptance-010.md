@@ -2,12 +2,12 @@
 
 **Issue**: #10 — Add basic CI checks for pull requests
 **Branch**: `feature/010-ci-pr-checks`
-**Tested commit**: `ae72504`
+**Tested commit**: `ae72504`, re-test of the finding fixes on `8deb485`
 **Date**: 2026-10-27
 **Tester role**: QA/Test Engineer
 **STATUS**: PASS (local simulation)
 **Approval for merge**: CONDITIONAL — after the first real run on GitHub is green (see
-[Not Tested](#not-tested)); findings P1-P3 are recommended but do not block
+[Not Tested](#not-tested)); findings P1-P3 are fixed in `8deb485` and re-tested
 
 ## Scope
 
@@ -110,12 +110,29 @@ No blocking findings.
 
 | ID | Severity | Finding |
 | --- | --- | --- |
-| P1 | Low | `make test-go` is missing in the "Test Commands" table of `TESTING.md` and in `codeanalysis/TESTING.md` |
-| P2 | Low | Both Java jobs use the same Maven cache key (hash of all `pom.xml` files). On GitHub only the first job saves the cache, so the other job's dependencies are not cached. Fix: `cache-dependency-path` per job (`pom.xml` + `codeinfo/pom.xml`, and `codeanalysis/bridges/sonarlint/pom.xml`) |
-| P3 | Low | `cancel-in-progress: true` also applies to pushes to `main`: two quick pushes cancel the run of the first commit, so it gets no result. Suggestion: `cancel-in-progress: ${{ github.event_name == 'pull_request' }}` |
+| P1 | Low | `make test-go` is missing in the "Test Commands" table of `TESTING.md` and in `codeanalysis/TESTING.md`. **Fixed** in `8deb485` (R01) |
+| P2 | Low | Both Java jobs use the same Maven cache key (hash of all `pom.xml` files). On GitHub only the first job saves the cache, so the other job's dependencies are not cached. Fix: `cache-dependency-path` per job (`pom.xml` + `codeinfo/pom.xml`, and `codeanalysis/bridges/sonarlint/pom.xml`). **Fixed** in `8deb485` (R03, R04) |
+| P3 | Low | `cancel-in-progress: true` also applies to pushes to `main`: two quick pushes cancel the run of the first commit, so it gets no result. Suggestion: `cancel-in-progress: ${{ github.event_name == 'pull_request' }}`. **Fixed** in `8deb485` (R02) |
 | P4 | Info | Maven comes from the runner image and is not pinned; a change of the image can change the Maven version. `MAVEN_ARGS` needs Maven 3.9+ |
 | P5 | Info | CI uses Go 1.21.13 (minimum from `go.mod`, end of life), developers use newer Go (1.26 here). This checks the declared minimum, which is good; raising `go` in `go.mod` is a separate decision |
 | P6 | Info | Under `act` (root) one JUnit test is skipped; on GitHub the job runs as user `runner`, so the test runs there |
+
+## Re-test of `8deb485`
+
+The commit fixes P1, P2 and P3. It changes only `pr-checks.yml`, `TESTING.md` and
+`codeanalysis/TESTING.md`. Simulation setup as above (`node20` action versions, image
+with Maven 3.9).
+
+| ID | Given / When / Then | Result |
+| --- | --- | --- |
+| R01 | Given `TESTING.md` and `codeanalysis/TESTING.md`, then `make test-go` is in the command table and in both command lists; `make -C codeanalysis test-go` passes | PASS |
+| R02 | When `actionlint` checks the workflow, then no errors; `cancel-in-progress` is `${{ github.event_name == 'pull_request' }}` | PASS (runtime behavior on `main` not testable before merge) |
+| R03 | Given an empty cache, when the workflow runs, then all three jobs succeed and the two Java jobs save different Maven keys (`982b…` bridge, `b684…` codeinfo) | PASS, 77 s |
+| R04 | Given the cache from R03, when the workflow runs again, then each Java job restores its own key; codeinfo build 31.6 s → 5.6 s, bridge 20.6 s → 6.3 s | PASS, 50 s |
+| R05 | Given FI1 + FI3 + FI6 at once, when the workflow runs, then all three jobs fail with the injected cause | PASS, 37 s |
+
+The cold run is faster than TC20 because the JDK and Go downloads were already in the
+local `act` tool cache; GitHub run times will differ.
 
 ## CI Notes
 
@@ -130,6 +147,7 @@ No blocking findings.
 - A real run on GitHub: opening the draft PR was not allowed in this session. Needed
   before merge: open the draft PR, check that all three checks are green, push one
   failing commit to see a red check, then remove it
+- The cancellation rule from P3 on `main` (only after merge)
 - The actual action versions `checkout@v5`, `setup-java@v5`, `setup-go@v6` (`node24`)
 - The `push` to `main` trigger (only after merge)
 - Branch protection (admin setting)
