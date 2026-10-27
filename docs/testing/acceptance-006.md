@@ -2,12 +2,11 @@
 
 **Issue**: #6 — Implement Standard Portunix Helper Parameters for ptx-codeinfo
 **Branch**: `feature/006-codeinfo-standard-params`
-**Tested commit**: `ca89ea1`
+**Tested commit**: `ca89ea1`, re-test of the finding fixes on `07b8e0a`
 **Date**: 2026-10-27
 **Tester role**: QA/Test Engineer
 **STATUS**: PASS
-**Approval for merge**: YES (finding P1 should be fixed before the merge; it changes only
-`CHANGELOG.md` and needs no re-test)
+**Approval for merge**: YES (findings P1, P2 and P5 are fixed in `07b8e0a` and re-tested)
 
 ## Scope
 
@@ -73,7 +72,7 @@ includes it through `resource-config.json`. `--help-ai` uses the same version.
 | --- | --- | --- |
 | X1 | When `loc --help`, then the `loc` usage, exit 0 | PASS |
 | X2 | When `help loc`, then the `loc` usage, exit 0 | PASS |
-| X3 | When `loc --version`, then an error was expected; it prints nothing and exits 0 | See P2 |
+| X3 | When `loc --version`, then an error was expected; it prints nothing and exits 0 | See P2, fixed in R03 |
 | X4 | When `--list-commands loc` (no file), then `loc`, exit 0 | PASS |
 | X5 | When `--description --bogus`, then an error was expected; it prints the description and exits 0 | See P3 |
 | X6 | When `-hv`, then usage, exit 0 | PASS |
@@ -137,17 +136,34 @@ No regressions. None of the findings blocks the merge.
 
 | ID | Severity | Finding |
 | --- | --- | --- |
-| P1 | Low | `codeinfo/CHANGELOG.md` is not updated: the new flags, the new `--version` format, and the removed `-V` alias are not listed; fix before the merge |
-| P2 | Low | `loc --version` prints nothing and exits 0, because `loc` uses `mixinStandardHelpOptions` without a version; same on `main`, outside the scope of #6 |
+| P1 | Low | `codeinfo/CHANGELOG.md` is not updated: the new flags, the new `--version` format, and the removed `-V` alias are not listed. **Fixed** in `07b8e0a` (R06) |
+| P2 | Low | `loc --version` prints nothing and exits 0, because `loc` uses `mixinStandardHelpOptions` without a version; same on `main`. **Fixed** in `07b8e0a` (R03) |
 | P3 | Info | Help flags ignore unknown options (`--description --bogus` exits 0); picocli behavior, same as `--version` and `--help-ai` on `main` |
 | P4 | Info | `-V` (picocli default) is no longer accepted; it was not documented, and Portunix uses `--version` |
-| P5 | Low | `test-codeinfo-native.sh` merges stdout and stderr, so it does not detect output on the wrong stream; the unit tests and the black-box run in this protocol cover it |
+| P5 | Low | `test-codeinfo-native.sh` merges stdout and stderr, so it does not detect output on the wrong stream. **Fixed** in `07b8e0a` (R05) |
+
+## Re-test of `07b8e0a`
+
+The commit fixes P1, P2 and P5: `loc` has an explicit `-h/--help` instead of
+`mixinStandardHelpOptions` (no empty `-V/--version`), the native check script compares
+stdout and stderr separately, and `CHANGELOG.md` lists the changes.
+
+| ID | Given / When / Then | Result |
+| --- | --- | --- |
+| R01 | When `make build`, `make test`, `make coverage-codeinfo`, then JUnit 76/76, pytest 12/12, coverage 97.3% (`LinesOfCodeCommand` 42/42 lines, 14/14 branches) | PASS |
+| R02 | When `make build-codeinfo-native` and `make test-codeinfo-native`, then 23/23 cases match (new: `loc --help`, `loc --version`) | PASS |
+| R03 | When `loc --version` and `loc -V`, then empty stdout, error on stderr, exit 2 (native and JAR); without a file picocli reports `Missing required parameter` first, with a file `Unknown option: '--version'`, the same order as for `loc --bogus` | PASS |
+| R04 | When `loc -h` and `loc --help`, then the same usage `ptx-codeinfo loc [-hv] <sourceFile>` without `--version`, exit 0; `loc -v` and `loc --verbose` still show the breakdown | PASS |
+| R05 | Given a wrapper that sends the native stderr to stdout, when `make test-codeinfo-native`, then the 6 cases with stderr output fail; after restore all match | PASS |
+| R06 | Given `CHANGELOG.md`, then Added, Changed, Removed and Fixed match the tested behavior, sections in Keep a Changelog order | PASS |
+| R07 | Black-box T1-T9 and X1-X15 outside the module directory: native and JAR give the same results, all PASS except X5 (P3, by design) | PASS |
+| R08 | Given the `main` JAR and the branch JAR, when `loc` runs on 12 inputs without `-v`, with `-v` and with `--verbose` (36 cases, stdout and stderr compared separately), then 0 differences | PASS |
 
 ## CI Notes
 
 - The JUnit and coverage gates run without GraalVM; the native comparison needs
   `GRAALVM_HOME` (about 15 s build) and fits a separate job (#10)
-- Recommendation: keep stdout and stderr apart in `test-codeinfo-native.sh` (P5)
+- `test-codeinfo-native.sh` now compares stdout and stderr separately (P5)
 
 ## Not Tested
 
