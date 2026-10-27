@@ -6,11 +6,12 @@ Pull requests currently run no automated checks. Add a lightweight GitHub Action
 workflow that builds the Java modules and codeanalysis and runs the fast test suites
 on every PR to `main`, so that broken builds or failing tests are visible before merge.
 
-**Status**: 📋 Open
+**Status**: ✅ Implemented
 **Type**: enhancement
 **Priority**: medium
 **Component**: build / CI
 **Created**: 2026-10-26
+**Closed**: 2026-10-27
 **GitHub**: #10
 **Related**: #2 (Phase 6 CI was out of scope), #9
 
@@ -51,14 +52,18 @@ Jobs may run in parallel. All commands go through `make` where a target exists
 
 ## Acceptance Criteria
 
-1. Workflow runs automatically on every PR to `main` and on push to `main`
-2. A failing build or test makes the check red
-3. A clean PR makes the check green
-4. Full run takes less than 10 minutes
-5. `make test-go` exists in `codeanalysis/Makefile` and is listed in `make help`
-6. `TESTING.md` (or `README.md`) describes what CI checks and what stays manual
-7. The issue notes a recommendation to enable branch protection (required checks)
-   on `main` – the setting itself is done by a repository admin
+- [x] 1. Workflow runs automatically on every PR to `main` and on push to `main`
+  (push to `main` verified on GitHub; PR trigger verified with `act`)
+- [x] 2. A failing build or test makes the check red (verified with `act` and failure
+  injection; not yet seen on a real GitHub PR)
+- [x] 3. A clean PR makes the check green (first run on `main` green)
+- [x] 4. Full run takes less than 10 minutes (38 s on GitHub)
+- [x] 5. `make test-go` exists in `codeanalysis/Makefile` and is listed in `make help`
+- [x] 6. `TESTING.md` (or `README.md`) describes what CI checks and what stays manual
+- [x] 7. The issue notes a recommendation to enable branch protection (required checks)
+  on `main` – the setting itself is done by a repository admin (setting not done yet)
+
+Acceptance: [docs/testing/acceptance-010.md](../../testing/acceptance-010.md)
 
 ## Implementation Notes
 

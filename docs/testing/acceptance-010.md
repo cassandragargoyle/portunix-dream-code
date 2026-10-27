@@ -5,9 +5,11 @@
 **Tested commit**: `ae72504`, re-test of the finding fixes on `8deb485`
 **Date**: 2026-10-27
 **Tester role**: QA/Test Engineer
-**STATUS**: PASS (local simulation)
-**Approval for merge**: CONDITIONAL — after the first real run on GitHub is green (see
-[Not Tested](#not-tested)); findings P1-P3 are fixed in `8deb485` and re-tested
+**STATUS**: PASS
+**Approval for merge**: YES, as an exception — merged before a real GitHub run (approved
+by the user); the first run on `main` after the merge is green (see
+[Real Run on GitHub](#real-run-on-github)); findings P1-P3 are fixed in `8deb485` and
+re-tested
 
 ## Scope
 
@@ -134,6 +136,19 @@ with Maven 3.9).
 The cold run is faster than TC20 because the JDK and Go downloads were already in the
 local `act` tool cache; GitHub run times will differ.
 
+## Real Run on GitHub
+
+Run 40510064069, `push` to `main` after the fast-forward merge of `f778cea`, actions
+`checkout@v5`, `setup-java@v5`, `setup-go@v6`. Total 38 s.
+
+| ID | Given / When / Then | Result |
+| --- | --- | --- |
+| G01 | When `f778cea` is pushed to `main`, then the workflow starts automatically | PASS |
+| G02 | `Java (codeinfo)`: build and JUnit 76/76, 0 skipped (the unreadable-file test from P6 runs as user `runner`) | PASS, 33 s |
+| G03 | `Go (codeanalysis)`: Go 1.21.13, vet, build and tests | PASS, 19 s |
+| G04 | `Java bridge (SonarLint)`: build and JUnit 3/3 | PASS, 23 s |
+| G05 | The two Java jobs save separate Maven cache keys (`982b…`, `b684…`), as in R03 | PASS |
+
 ## CI Notes
 
 - Local reproduction: `act pull_request -W .github/workflows/pr-checks.yml` with a runner
@@ -144,10 +159,8 @@ local `act` tool cache; GitHub run times will differ.
 
 ## Not Tested
 
-- A real run on GitHub: opening the draft PR was not allowed in this session. Needed
-  before merge: open the draft PR, check that all three checks are green, push one
-  failing commit to see a red check, then remove it
-- The cancellation rule from P3 on `main` (only after merge)
-- The actual action versions `checkout@v5`, `setup-java@v5`, `setup-go@v6` (`node24`)
-- The `push` to `main` trigger (only after merge)
+- A red check on a real GitHub PR (verified only with `act`); the first PR with a
+  failing change will show it
+- The `pull_request` trigger on GitHub (verified only with `act`)
+- The cancellation rule from P3 on `main` (needs two quick pushes)
 - Branch protection (admin setting)
