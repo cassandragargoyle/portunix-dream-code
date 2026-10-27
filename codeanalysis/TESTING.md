@@ -20,6 +20,7 @@ The environment is located at `../.venv/` and includes pytest.
 
 ```bash
 make test-codeanalysis    # All codeanalysis tests
+make test-go              # Go vet, build and unit tests
 make test-quick           # Quick tests only
 make test-codescan        # CodeScan tests only
 ```
@@ -30,6 +31,7 @@ make test-codescan        # CodeScan tests only
 cd codeanalysis
 
 make test                 # All tests
+make test-go              # Go vet, build and unit tests
 make test-quick           # Quick tests only
 make test-codescan        # CodeScan tests only
 make test-integration     # Integration tests

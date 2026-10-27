@@ -13,7 +13,8 @@ permissions:
 
 concurrency:
   group: pr-checks-${{ github.ref }}
-  cancel-in-progress: true
+  # Cancel outdated PR runs only; every commit on main keeps its result
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   # Batch mode, no download progress in logs (Maven 3.9+)
@@ -33,6 +34,10 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: maven
+          # Own cache key per job, both Java jobs would share one otherwise
+          cache-dependency-path: |
+            pom.xml
+            codeinfo/pom.xml
 
       - name: Build
         run: make build-java
@@ -69,6 +74,7 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: maven
+          cache-dependency-path: codeanalysis/bridges/sonarlint/pom.xml
 
       # CodeScan bridge is skipped: dream-code-devtools is not in a public repository
       - name: Build and test

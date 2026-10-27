@@ -22,6 +22,7 @@ make test-quick
 | `make coverage-codeinfo` | Run codeinfo tests with 95% line coverage gate |
 | `make test-codeinfo-native` | Compare codeinfo native binary with JAR (after `make build-codeinfo-native`) |
 | `make test-codeanalysis` | Run codeanalysis tests only |
+| `make test-go` | Run Go vet, build and unit tests (codeanalysis) |
 | `make test-quick` | Run quick tests (codeanalysis) |
 | `make test-codescan` | Run CodeScan bridge tests |
 
