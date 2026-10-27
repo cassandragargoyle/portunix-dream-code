@@ -15,14 +15,24 @@ if [ ! -x "$NATIVE" ] || [ ! -f "$JAR" ]; then
 fi
 
 FAILED=0
+ERR_FILE=$(mktemp)
+trap 'rm -f "$ERR_FILE"' EXIT
+
+# Run a command and print stdout, stderr and exit code as separate sections
+capture() {
+    local out code
+    out=$("$@" 2>"$ERR_FILE")
+    code=$?
+    printf 'stdout:\n%s\nstderr:\n%s\nexit=%s' "$out" "$(cat "$ERR_FILE")" "$code"
+}
 
 # Run a case with both binaries and compare stdout, stderr and exit code
 check() {
     local name="$1"
     shift
     local native_out jar_out
-    native_out=$("$NATIVE" "$@" 2>&1; echo "exit=$?")
-    jar_out=$(java -jar "$JAR" "$@" 2>&1; echo "exit=$?")
+    native_out=$(capture "$NATIVE" "$@")
+    jar_out=$(capture java -jar "$JAR" "$@")
 
     if [ "$native_out" = "$jar_out" ]; then
         echo "  ✓ $name"
@@ -51,6 +61,8 @@ check "--list-commands" --list-commands
 check "--description" --description
 check "no arguments"
 check "unknown option" --bogus
+check "loc --help" loc --help
+check "loc --version" loc --version
 check "--help-ai" --help-ai
 
 if [ $FAILED -ne 0 ]; then

@@ -180,6 +180,34 @@ class LinesOfCodeCommandTest {
     }
 
     @Test
+    void testCommandShortHelp() {
+        int exitCode = run("loc", "-h");
+
+        assertEquals(LinesOfCodeCommand.EXIT_OK, exitCode);
+        assertTrue(out.toString().contains("Usage: ptx-codeinfo loc"));
+    }
+
+    @Test
+    void testCommandHelpHasNoVersionOption() {
+        run("loc", "--help");
+
+        assertFalse(out.toString().contains("--version"));
+        assertFalse(out.toString().contains("-V"));
+    }
+
+    @Test
+    void testCommandRejectsVersionOption() {
+        // The version is a top-level flag, loc must not print an empty version
+        for (String flag : new String[] {"--version", "-V"}) {
+            out.getBuffer().setLength(0);
+            int exitCode = run("loc", flag);
+
+            assertEquals(CommandLine.ExitCode.USAGE, exitCode, flag);
+            assertEquals("", out.toString(), flag);
+        }
+    }
+
+    @Test
     void testCommandHelpShowsExamplesAndExitCodes() {
         run("loc", "--help");
 

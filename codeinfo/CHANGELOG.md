@@ -13,6 +13,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `loc <file>` command: counts code, comment and empty lines of a Java source file
 - `--verbose` option with a detailed breakdown of line counts
 - `--help-ai` option with machine-readable help in JSON format
+- Standard Portunix helper flags: `-h/--help`, `--list-commands` and `--description`
 - Examples and exit codes in `loc --help`
 - Colored `Error:` and `Warning:` prefixes on terminals (respects `NO_COLOR`)
 - GraalVM Native Image build (`make build-codeinfo-native`)
@@ -26,13 +27,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Native image is built by the Maven profile `native` (`-Pnative`) instead of by default;
   `-DskipNativeBuild` is no longer needed
 - JAR distribution ships `ptx-codeinfo.jar`, matching the fallback in `plugin.json`
+- `--version` prints `ptx-codeinfo version X.Y.Z`; the version comes from `plugin.json`
+  (packaged in the JAR and the native image), so `--version`, `--help-ai` and the
+  distribution archive names always match (was `1.0.2` in the CLI, `1.0.0` in `plugin.json`)
 
 - Lower memory use on large files: the parser no longer stores the token list, and the
   native image limits the young generation to 8 MB (5000 LOC: 110 MB -> 35 MB,
   132 ms -> 58 ms)
 
+### Removed
+
+- `-V` alias of the root `--version` (use `--version` or `-v`)
+- `-V/--version` of the `loc` command, it printed an empty line; use `ptx-codeinfo --version`
+
 ### Fixed
 
+- `ptx-codeinfo --help` and `-h` show the usage instead of `Unknown option` (exit 2)
 - Comment detection is column based, so several comments on one line and comment
   markers inside string literals are classified correctly
 - Files with syntax errors are counted with a warning instead of failing

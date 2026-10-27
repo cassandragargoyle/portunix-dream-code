@@ -30,7 +30,6 @@ import java.util.concurrent.Callable;
         "Code lines include lines with code and a trailing comment.",
         "Empty lines and comment-only lines are not counted as code."
     },
-    mixinStandardHelpOptions = true,
     exitCodeListHeading = "%nExit codes:%n",
     exitCodeList = {
         "0:Success",
@@ -59,6 +58,14 @@ public class LinesOfCodeCommand implements Callable<Integer> {
         description = "Java source file to analyze"
     )
     private File sourceFile;
+
+    // Only help here: the version belongs to the whole helper (ptx-codeinfo --version)
+    @Option(
+        names = {"-h", "--help"},
+        usageHelp = true,
+        description = "Show this help message and exit"
+    )
+    boolean helpRequested;
 
     @Option(
         names = {"-v", "--verbose"},
