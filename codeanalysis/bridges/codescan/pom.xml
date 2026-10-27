@@ -9,7 +9,7 @@
 
     <groupId>org.cassandragargoyle.portunix</groupId>
     <artifactId>ptx-codescan-bridge</artifactId>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>1.1.0</version>
     <packaging>jar</packaging>
 
     <name>Portunix CodeScan Bridge</name>

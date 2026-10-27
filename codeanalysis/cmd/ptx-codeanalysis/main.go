@@ -11,7 +11,7 @@ import (
 	"github.com/cassandragargoyle/portunix-plugins/plugins/codeanalysis/internal/cli"
 )
 
-const version = "1.0.0"
+const version = "1.1.0"
 
 func main() {
 	if err := cli.Execute(version); err != nil {

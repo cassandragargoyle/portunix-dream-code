@@ -12,7 +12,7 @@ import picocli.CommandLine.Option;
 @Command(
     name = "ptx-sonarlint-bridge",
     mixinStandardHelpOptions = true,
-    version = "1.0.0",
+    version = "1.1.0",
     description = "SonarLint bridge for ptx-codeanalysis",
     subcommands = {
         AnalyzeCommand.class,

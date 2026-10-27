@@ -220,8 +220,9 @@ class TestCodeScanBridgeHelp:
 
     @pytest.mark.quick
     @pytest.mark.codescan
-    def test_version_command(self, codescan_bridge, java_available):
-        """Test that version command works."""
+    def test_version_command(self, codescan_bridge, java_available, project_root):
+        """Test that the bridge version matches plugin.json."""
+        plugin_version = json.loads((project_root / "plugin.json").read_text())["version"]
         result = subprocess.run(
             ["java", "-jar", str(codescan_bridge), "--version"],
             capture_output=True,
@@ -229,4 +230,4 @@ class TestCodeScanBridgeHelp:
         )
 
         assert result.returncode == 0
-        assert "1.0.0" in result.stdout
+        assert plugin_version in result.stdout

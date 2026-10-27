@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.cassandragargoyle.portunix-dream-code</groupId>
 	<artifactId>root</artifactId>
-	<version>1.0.0.2-SNAPSHOT</version>
+	<version>1.1.0</version>
 	<packaging>pom</packaging>
 	<name>Portunix Dream Code - Root</name>
 

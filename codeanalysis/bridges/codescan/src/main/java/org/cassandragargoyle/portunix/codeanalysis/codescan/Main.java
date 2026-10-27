@@ -12,7 +12,7 @@ import picocli.CommandLine.Option;
 @Command(
 	name = "ptx-codescan-bridge",
 	mixinStandardHelpOptions = true,
-	version = "1.0.0",
+	version = "1.1.0",
 	description = "CodeScan bridge for code validation - annotations and patterns",
 	subcommands =
 	{
