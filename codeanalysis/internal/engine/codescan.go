@@ -15,10 +15,10 @@ import (
 
 // CodeScan bridge communication structures
 type codeScanRequest struct {
-	Files           []string            `json:"files"`
-	Annotations     []string            `json:"annotations,omitempty"`
-	Patterns        []codeScanPattern   `json:"patterns,omitempty"`
-	SeverityMapping map[string]string   `json:"severityMapping,omitempty"`
+	Files           []string          `json:"files"`
+	Annotations     []string          `json:"annotations,omitempty"`
+	Patterns        []codeScanPattern `json:"patterns,omitempty"`
+	SeverityMapping map[string]string `json:"severityMapping,omitempty"`
 }
 
 type codeScanPattern struct {

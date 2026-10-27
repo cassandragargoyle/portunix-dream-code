@@ -61,10 +61,10 @@ type SonarLintRules struct {
 
 // CodeScanConfig configures CodeScan engine
 type CodeScanConfig struct {
-	Enabled         bool                `yaml:"enabled"`
-	Annotations     []string            `yaml:"annotations,omitempty"`
-	Patterns        []CodeScanPattern   `yaml:"patterns,omitempty"`
-	SeverityMapping map[string]string   `yaml:"severityMapping,omitempty"`
+	Enabled         bool              `yaml:"enabled"`
+	Annotations     []string          `yaml:"annotations,omitempty"`
+	Patterns        []CodeScanPattern `yaml:"patterns,omitempty"`
+	SeverityMapping map[string]string `yaml:"severityMapping,omitempty"`
 }
 
 // CodeScanPattern defines a custom pattern for CodeScan analysis

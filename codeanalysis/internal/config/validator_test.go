@@ -11,9 +11,9 @@ import (
 
 func TestValidateCodeScanConfig(t *testing.T) {
 	tests := []struct {
-		name        string
-		config      *Config
-		expectError bool
+		name          string
+		config        *Config
+		expectError   bool
 		errorContains string
 	}{
 		{

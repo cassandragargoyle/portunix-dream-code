@@ -15,9 +15,9 @@ import (
 
 // SonarLint bridge communication structures
 type sonarLintRequest struct {
-	Files     []string          `json:"files"`
-	Languages []string          `json:"languages,omitempty"`
-	Rules     sonarLintRules    `json:"rules,omitempty"`
+	Files     []string       `json:"files"`
+	Languages []string       `json:"languages,omitempty"`
+	Rules     sonarLintRules `json:"rules,omitempty"`
 }
 
 type sonarLintRules struct {
