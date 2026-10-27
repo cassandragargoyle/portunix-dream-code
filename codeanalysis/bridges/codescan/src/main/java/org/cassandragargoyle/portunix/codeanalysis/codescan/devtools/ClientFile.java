@@ -9,8 +9,6 @@ import java.io.File;
 
 /**
  * Source file processed by a rule.
- *
- * Copied from dream-code-devtools (org.cassandragargoyle.devtools.code), see issue #12.
  */
 public class ClientFile
 {

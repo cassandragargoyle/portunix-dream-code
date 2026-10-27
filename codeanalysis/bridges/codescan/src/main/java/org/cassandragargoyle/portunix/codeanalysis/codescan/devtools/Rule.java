@@ -11,8 +11,6 @@ import java.util.List;
 
 /**
  * Analysis rule executed on a parsed Java compilation unit.
- *
- * Copied from dream-code-devtools (org.cassandragargoyle.devtools.code), see issue #12.
  */
 public interface Rule
 {

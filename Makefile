@@ -1,4 +1,4 @@
-.PHONY: all build build-java build-java-native build-codeinfo build-codeinfo-native build-codeanalysis clean test test-java test-codeinfo test-codeinfo-native coverage-codeinfo test-codeanalysis test-go test-quick test-codescan deps dev loc loc-all loc-file dist dist-codeanalysis dist-codeinfo dist-codeinfo-native release deploy-local undeploy-local help
+.PHONY: all build build-java build-java-native build-codeinfo build-codeinfo-native build-codeanalysis clean test test-java test-codeinfo test-codeinfo-native coverage-codeinfo test-bridges test-codeanalysis test-go test-quick test-codescan deps dev loc loc-all loc-file dist dist-codeanalysis dist-codeinfo dist-codeinfo-native release deploy-local undeploy-local help
 
 # Default target
 all: build
@@ -33,7 +33,7 @@ build-codeanalysis:
 	@echo "Done: codeanalysis"
 
 # Run all tests
-test: test-java test-codeanalysis
+test: test-java test-bridges test-codeanalysis
 
 # Run Java tests
 test-java:
@@ -53,6 +53,11 @@ test-codeinfo-native:
 	$(MAKE) -C codeinfo test-native
 
 # Run codeanalysis tests
+# Run Java bridge tests (SonarLint, CodeScan)
+test-bridges:
+	@echo "Running bridge tests..."
+	$(MAKE) -C codeanalysis/bridges test
+
 test-codeanalysis:
 	@echo "Running codeanalysis tests..."
 	$(MAKE) -C codeanalysis test
@@ -191,6 +196,7 @@ help:
 	@echo "  test-codeinfo      - Run codeinfo tests only"
 	@echo "  test-codeinfo-native - Compare codeinfo native binary with JAR"
 	@echo "  coverage-codeinfo  - Run codeinfo tests with coverage gate (95%)"
+	@echo "  test-bridges       - Run Java bridge tests (SonarLint, CodeScan)"
 	@echo "  test-codeanalysis  - Run codeanalysis tests only"
 	@echo "  test-go            - Run Go vet, build and unit tests (codeanalysis)"
 	@echo "  test-quick         - Run quick tests (codeanalysis)"

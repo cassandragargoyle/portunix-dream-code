@@ -7,8 +7,6 @@ package org.cassandragargoyle.portunix.codeanalysis.codescan.devtools;
 
 /**
  * Annotation (TODO, FIXME, ...) found in a comment.
- *
- * Copied from dream-code-devtools (org.cassandragargoyle.devtools.code), see issue #12.
  */
 public class CommentAnnotationIssue implements CodeIssue<CommentAnnotationIssue.AnnotationData>
 {

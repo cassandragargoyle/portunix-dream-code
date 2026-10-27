@@ -20,8 +20,6 @@ import java.util.regex.Pattern;
  *
  * Only real comments are scanned, so string literals and pattern definitions do not
  * produce false positives.
- *
- * Copied from dream-code-devtools (org.cassandragargoyle.devtools.code), see issue #12.
  */
 public class RuleFindCommentAnnotations implements Rule
 {

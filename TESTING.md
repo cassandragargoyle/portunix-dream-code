@@ -16,11 +16,12 @@ make test-quick
 
 | Command | Description |
 | ------- | ----------- |
-| `make test` | Run all tests (Java + codeanalysis) |
+| `make test` | Run all tests (Java + bridges + codeanalysis) |
 | `make test-java` | Run Java module tests only |
 | `make test-codeinfo` | Run codeinfo tests only |
 | `make coverage-codeinfo` | Run codeinfo tests with 95% line coverage gate |
 | `make test-codeinfo-native` | Compare codeinfo native binary with JAR (after `make build-codeinfo-native`) |
+| `make test-bridges` | Run Java bridge tests (SonarLint, CodeScan) |
 | `make test-codeanalysis` | Run codeanalysis tests only |
 | `make test-go` | Run Go vet, build and unit tests (codeanalysis) |
 | `make test-quick` | Run quick tests (codeanalysis) |
@@ -118,8 +119,10 @@ the tests. Without the variable (local runs) the tests are skipped as before.
 
 The CodeScan bridge needs no private dependency. The classes it used from
 `dream-code-devtools` are copied into the package
-`org.cassandragargoyle.portunix.codeanalysis.codescan.devtools` (issue #12); changes in
-the library must be copied there by hand.
+`org.cassandragargoyle.portunix.codeanalysis.codescan.devtools` (issue #12), copied from
+version `1.0.0.4-SNAPSHOT`; changes in the library must be copied there by hand.
+
+The Python job runs on Python 3.10, the minimum from `requires-python` in `pyproject.toml`.
 
 ### Manual checks (not in CI)
 

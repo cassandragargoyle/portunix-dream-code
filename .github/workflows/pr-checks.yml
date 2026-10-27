@@ -104,6 +104,8 @@ jobs:
         uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
+          # Minimum from requires-python in pyproject.toml
+          python-version: '3.10'
           cache-dependency-glob: uv.lock
 
       # Quick tests use the CodeScan bridge only

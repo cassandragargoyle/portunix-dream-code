@@ -7,6 +7,7 @@
 # Build directories
 */target/*
 target/
+dependency-reduced-pom.xml
 bin/
 **/bin/
 out/
