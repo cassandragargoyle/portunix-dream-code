@@ -1,4 +1,4 @@
-.PHONY: all build build-go build-bridge clean test test-quick test-codescan test-integration deps dev dist dist-linux-amd64 dist-linux-arm64 dist-windows-amd64 dist-darwin-amd64 dist-darwin-arm64 dist-all setup-venv help
+.PHONY: all build build-go build-bridge clean test test-go test-quick test-codescan test-integration deps dev dist dist-linux-amd64 dist-linux-arm64 dist-windows-amd64 dist-darwin-amd64 dist-darwin-arm64 dist-all setup-venv help
 
 # Python environment managed by uv (pyproject.toml in project root)
 PROJECT_ROOT := $(shell cd .. && pwd)
@@ -24,6 +24,13 @@ build-bridge:
 test: setup-venv
 	@echo "Running integration tests..."
 	$(UV_RUN) pytest test/ -v
+
+# Go checks: vet, build, unit tests
+test-go:
+	@echo "Running Go checks..."
+	go vet ./...
+	go build ./...
+	go test ./...
 
 # Quick tests only
 test-quick: setup-venv
@@ -115,6 +122,7 @@ help:
 	@echo ""
 	@echo "Testing:"
 	@echo "  test             - Run all tests"
+	@echo "  test-go          - Run Go vet, build and unit tests"
 	@echo "  test-quick       - Run quick tests only"
 	@echo "  test-codescan    - Run CodeScan tests only"
 	@echo "  test-integration - Run full integration tests"

@@ -1,0 +1,75 @@
+# Basic checks for pull requests and pushes to main (issue #10)
+# Scope and manual checks: see TESTING.md, section "Continuous Integration"
+name: PR checks
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Batch mode, no download progress in logs (Maven 3.9+)
+  MAVEN_ARGS: -B -ntp
+
+jobs:
+  java:
+    name: Java (codeinfo)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Build
+        run: make build-java
+
+      - name: Test
+        run: make test-java
+
+  go:
+    name: Go (codeanalysis)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: codeanalysis/go.mod
+          cache-dependency-path: codeanalysis/go.sum
+
+      - name: Vet, build and test
+        run: make test-go
+
+  bridge:
+    name: Java bridge (SonarLint)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      # CodeScan bridge is skipped: dream-code-devtools is not in a public repository
+      - name: Build and test
+        run: make -C codeanalysis/bridges build-sonarlint test-sonarlint

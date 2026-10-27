@@ -60,6 +60,34 @@ Jobs may run in parallel. All commands go through `make` where a target exists
 7. The issue notes a recommendation to enable branch protection (required checks)
    on `main` – the setting itself is done by a repository admin
 
+## Implementation Notes
+
+Findings during implementation that changed the scope:
+
+- `codeinfo/pom.xml` used the parent `org.cassandragargoyle.dream-code:root`, which
+  exists only in a developer's local Maven repository. On a clean runner the Java build
+  failed while reading the POM. The parent now points to this repository's root POM
+  (`org.cassandragargoyle.portunix-dream-code:root`); build and all JUnit tests pass
+  with an empty local Maven repository.
+- The CodeScan bridge depends on `dream-code-devtools`, which is not in a public Maven
+  repository, so it cannot be built in CI. Both Python quick tests use this bridge and
+  would only be skipped. Therefore the Python job (and the uv cache) is replaced by a
+  job that builds and tests the SonarLint bridge (public dependencies only). CodeScan
+  and Python tests stay manual until `dream-code-devtools` is published (follow-up
+  issue).
+
+## Recommendation: Branch Protection
+
+After the workflow has run at least once, a repository admin should enable branch
+protection on `main` (Settings → Branches, or a ruleset) and mark these checks as
+required:
+
+- `Java (codeinfo)`
+- `Go (codeanalysis)`
+- `Java bridge (SonarLint)`
+
+Optionally also require pull requests before merging and branches to be up to date.
+
 ## Testing
 
 - Open a test PR with an intentionally failing JUnit test → check is red

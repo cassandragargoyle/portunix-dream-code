@@ -1,4 +1,4 @@
-.PHONY: all build build-java build-java-native build-codeinfo build-codeinfo-native build-codeanalysis clean test test-java test-codeinfo test-codeinfo-native coverage-codeinfo test-codeanalysis test-quick test-codescan deps dev loc loc-all loc-file dist dist-codeanalysis dist-codeinfo dist-codeinfo-native release deploy-local undeploy-local help
+.PHONY: all build build-java build-java-native build-codeinfo build-codeinfo-native build-codeanalysis clean test test-java test-codeinfo test-codeinfo-native coverage-codeinfo test-codeanalysis test-go test-quick test-codescan deps dev loc loc-all loc-file dist dist-codeanalysis dist-codeinfo dist-codeinfo-native release deploy-local undeploy-local help
 
 # Default target
 all: build
@@ -56,6 +56,10 @@ test-codeinfo-native:
 test-codeanalysis:
 	@echo "Running codeanalysis tests..."
 	$(MAKE) -C codeanalysis test
+
+# Go checks for codeanalysis (vet, build, unit tests)
+test-go:
+	$(MAKE) -C codeanalysis test-go
 
 # Quick tests (codeanalysis only)
 test-quick:
@@ -188,6 +192,7 @@ help:
 	@echo "  test-codeinfo-native - Compare codeinfo native binary with JAR"
 	@echo "  coverage-codeinfo  - Run codeinfo tests with coverage gate (95%)"
 	@echo "  test-codeanalysis  - Run codeanalysis tests only"
+	@echo "  test-go            - Run Go vet, build and unit tests (codeanalysis)"
 	@echo "  test-quick         - Run quick tests (codeanalysis)"
 	@echo "  test-codescan      - Run CodeScan tests only"
 	@echo "  clean              - Remove all build artifacts"

@@ -96,7 +96,32 @@ For codeanalysis, ensure bridges are built:
 make build-codeanalysis
 ```
 
-## CI/CD
+## Continuous Integration
+
+GitHub Actions workflow [.github/workflows/pr-checks.yml](.github/workflows/pr-checks.yml)
+runs on every pull request to `main` and on every push to `main` (`ubuntu-latest`).
+A failing build or test makes the check red.
+
+| Job | Command | Checks |
+| --- | ------- | ------ |
+| Java (codeinfo) | `make build-java`, `make test-java` | Maven build and JUnit tests |
+| Go (codeanalysis) | `make test-go` | `go vet`, `go build`, `go test` |
+| Java bridge (SonarLint) | `make -C codeanalysis/bridges build-sonarlint test-sonarlint` | Bridge build and JUnit tests |
+
+Maven and Go module caches are enabled.
+
+### Manual checks (not in CI)
+
+Run these locally before a release or when you change the related code:
+
+- CodeScan bridge and Python tests (`make test-codeanalysis`, `make test-quick`,
+  `make test-codescan`) – the bridge depends on `dream-code-devtools`, which is not
+  in a public Maven repository
+- GraalVM native image (`make build-codeinfo-native`, `make test-codeinfo-native`)
+- Coverage gate (`make coverage-codeinfo`)
+- Windows and macOS
+
+### Local equivalent
 
 ```bash
 # Full test suite with exit code
