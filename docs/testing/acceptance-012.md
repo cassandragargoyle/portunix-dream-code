@@ -2,7 +2,7 @@
 
 **Issue**: #12 — Make dream-code-devtools available to CI for the CodeScan bridge
 **Branch**: `feature/012-devtools-ci-dependency`
-**Tested commit**: `44ef9cf`, re-test of the finding fixes on `92066a3`, `17b292c` and `9176012`
+**Tested commit**: `44ef9cf`, re-test of the finding fixes on `92066a3`, `17b292c`, `9176012`, `55c6d50` and `fc7dc19`
 **Date**: 2026-10-27
 **Tester role**: QA/Test Engineer
 **STATUS**: PASS
@@ -10,7 +10,9 @@
 checks); no blocking findings; P1, P3, P4, P5 are fixed in `92066a3` and re-tested
 (see [Re-test of `92066a3`](#re-test-of-92066a3)); P8 is fixed in `17b292c` and re-tested (see
 [Re-test of `17b292c`](#re-test-of-17b292c)); P2, P9, P10 are fixed in `9176012` and
-re-tested (see [Re-test of `9176012`](#re-test-of-9176012)); P11 is open (not blocking)
+re-tested (see [Re-test of `9176012`](#re-test-of-9176012)); P11, P12, P13 are fixed in `55c6d50` and
+`fc7dc19` and re-tested (see [Re-test of `55c6d50` and `fc7dc19`](#re-test-of-55c6d50-and-fc7dc19));
+no finding is open
 
 ## Scope
 
@@ -165,8 +167,10 @@ No blocking findings.
 | P8 | Medium | **Existing defect, outside #12** (found in the re-test). The rule `ptx-codeanalysis` in `codeanalysis/.gitignore` (meant for the binary) also ignores the source directory `codeanalysis/cmd/ptx-codeanalysis/`, so `main.go` is not in git, also not on `main`. On a clean checkout `make build` fails (`can't cd to cmd/ptx-codeanalysis`). CI does not see it: `go build ./...` builds only the packages that exist. Suggestion: separate issue; change the rule to `/ptx-codeanalysis` and `/ptx-codeanalysis.exe`, commit `main.go`, and add `make build-codeanalysis` (or `go build ./cmd/...` with a check that the package exists) to the Go job. **Fixed** in `17b292c`: rules anchored to `/ptx-codeanalysis` and `/ptx-codeanalysis.exe`, `main.go` added to git (R10-R16) |
 | P9 | Low | `codeanalysis/cmd/ptx-codeanalysis/main.go` (added in `17b292c`) has no license header and no SPDX line, unlike the other files changed in #12. No Go file in the repository has a header yet, so there is no Go convention. The SPDX value depends on P2. **Fixed** in `9176012` (R24) |
 | P10 | Info | A binary built inside `cmd/ptx-codeanalysis/` with a plain `go build` (no `-o`) is named `ptx-codeanalysis` and is no longer ignored after the P8 fix. The `Makefile` always writes the binary to `codeanalysis/`, so this happens only with manual builds. **Fixed** in `9176012`: both names ignored in `cmd/ptx-codeanalysis/` (R25) |
-| P11 | Low | Release archives from `scripts/make-release.py` contain the binary, the bridge JARs, `README.md` and `plugin.json`, but not `LICENSE`. The MIT License requires the notice in all copies. Suggestion: copy `LICENSE` into the archive. **Open**, not blocking (no release is planned in #12) |
-| P12 | Info | Existing files still have older headers: 5 Java files have the MIT text without the SPDX line, 15 Go files have no header. The license is consistent (MIT); adding SPDX is a cleanup for a separate change |
+| P11 | Low | Release archives from `scripts/make-release.py` contain the binary, the bridge JARs, `README.md` and `plugin.json`, but not `LICENSE`. The MIT License requires the notice in all copies. Suggestion: copy `LICENSE` into the archive. **Fixed** in `55c6d50` (R30, R31) |
+| P12 | Info | Existing files still have older headers: 5 Java files have the MIT text without the SPDX line, 15 Go files have no header. The license is consistent (MIT); adding SPDX is a cleanup for a separate change. **Fixed** in `fc7dc19`: all 39 Java and Go source files have the MIT header with SPDX (R33) |
+| P13 | Low | Existing defect, found by the developer during the P11 fix: the archive filter skipped every `.md` and `.txt` file, so `README.md` was not in any release archive, although the release notes list it. **Fixed** in `fc7dc19`: new `is_package_file()` skips only archives, `checksums_*` and `RELEASE_NOTES_*` in the package root (R30, R32) |
+| P14 | Info | `gofmt -l` lists four Go files (`config.go`, `validator_test.go`, `codescan.go`, `sonarlint.go`, struct tag alignment). They were unformatted before this branch; the headers add no new case (R34) |
 
 ## Re-test of `92066a3`
 
@@ -218,6 +222,23 @@ binary of a plain `go build` in `cmd/ptx-codeanalysis/` (P10).
 | R25 | Given `go build` and a Windows `go build` inside `cmd/ptx-codeanalysis/`, then `git status` shows no new file and `main.go` is still tracked | PASS, 0 lines |
 | R26 | Clean worktree: `make build`, `make test` | PASS, JUnit 76/76, bridges 3/3 and 9/9, pytest 12/12; tree clean |
 | R27 | Full workflow with `act` | PASS, all four jobs green, 68 s |
+
+## Re-test of `55c6d50` and `fc7dc19`
+
+`55c6d50` copies `LICENSE` into both release packages (P11). `fc7dc19` adds the SPDX
+headers (P12) and replaces the extension filter of the archives (P13). Release packages
+were built in a throwaway worktree, so the local `dist/` was not touched.
+
+| ID | Given / When / Then | Result |
+| --- | --- | --- |
+| R30 | When the codeanalysis (Linux, Windows) and codeinfo releases are built, then every `.tar.gz` and `.zip` contains `LICENSE` and `README.md`, and no archive, checksum or release notes file | PASS (codeanalysis: binary, 2 bridges, `defaults/sample.ptxcode`, `plugin.json`, `LICENSE`, `README.md`; codeinfo: JAR, `plugin.json`, `LICENSE`, `README.md`) |
+| R31 | The "Package Contents" in the release notes match the archive content | PASS |
+| R32 | `is_package_file()` on 12 cases: `README.md`, `LICENSE`, `NOTICE.txt`, nested `.md` and `.zip` are included; `RELEASE_NOTES_*`, `checksums_*`, `.tar.gz`, `.zip` in the root and directories are excluded | PASS 12/12 |
+| R33 | All 39 tracked Java and Go source files have `SPDX-License-Identifier: MIT`; the 11 Java test fixtures and test data files have no header on purpose (tests count their lines) | PASS |
+| R34 | `gofmt -l` reports the same files as before the headers; `go vet` passes; `go doc` of the four Go packages does not show the header | PASS |
+| R35 | Two more codeinfo releases in a row: the archive still has 4 files, `sha256sum -c` passes | PASS |
+| R36 | Clean worktree: `make build`, `make test`, `make test-go`; tree clean afterwards | PASS, JUnit 76/76, bridges 3/3 and 9/9, pytest 12/12 |
+| R37 | Full workflow with `act` | PASS, all four jobs green, 77 s |
 
 ## CI Notes
 
