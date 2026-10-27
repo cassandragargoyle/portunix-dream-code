@@ -1,6 +1,6 @@
 # Go binaries
-ptx-codeanalysis
-ptx-codeanalysis.exe
+/ptx-codeanalysis
+/ptx-codeanalysis.exe
 *.exe
 *.dll
 *.so
