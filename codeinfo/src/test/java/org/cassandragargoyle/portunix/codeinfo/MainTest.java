@@ -42,7 +42,7 @@ class MainTest {
 
     @Test
     void testHelpAIJsonContainsRequiredFields() {
-        String version = new CommandLine(new Main()).getCommandSpec().version()[0];
+        String version = Main.pluginVersion();
         String json = helpAIJsonCompact(version);
 
         assertTrue(json.startsWith("{") && json.endsWith("}"));
@@ -56,10 +56,9 @@ class MainTest {
     @Test
     void testHelpAIJsonListsAllSubcommands() {
         CommandLine cmd = new CommandLine(new Main());
-        String json = helpAIJsonCompact(cmd.getCommandSpec().version()[0]);
+        String json = helpAIJsonCompact(Main.pluginVersion());
 
-        cmd.getSubcommands().keySet().stream()
-            .filter(name -> !name.equals("help"))
+        Main.commandNames(cmd)
             .forEach(name -> assertTrue(json.contains("\"name\":\"" + name + "\""),
                 "Subcommand missing in --help-ai output: " + name));
     }
@@ -105,6 +104,104 @@ class MainTest {
         assertTrue(out.toString().contains("Code lines: 15"));
         assertTrue(out.toString().contains("Comment lines: 6"));
         assertTrue(out.toString().contains("Empty lines: 5"));
+    }
+
+    @Test
+    void testRunHelpShowsUsage() {
+        StringWriter out = new StringWriter();
+        StringWriter err = new StringWriter();
+        int exitCode = Main.run(new String[] {"--help"}, writer(out), writer(err));
+
+        assertEquals(0, exitCode);
+        assertTrue(out.toString().contains("Usage: ptx-codeinfo"));
+        assertTrue(out.toString().contains("loc"));
+        assertTrue(out.toString().contains("-h, --help"));
+        assertTrue(out.toString().contains("-v, --version"));
+        assertEquals("", err.toString());
+    }
+
+    @Test
+    void testRunShortHelpMatchesLongHelp() {
+        StringWriter longOut = new StringWriter();
+        StringWriter shortOut = new StringWriter();
+        Main.run(new String[] {"--help"}, writer(longOut), writer(new StringWriter()));
+        int exitCode = Main.run(new String[] {"-h"}, writer(shortOut), writer(new StringWriter()));
+
+        assertEquals(0, exitCode);
+        assertEquals(longOut.toString(), shortOut.toString());
+    }
+
+    @Test
+    void testRunVersionUsesPortunixFormat() {
+        StringWriter out = new StringWriter();
+        int exitCode = Main.run(new String[] {"--version"}, writer(out), writer(new StringWriter()));
+
+        assertEquals(0, exitCode);
+        assertEquals("ptx-codeinfo version " + Main.pluginVersion(), out.toString().strip());
+    }
+
+    @Test
+    void testRunShortVersionMatchesLongVersion() {
+        StringWriter longOut = new StringWriter();
+        StringWriter shortOut = new StringWriter();
+        Main.run(new String[] {"--version"}, writer(longOut), writer(new StringWriter()));
+        int exitCode = Main.run(new String[] {"-v"}, writer(shortOut), writer(new StringWriter()));
+
+        assertEquals(0, exitCode);
+        assertEquals(longOut.toString(), shortOut.toString());
+    }
+
+    @Test
+    void testRunListCommandsPrintsSubcommands() {
+        StringWriter out = new StringWriter();
+        int exitCode = Main.run(new String[] {"--list-commands"}, writer(out), writer(new StringWriter()));
+
+        assertEquals(0, exitCode);
+        assertEquals("loc", out.toString().strip());
+    }
+
+    @Test
+    void testRunDescriptionPrintsSingleLine() {
+        StringWriter out = new StringWriter();
+        int exitCode = Main.run(new String[] {"--description"}, writer(out), writer(new StringWriter()));
+
+        assertEquals(0, exitCode);
+        assertEquals(Main.DESCRIPTION, out.toString().strip());
+        assertFalse(out.toString().strip().contains("\n"));
+    }
+
+    @Test
+    void testMetaFlagsSkipRequiredSubcommandParameters() {
+        // Missing <sourceFile> for loc must not prevent the meta flags
+        for (String flag : new String[] {"--list-commands", "--description"}) {
+            StringWriter out = new StringWriter();
+            int exitCode = Main.run(new String[] {flag, "loc"}, writer(out), writer(new StringWriter()));
+
+            assertEquals(0, exitCode, flag);
+            assertFalse(out.toString().isBlank(), flag);
+        }
+    }
+
+    @Test
+    void testLocShortVerboseFlagIsNotVersion() {
+        StringWriter out = new StringWriter();
+        int exitCode = Main.run(new String[] {"loc", "-v", "testdata/Sample.java"},
+            writer(out), writer(new StringWriter()));
+
+        assertEquals(0, exitCode);
+        assertTrue(out.toString().contains("Code lines: 15"));
+        assertFalse(out.toString().contains("ptx-codeinfo version"));
+    }
+
+    @Test
+    void testParseVersionReadsTopLevelVersion() {
+        assertEquals("2.3.4", Main.parseVersion("{\"name\": \"x\", \"version\": \"2.3.4\"}"));
+    }
+
+    @Test
+    void testParseVersionFailsWithoutVersion() {
+        assertThrows(IllegalStateException.class,
+            () -> Main.parseVersion("{\"runtime_version\": \">=21\"}"));
     }
 
     private static PrintWriter writer(StringWriter target) {

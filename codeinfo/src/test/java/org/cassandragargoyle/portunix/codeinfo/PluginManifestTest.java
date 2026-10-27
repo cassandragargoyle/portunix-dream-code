@@ -44,9 +44,24 @@ class PluginManifestTest {
     void testManifestListsAllSubcommands() {
         CommandLine cmd = new CommandLine(new Main());
 
-        cmd.getSubcommands().keySet().stream()
-            .filter(name -> !name.equals("help"))
+        Main.commandNames(cmd)
             .forEach(name -> assertTrue(manifest.matches(".*\"subcommands\":\\[[^\\]]*\"" + name + "\".*"),
                 "Subcommand missing in plugin.json: " + name));
+    }
+
+    @Test
+    void testCliVersionMatchesManifest() {
+        // Fails when plugin.json changes but the CLI keeps an old or hard-coded version
+        String manifestVersion = Main.parseVersion(manifest);
+        CommandLine cmd = new CommandLine(new Main());
+
+        assertEquals(manifestVersion, Main.pluginVersion());
+        assertEquals("ptx-codeinfo version " + manifestVersion, cmd.getCommandSpec().version()[0]);
+        assertTrue(Main.helpAIJson(Main.pluginVersion()).contains("\"version\": \"" + manifestVersion + "\""));
+    }
+
+    @Test
+    void testCliDescriptionMatchesManifest() {
+        assertTrue(manifest.contains("\"description\":\"" + Main.DESCRIPTION.replaceAll("\\s+", "") + "\""));
     }
 }

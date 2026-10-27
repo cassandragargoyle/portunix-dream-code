@@ -44,6 +44,13 @@ check "loc missing file" loc "$FIXTURES_DIR/DoesNotExist.java"
 check "loc non-java file" loc "$0"
 check "loc without file" loc
 check "--version" --version
+check "-v" -v
+check "--help" --help
+check "-h" -h
+check "--list-commands" --list-commands
+check "--description" --description
+check "no arguments"
+check "unknown option" --bogus
 check "--help-ai" --help-ai
 
 if [ $FAILED -ne 0 ]; then
