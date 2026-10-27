@@ -25,7 +25,7 @@ This project is currently in early development. The architecture and core compon
 ## Repository Information
 
 - **GitHub Repository**: https://github.com/CassandraGargoyle/portunix-dream-code
-- **License**: Proprietary - CassandraGargoyle team only
+- **License**: MIT, see [LICENSE](LICENSE)
 
 ## Getting Started
 

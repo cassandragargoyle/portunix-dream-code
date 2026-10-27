@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Fast code analysis tool powered by GraalVM Native Image",
   "author": "CassandraGargoyle Team",
-  "license": "Proprietary",
+  "license": "MIT",
   "plugin": {
     "type": "helper",
     "binary": "ptx-codeinfo",

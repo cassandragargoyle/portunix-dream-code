@@ -102,7 +102,7 @@ See `docs/contributing/CODE-STYLE-*.md` for language-specific guidelines.
 ### Repository Management
 
 - Main branch is `main` (not `master`)
-- License: Proprietary - CassandraGargoyle team only
+- License: MIT, see [LICENSE](LICENSE)
 
 ### System Information Detection
 

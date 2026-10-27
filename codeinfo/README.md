@@ -283,7 +283,7 @@ the size gap.
 
 ## License
 
-Proprietary - CassandraGargoyle team only
+MIT, see [LICENSE](../LICENSE)
 
 ## Contributing
 
