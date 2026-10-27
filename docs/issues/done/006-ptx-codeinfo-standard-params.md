@@ -1,6 +1,8 @@
 # Issue #006: Implement Standard Portunix Helper Parameters for ptx-codeinfo
 
-**Status:** Open
+**Status:** ✅ Implemented
+**Closed:** 2026-10-27
+**Acceptance:** [acceptance-006.md](../../testing/acceptance-006.md)
 **Priority:** Medium
 **GitHub**: #6
 **Component:** codeinfo
@@ -141,14 +143,14 @@ public class PtxCodeInfoCLI implements Callable<Integer> {
 
 ## Acceptance Criteria
 
-- [ ] `ptx-codeinfo --version` outputs `ptx-codeinfo version X.Y.Z`
-- [ ] `X.Y.Z` in `--version` and `--help-ai` matches `version` in `plugin.json` (one source
+- [x] `ptx-codeinfo --version` outputs `ptx-codeinfo version X.Y.Z`
+- [x] `X.Y.Z` in `--version` and `--help-ai` matches `version` in `plugin.json` (one source
   of truth, for example a filtered resource generated at build time)
-- [ ] `ptx-codeinfo --help` and `ptx-codeinfo -h` show usage on stdout with exit code 0
-- [ ] `ptx-codeinfo --list-commands` outputs `loc`
-- [ ] `ptx-codeinfo --description` outputs single-line description
-- [ ] `ptx-codeinfo` (no args) shows help, not error
-- [ ] All flags work in both JAR and native binary
+- [x] `ptx-codeinfo --help` and `ptx-codeinfo -h` show usage on stdout with exit code 0
+- [x] `ptx-codeinfo --list-commands` outputs `loc`
+- [x] `ptx-codeinfo --description` outputs single-line description
+- [x] `ptx-codeinfo` (no args) shows help, not error
+- [x] All flags work in both JAR and native binary
 
 ## Files to Modify
 
