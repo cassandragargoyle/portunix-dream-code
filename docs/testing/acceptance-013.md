@@ -10,7 +10,7 @@ fixes on `c70258c`
 **STATUS**: PASS
 **Approval for merge**: YES; no blocking findings; P1 and P2 are fixed in `c70258c` and
 re-tested (see [Re-test of `c70258c`](#re-test-of-c70258c)); P3 is an existing defect
-outside #13 and needs a separate issue
+outside #13, tracked in #14
 
 ## Scope
 
@@ -123,7 +123,7 @@ No blocking findings.
 | --- | --- | --- |
 | P1 | Low | `testCommandDescriptionsMatchCli` ends with a `NullPointerException` ("Cannot invoke getCommandSpec() because the return value of Map.get(Object) is null") when the manifest lists a command that the CLI does not have (FI1, FI2, FI9). The build fails as it should, and `testManifestListsOnlyRealCommands` gives the clear message, but the NPE is noise in the report. Suggestion: assert that the subcommand exists (`assertNotNull(…, "Command not provided by the CLI: " + name)`) before reading its description. **Fixed** in `c70258c` (R02) |
 | P2 | Medium | `commandName()` and the description regex take the first `"name"` / `"description"` anywhere in the entry, also inside nested `parameters`. A valid entry with `parameters` before `name` (FI15) fails 4 tests: the parameter `sourceFile` is taken as the command name. JSON key order is not significant, and the issue plans to add `parameters` (cassandragargoyle/portunix#257). Suggestion: read only the top-level keys of the entry (depth 1), or use a JSON parser in the tests. **Fixed** in `c70258c`: the tests read the manifest with a string-aware JSON reader that uses only top-level keys (R03-R05) |
-| P3 | Medium | **Existing defect, outside #13.** The installed plugin is the JAR build (`ptx-codeinfo.jar`), and Portunix does not use the `fallback` from the manifest: `portunix plugin health code-info` reports "Binary not found: …/ptx-codeinfo", and `portunix code-info …` fails with "fork/exec …/ptx-codeinfo: no such file or directory". Same before and after the reinstall. So `portunix code-info --help` from the issue Testing step 3 cannot run with a JAR deployment; the CLI was checked with `java -jar` instead. Suggestion: separate issue (dream-code `deploy-local` with the native build, or Portunix core support for `fallback`) |
+| P3 | Medium | **Existing defect, outside #13.** The installed plugin is the JAR build (`ptx-codeinfo.jar`), and Portunix does not use the `fallback` from the manifest: `portunix plugin health code-info` reports "Binary not found: …/ptx-codeinfo", and `portunix code-info …` fails with "fork/exec …/ptx-codeinfo: no such file or directory". Same before and after the reinstall. So `portunix code-info --help` from the issue Testing step 3 cannot run with a JAR deployment; the CLI was checked with `java -jar` instead. Suggestion: separate issue (dream-code `deploy-local` with the native build, or Portunix core support for `fallback`). **Tracked** in #14 |
 | P4 | Info | `portunix plugin install` refuses an installed plugin, and `make deploy-local` only prints a warning with exit 0 (as documented in the `deploy-local` skill). A reinstall needs `make undeploy-local` or `portunix plugin uninstall` first |
 
 ## Re-test of `c70258c`
