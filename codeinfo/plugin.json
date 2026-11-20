@@ -30,9 +30,8 @@
   },
   "commands": [
     {
-      "name": "code-info",
-      "description": "Code analysis commands",
-      "subcommands": ["loc"],
+      "name": "loc",
+      "description": "Count lines of code in a Java source file",
       "examples": [
         "portunix code-info loc Example.java",
         "portunix code-info loc Example.java --verbose"
