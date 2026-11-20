@@ -81,7 +81,7 @@ func TestCodeScanAnalysis(t *testing.T) {
 				},
 			}
 
-			orchestrator := NewOrchestrator(cfg)
+			orchestrator := NewOrchestrator(cfg, "")
 			results, err := orchestrator.runCodeScan(tt.files)
 
 			if err != nil {
@@ -149,7 +149,7 @@ func TestCodeScanSeverityMapping(t *testing.T) {
 		},
 	}
 
-	orchestrator := NewOrchestrator(cfg)
+	orchestrator := NewOrchestrator(cfg, "")
 	results, err := orchestrator.runCodeScan([]string{testFile})
 
 	if err != nil {

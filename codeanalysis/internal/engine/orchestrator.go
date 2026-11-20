@@ -8,19 +8,25 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/cassandragargoyle/portunix-plugins/plugins/codeanalysis/internal/config"
 )
 
 // Orchestrator coordinates analysis engines
 type Orchestrator struct {
-	config *config.Config
+	config  *config.Config
+	baseDir string
 }
 
 // NewOrchestrator creates a new engine orchestrator
-func NewOrchestrator(cfg *config.Config) *Orchestrator {
+//
+// baseDir is the directory that target patterns are relative to (the directory of the
+// .ptxcode file). An empty baseDir means the analysis target directory
+func NewOrchestrator(cfg *config.Config, baseDir string) *Orchestrator {
 	return &Orchestrator{
-		config: cfg,
+		config:  cfg,
+		baseDir: baseDir,
 	}
 }
 
@@ -62,39 +68,45 @@ func (o *Orchestrator) Run(path string) (*Results, error) {
 }
 
 // collectFiles finds all files matching the target patterns
-func (o *Orchestrator) collectFiles(basePath string) ([]string, error) {
+//
+// Patterns are matched against the path relative to the base directory (the directory
+// of the .ptxcode file). A path outside the base directory is matched relative to the
+// analysis target instead
+func (o *Orchestrator) collectFiles(targetPath string) ([]string, error) {
 	var files []string
 
-	info, err := os.Stat(basePath)
+	info, err := os.Stat(targetPath)
 	if err != nil {
 		return nil, err
 	}
 
 	// If it's a single file, return it
 	if !info.IsDir() {
-		if o.matchesPatterns(basePath) {
-			return []string{basePath}, nil
+		rel := o.relativePath(targetPath, filepath.Dir(targetPath))
+		if o.matchesPatterns(rel) && !o.isExcluded(rel) {
+			return []string{targetPath}, nil
 		}
 		return files, nil
 	}
 
 	// Walk directory
-	err = filepath.Walk(basePath, func(path string, info os.FileInfo, err error) error {
+	err = filepath.Walk(targetPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 
-		// Skip directories
+		rel := o.relativePath(path, targetPath)
+
 		if info.IsDir() {
-			// Check exclude patterns for directories
-			if o.isExcluded(path) {
+			// Skip excluded directories, but never the base directory itself
+			if rel != "." && o.isDirExcluded(rel) {
 				return filepath.SkipDir
 			}
 			return nil
 		}
 
 		// Check if file matches include patterns and is not excluded
-		if o.matchesPatterns(path) && !o.isExcluded(path) {
+		if o.matchesPatterns(rel) && !o.isExcluded(rel) {
 			files = append(files, path)
 		}
 
@@ -104,50 +116,49 @@ func (o *Orchestrator) collectFiles(basePath string) ([]string, error) {
 	return files, err
 }
 
-// matchesPatterns checks if a file matches any include pattern
-func (o *Orchestrator) matchesPatterns(path string) bool {
+// relativePath returns the slash-separated path relative to the base directory,
+// or relative to the fallback directory when the path is outside the base directory
+func (o *Orchestrator) relativePath(path, fallback string) string {
+	base := o.baseDir
+	if base == "" {
+		base = fallback
+	}
+	rel, err := filepath.Rel(base, path)
+	if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+		rel, err = filepath.Rel(fallback, path)
+		if err != nil {
+			rel = filepath.Base(path)
+		}
+	}
+	return filepath.ToSlash(rel)
+}
+
+// matchesPatterns checks if a relative file path matches any include pattern
+func (o *Orchestrator) matchesPatterns(rel string) bool {
 	for _, pattern := range o.config.Spec.Targets.Include {
-		matched, err := filepath.Match(pattern, filepath.Base(path))
-		if err == nil && matched {
-			return true
-		}
-		// Try glob-style matching
-		if matchGlob(pattern, path) {
+		if matchPattern(pattern, rel) {
 			return true
 		}
 	}
 	return false
 }
 
-// isExcluded checks if a path matches any exclude pattern
-func (o *Orchestrator) isExcluded(path string) bool {
+// isExcluded checks if a relative file path matches any exclude pattern
+func (o *Orchestrator) isExcluded(rel string) bool {
 	for _, pattern := range o.config.Spec.Targets.Exclude {
-		matched, err := filepath.Match(pattern, filepath.Base(path))
-		if err == nil && matched {
-			return true
-		}
-		if matchGlob(pattern, path) {
+		if matchPattern(pattern, rel) {
 			return true
 		}
 	}
 	return false
 }
 
-// matchGlob performs simple glob pattern matching
-func matchGlob(pattern, path string) bool {
-	// Handle ** patterns
-	if len(pattern) > 2 && pattern[:2] == "**" {
-		// Match any path component
-		suffix := pattern[2:]
-		if len(suffix) > 0 && suffix[0] == '/' {
-			suffix = suffix[1:]
+// isDirExcluded checks if a relative directory path is removed by an exclude pattern
+func (o *Orchestrator) isDirExcluded(rel string) bool {
+	for _, pattern := range o.config.Spec.Targets.Exclude {
+		if matchDirPattern(pattern, rel) {
+			return true
 		}
-		// Check if path ends with suffix pattern
-		matched, _ := filepath.Match(suffix, filepath.Base(path))
-		return matched
 	}
-
-	// Simple pattern matching
-	matched, _ := filepath.Match(pattern, path)
-	return matched
+	return false
 }

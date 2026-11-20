@@ -54,14 +54,14 @@ func runAnalyze(cmd *cobra.Command, args []string) error {
 	}
 
 	// Load configuration
-	cfg, err := loadConfig(absPath, info.IsDir())
+	cfg, baseDir, err := loadConfig(absPath, info.IsDir())
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: configuration error: %v\n", err)
 		os.Exit(2) // Exit code 2: Configuration error
 	}
 
 	// Create orchestrator
-	orch := engine.NewOrchestrator(cfg)
+	orch := engine.NewOrchestrator(cfg, baseDir)
 
 	// Run analysis
 	results, err := orch.Run(absPath)
@@ -84,7 +84,11 @@ func runAnalyze(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func loadConfig(path string, isDir bool) (*config.Config, error) {
+// loadConfig loads the configuration and returns the base directory of target patterns
+//
+// The base directory is the directory of the .ptxcode file. Without a config file it is
+// the target directory, or the directory of a target file
+func loadConfig(path string, isDir bool) (*config.Config, string, error) {
 	// Try to find config file
 	var configPath string
 
@@ -110,11 +114,24 @@ func loadConfig(path string, isDir bool) (*config.Config, error) {
 	}
 
 	if configPath == "" {
-		// No config found, use defaults
-		return config.DefaultConfig(), nil
+		// No config found, use defaults relative to the target
+		baseDir := path
+		if !isDir {
+			baseDir = filepath.Dir(path)
+		}
+		return config.DefaultConfig(), baseDir, nil
 	}
 
-	return config.Load(configPath)
+	baseDir, err := filepath.Abs(filepath.Dir(configPath))
+	if err != nil {
+		return nil, "", fmt.Errorf("invalid config path: %w", err)
+	}
+
+	cfg, err := config.Load(configPath)
+	if err != nil {
+		return nil, "", err
+	}
+	return cfg, baseDir, nil
 }
 
 func exceedsThresholds(results *engine.Results, cfg *config.Config) bool {

@@ -133,6 +133,25 @@ spec:
         output: ./analysis.sarif
 ```
 
+### Target patterns
+
+`spec.targets.include` and `spec.targets.exclude` are glob patterns:
+
+- Patterns are relative to the directory of the `.ptxcode` file (the project root),
+  also when `analyze` gets a subdirectory or a single file as the target. With
+  `include: ["src/main/java/**/*.java"]`, `analyze ./src/main` analyzes
+  `src/main/java/...` files
+- Without a `.ptxcode` file, patterns are relative to the analysis target (or to the
+  directory of a target file)
+- A file outside the `.ptxcode` directory is matched relative to the analysis target
+- `/` is the separator on all platforms, also on Windows
+- `**` matches zero or more directories at the start, in the middle or at the end:
+  `**/*.java`, `src/**/*.ts`, `**/target/**`
+- `*`, `?` and `[...]` match within one path segment, `*` never matches `/`
+- A file is analyzed when it matches an include pattern and no exclude pattern
+- An exclude pattern with a trailing `/**` (for example `**/node_modules/**`) removes
+  the whole directory, it is not walked
+
 ## Exit Codes
 
 | Code | Meaning |
