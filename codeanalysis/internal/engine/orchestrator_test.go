@@ -245,3 +245,44 @@ spec:
 	orch := NewOrchestrator(cfg, base)
 	assertFiles(t, collectRelative(t, orch, project, project), []string{"src/A.java"})
 }
+
+// disabledEnginesConfig returns a configuration with the given include patterns and
+// both engines disabled, so Run does not need the Java bridges
+func disabledEnginesConfig(include ...string) *config.Config {
+	cfg := config.DefaultConfig()
+	cfg.Spec.Targets.Include = include
+	cfg.Spec.Targets.Exclude = nil
+	if cfg.Spec.Engines.SonarLint != nil {
+		cfg.Spec.Engines.SonarLint.Enabled = false
+	}
+	if cfg.Spec.Engines.CodeScan != nil {
+		cfg.Spec.Engines.CodeScan.Enabled = false
+	}
+	return cfg
+}
+
+func TestRunFilesAnalyzedCount(t *testing.T) {
+	root := t.TempDir()
+	createTree(t, root, []string{"src/A.java", "src/B.java", "src/notes.md"})
+
+	results, err := NewOrchestrator(disabledEnginesConfig("**/*.java"), root).Run(root)
+	if err != nil {
+		t.Fatalf("Run failed: %v", err)
+	}
+	if results.Stats.FilesAnalyzed != 2 {
+		t.Errorf("FilesAnalyzed = %d, want 2", results.Stats.FilesAnalyzed)
+	}
+}
+
+func TestRunFilesAnalyzedNoMatch(t *testing.T) {
+	root := t.TempDir()
+	createTree(t, root, []string{"src/notes.md"})
+
+	results, err := NewOrchestrator(disabledEnginesConfig("**/*.java"), root).Run(root)
+	if err != nil {
+		t.Fatalf("Run failed: %v", err)
+	}
+	if results.Stats.FilesAnalyzed != 0 {
+		t.Errorf("FilesAnalyzed = %d, want 0", results.Stats.FilesAnalyzed)
+	}
+}

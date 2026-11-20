@@ -52,11 +52,13 @@ func (r *Results) AddIssue(issue Issue) {
 }
 
 // Merge combines results from another Results instance
+//
+// FilesAnalyzed is not merged: the orchestrator sets it to the number of unique files,
+// and every engine analyzes the same files
 func (r *Results) Merge(other *Results) {
 	for _, issue := range other.Issues {
 		r.AddIssue(issue)
 	}
-	r.Stats.FilesAnalyzed += other.Stats.FilesAnalyzed
 }
 
 // CountBySeverity returns issue counts by severity level
