@@ -5,10 +5,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-11-20
+
 ### Changed
 
 - JavaParser 3.27.1 -> 3.28.2 (same line counts on 330 JDK and fixture files, native image
   works without extra configuration)
+
+### Fixed
+
+- `plugin.json` lists the real command `loc` with its description instead of a
+  placeholder entry named after the plugin (#13)
+- Manifest tests check that the commands, descriptions and examples match the CLI
 
 ## [1.1.0] - 2026-10-27
 
