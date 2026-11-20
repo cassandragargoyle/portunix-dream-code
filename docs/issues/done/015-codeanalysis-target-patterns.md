@@ -8,13 +8,14 @@ analyzes no file. Exclude patterns for directories never match, so `target/`,
 `node_modules/` and similar directories are analyzed, also with the default
 configuration.
 
-**Status**: 📋 Open
+**Status**: ✅ Implemented
 **Type**: bug
 **Priority**: high
 **Component**: codeanalysis / engine
 **Created**: 2026-11-20
+**Closed**: 2026-11-21
 **GitHub**: #15
-**Related**: -
+**Related**: #16
 
 ## Problem Description
 
@@ -89,15 +90,19 @@ it in `codeanalysis/README.md`.
 
 ## Acceptance Criteria
 
-1. With each `init` template and with `defaults/sample.ptxcode`, `analyze` on a project
-   with the matching layout analyzes the expected files
-2. Exclude patterns `**/target/**`, `**/node_modules/**`, `**/build/**`, `**/dist/**`
-   remove these directories, also with the built-in default configuration
-3. File-name-only patterns (`**/*.java`, `**/*.test.ts`) keep working
-4. Patterns behave the same on Linux and Windows
-5. The base of relative patterns is decided (see Open Question) and documented
-6. Unit tests cover the patterns of all templates, include and exclude, and a single file
-   as the target
+- [x] With each `init` template and with `defaults/sample.ptxcode`, `analyze` on a
+  project with the matching layout analyzes the expected files
+- [x] Exclude patterns `**/target/**`, `**/node_modules/**`, `**/build/**`, `**/dist/**`
+  remove these directories, also with the built-in default configuration
+- [x] File-name-only patterns (`**/*.java`, `**/*.test.ts`) keep working
+- [x] Patterns behave the same on Linux and Windows: `/` is the separator on all
+  platforms; tested on Linux, Windows is covered only by unit tests
+- [x] The base of relative patterns is decided and documented: patterns are relative to
+  the directory of the `.ptxcode` file (see `codeanalysis/README.md`, Target patterns)
+- [x] Unit tests cover the patterns of all templates, include and exclude, and a single
+  file as the target
+
+Acceptance: `docs/testing/acceptance-015.md`
 
 ## Testing
 
