@@ -33,7 +33,7 @@ This module is **experimental** with the following considerations:
 
 ### Directory Structure (Before)
 
-```
+```text
 codeinfo/
 ├── src/main/java/org/cassandragargoyle/dream/codeinfo/
 │   ├── PtxCodeInfoCLI.java              # Picocli @Command entry point
@@ -52,7 +52,7 @@ codeinfo/
 ### Key Technologies
 
 | Component | Version | GraalVM Support |
-|-----------|---------|-----------------|
+| ----------- | --------- | ----------------- |
 | Java | 21+ | Required |
 | Picocli | 4.7.5 | ✅ Excellent |
 | JavaParser | 3.27.1 | ⚠️ Requires reflection config |
@@ -62,7 +62,7 @@ codeinfo/
 
 ### Directory Structure (After)
 
-```
+```text
 codeinfo/
 ├── cmd/                                # Optional: Go wrapper (if needed)
 ├── src/main/java/org/cassandragargoyle/portunix/codeinfo/
@@ -152,12 +152,14 @@ codeinfo/
 Keep the current Java-only architecture with GraalVM native compilation.
 
 **Pros:**
+
 - Simpler architecture (single language)
 - Already working with GraalVM
 - Fast startup (<50ms) achieved
 - Easier maintenance
 
 **Cons:**
+
 - Different pattern than codeanalysis (Go + Java)
 - Requires GraalVM for native builds
 
@@ -166,10 +168,12 @@ Keep the current Java-only architecture with GraalVM native compilation.
 Add a Go CLI wrapper similar to codeanalysis.
 
 **Pros:**
+
 - Consistent with codeanalysis architecture
 - Go provides reliable CLI experience
 
 **Cons:**
+
 - Duplicates GraalVM native benefits
 - More complex build (Go + Java + GraalVM)
 - Over-engineering for current scope
@@ -187,7 +191,7 @@ Add a Go CLI wrapper similar to codeanalysis.
 ## Risks
 
 | Risk | Mitigation |
-|------|------------|
+| ------ | ------------ |
 | GraalVM version incompatibility | Document supported versions, test on CI |
 | JavaParser reflection issues | Maintain reflect-config.json, use tracing agent |
 | Large binary size (>20MB) | Acceptable for experimental, optimize later |

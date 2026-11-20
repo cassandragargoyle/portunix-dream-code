@@ -29,7 +29,7 @@ See [ADR-001: Migrate CLI Framework from Apache Commons CLI to Picocli](../../ad
 
 ### Files to Modify
 
-```
+```text
 core/src/main/java/org/cassandragargoyle/dream/api/CLI.java
 cli/src/main/java/org/cassandragargoyle/dream/analyzer/code/CodeAnalyzeCLI.java
 devtools/src/main/java/org/cassandragargoyle/devtools/SonarLintCli.java
@@ -145,6 +145,7 @@ ai/pom.xml
 ### Code Pattern Example
 
 **Before (Apache Commons CLI)**:
+
 ```java
 Options options = new Options();
 options.addOption("f", "file", true, "File name for analyze.");
@@ -156,6 +157,7 @@ if (cmd.hasOption("f")) {
 ```
 
 **After (Picocli)**:
+
 ```java
 @Command(name = "analyze", description = "Analyze code files")
 public class CodeAnalyzeCLI implements Callable<Integer> {
@@ -189,7 +191,7 @@ public class CodeAnalyzeCLI implements Callable<Integer> {
 ## Risks and Mitigation
 
 | Risk | Impact | Mitigation |
-|------|--------|-----------|
+| ------ | -------- | ----------- |
 | Breaking user scripts | High | Maintain CLI argument compatibility |
 | Performance regression | Medium | Benchmark during pilot phase |
 | Team unfamiliarity | Low | Training and pair programming |
@@ -205,8 +207,8 @@ public class CodeAnalyzeCLI implements Callable<Integer> {
 ## References
 
 - ADR: [docs/adr/001-migrate-to-picocli.md](../../adr/001-migrate-to-picocli.md)
-- Picocli: https://picocli.info/
-- Migration Guide: https://picocli.info/#_migrating_from_commons_cli
+- Picocli: <https://picocli.info/>
+- Migration Guide: <https://picocli.info/#_migrating_from_commons_cli>
 
 ## Comments
 

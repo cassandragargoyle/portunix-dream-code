@@ -15,6 +15,7 @@ This enables AI assistants (Claude Code, MCP clients) to discover and use the CL
 programmatically without parsing human-readable help text.
 
 The pattern is already implemented in sibling Java/Picocli projects:
+
 - **portunix-plugins/fulltext** — `Main.java` → `@Option(names = {"--help-ai"})` + `printHelpAI()`
 - **portunix-plugins/text-extractor** — `Main.java` → manual arg parsing + `printHelpAI()`
 

@@ -27,7 +27,7 @@ See [ADR-004: Code Analysis Plugin Architecture](../../adr/004-ptx-codeanalysis-
 
 ### Directory Structure
 
-```
+```text
 codeanalysis/
 ├── cmd/ptx-codeanalysis/    # Go main entry
 ├── internal/

@@ -61,7 +61,7 @@ compatibility of the installed binary.
 Implement these flags for Portunix helper discovery and compatibility:
 
 | Flag | Output | Purpose |
-|------|--------|---------|
+| ------ | -------- | --------- |
 | `--version` | `ptx-codeinfo version 1.0.0` | Version check, compatibility |
 | `--help` / `-h` | Usage information | User help |
 | `--list-commands` | `loc` (or JSON array) | Command discovery |
@@ -70,12 +70,14 @@ Implement these flags for Portunix helper discovery and compatibility:
 ### 2. Version Output Format
 
 **Current:**
-```
+
+```text
 ptx-codeinfo 1.0.0
 ```
 
 **Required (Portunix standard):**
-```
+
+```text
 ptx-codeinfo version 1.0.0
 ```
 
@@ -86,11 +88,13 @@ Add `--help` and `-h` support (Picocli default, but verify it works).
 ### 4. List Commands
 
 Add `--list-commands` flag that outputs available commands:
-```
+
+```text
 loc
 ```
 
 Or as JSON:
+
 ```json
 ["loc"]
 ```
@@ -98,13 +102,15 @@ Or as JSON:
 ### 5. Description
 
 Add `--description` flag:
-```
+
+```text
 Fast code analysis tool powered by GraalVM Native Image
 ```
 
 ## Implementation Reference
 
 See Portunix helper implementations:
+
 - `portunix repository: src/helpers/ptx-python/main.go`
 - `portunix repository: src/helpers/ptx-make/main.go`
 - `portunix repository: docs/contributing/HELPER-BINARY-DEVELOPMENT.md`

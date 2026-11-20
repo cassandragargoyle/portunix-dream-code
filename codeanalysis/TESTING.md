@@ -60,7 +60,7 @@ uv run pytest test/ -v -k "todo"
 
 ## Test Structure
 
-```
+```text
 codeanalysis/
 ├── test/
 │   ├── conftest.py              # Pytest configuration and fixtures
@@ -77,7 +77,7 @@ codeanalysis/
 ## Markers
 
 | Marker | Description |
-|--------|-------------|
+| -------- | ------------- |
 | `quick` | Quick tests for development |
 | `codescan` | CodeScan bridge tests |
 | `sonarlint` | SonarLint bridge tests |
@@ -96,7 +96,7 @@ uv run pytest test/ -m "not slow"
 Available fixtures in `conftest.py`:
 
 | Fixture | Description |
-|---------|-------------|
+| --------- | ------------- |
 | `project_root` | Path to codeanalysis directory |
 | `testdata_dir` | Path to testdata directory |
 | `codescan_bridge` | Path to CodeScan JAR (skips if not found) |

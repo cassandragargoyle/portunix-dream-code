@@ -13,11 +13,13 @@ Rename the `JavaCodeScanAnalyzer` class to `CodeScanAnalyzer` to remove redundan
 ## Current State
 
 The class is located at:
-```
+
+```text
 codeanalysis/bridges/javacodescan/src/main/java/org/cassandragargoyle/portunix/codeanalysis/javacodescan/JavaCodeScanAnalyzer.java
 ```
 
 The "Java" prefix is redundant because:
+
 - The class is already in the `javacodescan` package
 - The bridge is specifically for Java code scanning
 - Follows the naming simplification done when TvkCode was renamed to CodeScan
@@ -27,12 +29,14 @@ The "Java" prefix is redundant because:
 ### 1. Rename Class File
 
 **From:**
-```
+
+```text
 JavaCodeScanAnalyzer.java
 ```
 
 **To:**
-```
+
+```text
 CodeScanAnalyzer.java
 ```
 

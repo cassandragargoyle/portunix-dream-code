@@ -1,23 +1,28 @@
 # Bug Reporting Guidelines for portunix-dream-code
 
 ## Overview
+
 This guide helps you report bugs effectively to ensure quick resolution and improve portunix-dream-code.
 
 ## Before Reporting
 
 ### 1. Search Existing Issues
+
 - Check [existing issues](https://github.com/CassandraGargoyle/portunix-dream-code/issues) first
 - Search for similar problems or error messages
 - Review closed issues for workarounds
 
 ### 2. Verify the Bug
+
 - Reproduce the issue consistently
 - Test with the latest version
 - Try different environments if possible
 - Check if it's a configuration issue
 
 ### 3. Gather Information
+
 Collect all relevant details before creating the report:
+
 - Version information
 - Environment details
 - Steps to reproduce
@@ -27,18 +32,20 @@ Collect all relevant details before creating the report:
 ## Bug Report Template
 
 ### Title Format
-```
+
+```text
 [Component] Brief description of the issue
 ```
 
 Examples:
+
 - `[API] Authentication fails with valid credentials`
 - `[UI] Button not responsive on mobile devices`
 - `[Database] Connection timeout in production`
 
 ### Report Structure
 
-```markdown
+````markdown
 ## Bug Description
 Brief summary of what's wrong.
 
@@ -62,7 +69,7 @@ Describe what you expected to happen.
 Describe what actually happened.
 
 ## Error Messages/Logs
-```
+```text
 [Paste error messages, stack traces, or relevant logs here]
 ```
 
@@ -78,27 +85,31 @@ Any other information that might be helpful:
 
 ## Possible Solution
 [Optional] If you have ideas for fixing the issue
-```
+````
 
 ## Severity Levels
 
 ### Critical
+
 - System crashes or data loss
 - Security vulnerabilities
 - Complete feature breakdown
 - Production environment failures
 
 ### High
+
 - Major functionality not working
 - Performance degradation
 - Significant user experience issues
 
 ### Medium
+
 - Minor functionality issues
 - Cosmetic problems with workarounds
 - Documentation errors
 
 ### Low
+
 - Minor cosmetic issues
 - Feature enhancement requests
 - Nice-to-have improvements
@@ -106,6 +117,7 @@ Any other information that might be helpful:
 ## Issue Labels
 
 ### Type Labels
+
 - `bug` - Confirmed bug
 - `regression` - Previously working feature now broken
 - `performance` - Performance-related issues
@@ -113,12 +125,14 @@ Any other information that might be helpful:
 - `documentation` - Documentation bugs
 
 ### Priority Labels
+
 - `critical` - Needs immediate attention
 - `high` - High priority fix needed
 - `medium` - Standard priority
 - `low` - Low priority, nice to fix
 
 ### Component Labels
+
 - `api` - API-related issues
 - `ui` - User interface problems
 - `database` - Database-related bugs
@@ -128,26 +142,32 @@ Any other information that might be helpful:
 ## Specific Bug Types
 
 ### Performance Issues
+
 Include:
+
 - Performance metrics (response times, memory usage)
 - Profiler outputs
 - System resource usage
 - Load conditions when issue occurs
 
 ### Security Vulnerabilities
+
 **Note**: Report security issues privately first!
+
 - Email: <cassandragargoyle@gmail.com>
 - Use GitHub Security Advisories
 - Provide clear impact assessment
 - Include proof of concept if safe
 
 ### Intermittent Bugs
+
 - Frequency of occurrence
 - Patterns you've noticed
 - Environmental conditions
 - Timing information
 
 ### UI/UX Issues
+
 - Screenshots or screen recordings
 - Browser developer tools output
 - Device specifications
@@ -156,12 +176,14 @@ Include:
 ## After Reporting
 
 ### Follow Up
+
 - Respond to maintainer questions promptly
 - Test proposed fixes
 - Provide additional information if requested
 - Update the issue if you find workarounds
 
 ### Verification
+
 - Test the fix when released
 - Confirm the issue is resolved
 - Report if the fix introduces new issues
@@ -169,6 +191,7 @@ Include:
 ## Tools and Debugging
 
 ### Log Collection
+
 ```bash
 # portunix-dream-code logs
 tail -f /var/log/portunix-dream-code/app.log
@@ -181,6 +204,7 @@ docker logs portunix-dream-code-container
 ```
 
 ### Debug Information
+
 ```bash
 # Version information
 portunix-dream-code --version
@@ -194,6 +218,7 @@ env | grep PORTUNIX-DREAM-CODE
 ```
 
 ### Network Issues
+
 ```bash
 # Connection testing
 curl -v {{API_ENDPOINT}}/health
@@ -207,18 +232,21 @@ netstat -tulpn | grep {{PORT}}
 ## Common Issues
 
 ### Installation Problems
+
 - Check system requirements
 - Verify dependencies are installed
 - Review installation logs
 - Try clean installation
 
 ### Configuration Issues
+
 - Validate configuration syntax
 - Check file permissions
 - Verify environment variables
 - Review documentation
 
 ### Performance Problems
+
 - Monitor resource usage
 - Check for memory leaks
 - Profile slow operations
@@ -227,7 +255,8 @@ netstat -tulpn | grep {{PORT}}
 ## Example Bug Reports
 
 ### Good Bug Report
-```markdown
+
+````markdown
 ## Bug Description
 User authentication fails intermittently with "Invalid token" error
 
@@ -251,7 +280,7 @@ User should remain authenticated and access profile successfully
 Gets "Invalid token" error and is redirected to login page
 
 ## Error Messages/Logs
-```
+```text
 2024-01-15 10:30:45 ERROR: Token validation failed: jwt expired
 2024-01-15 10:30:45 DEBUG: Token issued at: 2024-01-15 10:25:30
 ```
@@ -260,9 +289,10 @@ Gets "Invalid token" error and is redirected to login page
 - Issue started after v1.2.0 upgrade
 - Happens more frequently during peak hours
 - Clearing browser cache temporarily resolves the issue
-```
+````
 
 ### Poor Bug Report
+
 ```markdown
 Title: Login broken
 
@@ -274,16 +304,19 @@ Description: Can't login, please fix ASAP!!!
 ## Community Guidelines
 
 ### Be Respectful
+
 - Use professional language
 - Avoid demanding immediate fixes
 - Appreciate volunteer maintainers' time
 
 ### Provide Value
+
 - Include all requested information
 - Test thoroughly before reporting
 - Help others with similar issues
 
 ### Stay Engaged
+
 - Monitor your issue for updates
 - Participate in discussions
 - Test proposed solutions
@@ -291,7 +324,9 @@ Description: Can't login, please fix ASAP!!!
 ## Automation and Templates
 
 ### GitHub Issue Templates
+
 Create `.github/ISSUE_TEMPLATE/bug_report.md`:
+
 ```yaml
 ---
 name: Bug report
@@ -305,6 +340,7 @@ assignees: ''
 ```
 
 ### Automated Information Collection
+
 ```bash
 #!/bin/bash
 # scripts/collect-debug-info.sh

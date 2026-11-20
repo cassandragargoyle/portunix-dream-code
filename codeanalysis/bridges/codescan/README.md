@@ -104,38 +104,38 @@ echo '{"files": ["src/Main.java"], "annotations": ["TODO"]}' | \
 
 Detection is based on file extension:
 
-| Extension | Language |
-|-----------|----------|
-| `.java` | Java |
-| `.ts`, `.tsx` | TypeScript |
-| `.js`, `.jsx` | JavaScript |
-| `.py` | Python |
-| `.go` | Go |
-| `.kt` | Kotlin |
-| `.rb` | Ruby |
-| `.php` | PHP |
-| `.cs` | C# |
-| `.cpp`, `.cc`, `.cxx` | C++ |
-| `.c`, `.h` | C |
-| `.rs` | Rust |
-| `.swift` | Swift |
-| `.scala` | Scala |
+| Extension             | Language   |
+| --------------------- | ---------- |
+| `.java`               | Java       |
+| `.ts`, `.tsx`         | TypeScript |
+| `.js`, `.jsx`         | JavaScript |
+| `.py`                 | Python     |
+| `.go`                 | Go         |
+| `.kt`                 | Kotlin     |
+| `.rb`                 | Ruby       |
+| `.php`                | PHP        |
+| `.cs`                 | C#         |
+| `.cpp`, `.cc`, `.cxx` | C++        |
+| `.c`, `.h`            | C          |
+| `.rs`                 | Rust       |
+| `.swift`              | Swift      |
+| `.scala`              | Scala      |
 
 ## Default Severities
 
 | Annotation | Default Severity |
-|------------|------------------|
-| TODO | INFO |
-| FIXME | MAJOR |
-| HACK | MAJOR |
-| XXX | MINOR |
-| NOTE | INFO |
-| BUG | CRITICAL |
+| ---------- | ---------------- |
+| TODO       | INFO             |
+| FIXME      | MAJOR            |
+| HACK       | MAJOR            |
+| XXX        | MINOR            |
+| NOTE       | INFO             |
+| BUG        | CRITICAL         |
 
 ## Environment Variables
 
-| Variable | Description |
-|----------|-------------|
+| Variable              | Description                 |
+| --------------------- | --------------------------- |
 | `PTX_CODESCAN_BRIDGE` | Override path to bridge JAR |
 
 ## Testing
@@ -146,7 +146,7 @@ mvn test
 
 ## Architecture
 
-```
+```text
 stdin (JSON) → AnalyzeCommand → CodeScanAnalyzer → stdout (JSON)
 ```
 

@@ -8,5 +8,9 @@
   // Allow hard tabs inside code blocks (Java/Go code style uses tabs)
   "MD010": {
     "code_blocks": false
+  },
+  // Allow the same heading under different parents (Keep a Changelog sections)
+  "MD024": {
+    "siblings_only": true
   }
 }

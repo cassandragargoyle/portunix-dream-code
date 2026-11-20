@@ -39,12 +39,14 @@ See [ADR-002: Create ptx-codeinfo CLI Application with GraalVM Native Image](../
 **Command**: `ptx-codeinfo loc <file>`
 
 **Counting Rules**:
+
 - **Count**: Lines with executable code
 - **Count**: Lines with both code and comments (e.g., `int x = 1; // comment`)
 - **Skip**: Empty lines (whitespace only)
 - **Skip**: Comment-only lines (single-line `//` or multi-line `/* */`)
 
 **Example Output**:
+
 ```bash
 $ ptx-codeinfo loc Example.java
 5 lines of code in Example.java
@@ -409,7 +411,7 @@ public class LinesOfCodeCommand implements Callable<Integer> {
 ## Performance Targets
 
 | Metric | Target | Validation Method |
-|--------|--------|-------------------|
+| -------- | -------- | ------------------- |
 | Startup Time | < 50ms | `time ptx-codeinfo --help` |
 | Single File (100 LOC) | < 100ms | Benchmark with timer |
 | Large File (5000 LOC) | < 500ms | Benchmark with timer |
@@ -429,7 +431,7 @@ public class LinesOfCodeCommand implements Callable<Integer> {
 ## Risks and Mitigation
 
 | Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|-----------|
+| ------ | ------------- | -------- | ----------- |
 | JavaParser reflection issues | Medium | High | Use native-image-agent, thorough testing |
 | Performance targets not met | Low | Medium | Profiling and optimization phase |
 | GraalVM build complexity | Medium | Medium | Detailed documentation, CI automation |
@@ -463,9 +465,9 @@ public class LinesOfCodeCommand implements Callable<Integer> {
 - ADR: [docs/adr/002-ptx-codeinfo-cli-application.md](../../adr/002-ptx-codeinfo-cli-application.md)
 - ADR: [docs/adr/003-ai-assisted-code-transformation.md](../../adr/003-ai-assisted-code-transformation.md)
 - Acceptance: [docs/testing/acceptance-002.md](../../testing/acceptance-002.md)
-- GraalVM: https://www.graalvm.org/
-- Picocli: https://picocli.info/
-- JavaParser: https://javaparser.org/
+- GraalVM: <https://www.graalvm.org/>
+- Picocli: <https://picocli.info/>
+- JavaParser: <https://javaparser.org/>
 
 ## Comments
 

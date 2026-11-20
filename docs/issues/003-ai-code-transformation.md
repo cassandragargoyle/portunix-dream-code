@@ -30,6 +30,7 @@ See [ADR-003: AI-Assisted Code Transformation for Module Independence](../adr/00
 ## Context
 
 The `codeinfo` module must remain dependency-free from other internal modules to ensure:
+
 - Minimal binary size for GraalVM Native Image
 - Complete independence for standalone distribution
 - No version coupling with other project modules
@@ -39,11 +40,13 @@ However, reusing internal code (utilities, common patterns) is more efficient th
 ## Scope
 
 ### Phase 1: Manual Process (Already Done in v0.1.0)
+
 - Document all manually copied code
 - Establish transformation patterns
 - Identify common transformation needs
 
 ### Phase 2: AI-Assisted Workflow (This Issue - v0.2.0)
+
 - Create Claude Code transformation templates
 - Document transformation procedures
 - Implement metadata tracking system
@@ -51,6 +54,7 @@ However, reusing internal code (utilities, common patterns) is more efficient th
 - Validate approach with real transformations
 
 ### Phase 3: Future Automation (v0.3.0+, Separate Issue)
+
 - Evaluate need for full automation
 - Design CLI tool if beneficial
 - Implement batch transformations
@@ -170,6 +174,7 @@ However, reusing internal code (utilities, common patterns) is more efficient th
 ### Transformation Metadata Format
 
 **File Header**:
+
 ```java
 /*
  * TRANSFORMED CODE - DO NOT EDIT DIRECTLY
@@ -193,6 +198,7 @@ However, reusing internal code (utilities, common patterns) is more efficient th
 ```
 
 **TRANSFORMATIONS.md Entry**:
+
 ```markdown
 ## core/CLI.java → util/BaseCommand.java
 **Date**: 2025-10-29
@@ -211,6 +217,7 @@ However, reusing internal code (utilities, common patterns) is more efficient th
 ### Claude Code Prompt Template Example
 
 **Template**: `.claude/prompts/transformations/medium-transformation.md`
+
 ```markdown
 # Code Transformation Request - Medium Complexity
 
@@ -269,6 +276,7 @@ However, reusing internal code (utilities, common patterns) is more efficient th
 ### Helper Script Example
 
 **Script**: `scripts/transformations/prepare-transformation.sh`
+
 ```bash
 #!/bin/bash
 # Prepare transformation request for Claude Code
@@ -311,7 +319,7 @@ echo "Next: Open Claude Code and paste the request"
 ## Metrics
 
 | Metric | Target | Measurement Method |
-|--------|--------|-------------------|
+| -------- | -------- | ------------------- |
 | **Time Savings** | 80% vs manual | Track time for each transformation |
 | **Error Rate** | < 5% | Bugs found in transformed code |
 | **Adoption Rate** | 100% of team | Team members using workflow |
@@ -321,7 +329,7 @@ echo "Next: Open Claude Code and paste the request"
 ## Risks and Mitigation
 
 | Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|-----------|
+| ------ | ------------- | -------- | ----------- |
 | AI produces incorrect transformations | Medium | High | Mandatory code review, validation checklist |
 | Workflow too complex | Low | Medium | Simplify, provide examples, training |
 | Team resistance to AI workflow | Low | Low | Show benefits, make optional |
@@ -331,10 +339,12 @@ echo "Next: Open Claude Code and paste the request"
 ## Dependencies
 
 **Blocked By**:
+
 - Issue #002: ptx-codeinfo v0.1.0 must be completed first
 - Need real transformation examples from v0.1.0 development
 
 **Required**:
+
 - Claude Code access for all team members
 - Git for version control and tracking
 - Time for team training and practice

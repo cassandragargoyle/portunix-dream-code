@@ -446,6 +446,7 @@ public class MyService
 Use Javadoc for all public APIs.
 
 > **TODO: PENDING VALIDATION** - The following Javadoc formatting styles need to be validated by authority:
+>
 > - `<p>` tag on separate line
 > - `<li>` tags without indentation inside `<ul>`
 
@@ -595,6 +596,7 @@ public void processConfiguration(String configPath)
 ### Lambda Expressions
 
 Use lambdas for functional interfaces:
+
 ```java
 // Event handling
 button.addActionListener(event -> handleInstallation());

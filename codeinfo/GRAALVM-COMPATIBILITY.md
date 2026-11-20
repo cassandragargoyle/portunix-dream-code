@@ -39,6 +39,7 @@ at the default language level.
 
 If a future feature needs validators or other reflective JavaParser APIs, generate the
 metadata with the GraalVM Tracing Agent:
+
 ```bash
 # Run with tracing agent to collect metadata
 java -agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image \
@@ -48,10 +49,12 @@ java -agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/
 ## Build Requirements
 
 ### For JAR Build (No GraalVM Required)
+
 - Java 21 or later
 - Maven 3.8+
 
 ### For Native Image Build
+
 - GraalVM Community Edition 23.1.0+ with Java 21
 - Native Image component installed
 - Platform-specific requirements:
@@ -62,6 +65,7 @@ java -agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/
 ## Installation Instructions
 
 ### Linux (Ubuntu/Debian)
+
 ```bash
 # Download GraalVM Community Edition
 curl -L https://github.com/graalvm/graalvm-ce-builds/releases/download/jdk-21.0.1/graalvm-community-jdk-21.0.1_linux-x64_bin.tar.gz -o graalvm.tar.gz
@@ -77,6 +81,7 @@ native-image --version
 ```
 
 ### Windows
+
 ```powershell
 # Download from https://github.com/graalvm/graalvm-ce-builds/releases
 # Extract and set environment variables
@@ -85,6 +90,7 @@ $env:PATH = "$env:GRAALVM_HOME\bin;$env:PATH"
 ```
 
 ### macOS (Apple Silicon)
+
 ```bash
 # Download GraalVM for macOS aarch64
 curl -L https://github.com/graalvm/graalvm-ce-builds/releases/download/jdk-21.0.1/graalvm-community-jdk-21.0.1_macos-aarch64_bin.tar.gz -o graalvm.tar.gz
@@ -119,6 +125,7 @@ java -agentlib:native-image-agent=config-merge-dir=src/main/resources/META-INF/n
 ```
 
 This generates:
+
 - `reflect-config.json` - Reflection configuration
 - `resource-config.json` - Resource bundle configuration
 - `jni-config.json` - JNI configuration (if needed)
@@ -164,6 +171,7 @@ feature that uses reflective JavaParser APIs needs the tracing agent:
 ### Platform-Specific Builds
 
 GraalVM does not support cross-compilation:
+
 - Build on Linux for Linux binary
 - Build on Windows for Windows binary
 - Build on macOS for macOS binary
@@ -192,7 +200,7 @@ Measured on Linux x64 with GraalVM CE 21.0.2, see [README.md](README.md#performa
 for details.
 
 | Metric | JAR (JVM) | Native Image | Target | Target Met? |
-|--------|-----------|--------------|--------|-------------|
+| -------- | ----------- | -------------- | -------- | ------------- |
 | Startup Time | 112 ms | 2.5 ms | < 50 ms | ✅ Yes |
 | Single File (100 LOC) | 171 ms | 2.5 ms | < 100 ms | ✅ Yes |
 | Large File (5000 LOC) | 209 ms | 58 ms | < 500 ms | ✅ Yes |
@@ -205,6 +213,7 @@ for details.
 ### "GraalVM native-image is missing"
 
 Ensure `GRAALVM_HOME` is set and `native-image` is in PATH:
+
 ```bash
 echo $GRAALVM_HOME
 which native-image
@@ -214,6 +223,7 @@ native-image --version
 ### Reflection Errors at Runtime
 
 If you see `ClassNotFoundException` or `NoSuchMethodException`:
+
 1. Re-run tracing agent with more test cases
 2. Check generated `reflect-config.json` includes missing classes
 3. Manually add missing entries if needed
@@ -221,6 +231,7 @@ If you see `ClassNotFoundException` or `NoSuchMethodException`:
 ### Build Fails with Memory Error
 
 Increase native-image memory:
+
 ```bash
 native-image -J-Xmx8g -jar target/ptx-codeinfo.jar
 ```

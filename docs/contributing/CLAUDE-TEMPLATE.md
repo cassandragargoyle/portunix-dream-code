@@ -1,22 +1,26 @@
 # portunix-dream-code Development Instructions
 
-# CLAUDE.md (root)
+Template for `CLAUDE.md` in the project root:
+
 @.claude/roles/current.md
 
 ## Project Information
-- **GitHub Repository**: https://github.com/CassandraGargoyle/portunix-dream-code
+
+- **GitHub Repository**: <https://github.com/CassandraGargoyle/portunix-dream-code>
 - **Project Name**: portunix-dream-code ({{PROJECT_DESCRIPTION}})
 - **Primary Purpose**: {{PRIMARY_PURPOSE}}
 - **Primary Language**: {{PRIMARY_LANGUAGE}}
 - **Platforms**: {{SUPPORTED_PLATFORMS}}
 
 ## Security Guidelines
+
 - Never run destructive commands without confirmation
 - Always warn about potential data loss before executing risky operations
 - Require explicit confirmation for operations that could lose implemented code
 - Follow secure coding practices for {{PRIMARY_LANGUAGE}}
 
 ## Project Structure
+
 - `/docs/` - Documentation including contributing guidelines
 - `/src/` - Source code
 - `/config/` - Configuration files
@@ -27,6 +31,7 @@
 ## Coding Guidelines & Development Instructions
 
 ### Strict Rules
+
 - Code, code comments, and user messages must be in English (see [Multilingual Team Communication](docs/contributing/README.md#multilingual-team-communication))
 - Communication with team members can be in their preferred language, but documentation remains in English
 - When implementing new features, always check existing project structure first
@@ -35,6 +40,7 @@
 - Use established project patterns and conventions
 
 ### General Principles
+
 - Follow existing conventions and styles in the project
 - Always explore existing code before creating new implementations
 - Maintain consistency with established patterns
@@ -43,48 +49,57 @@
 - English is the official project language per multilingual team guidelines
 
 ### Language-Specific Guidelines
+
 {{LANGUAGE_SPECIFIC_GUIDELINES}}
 
 ### TODO Management
+
 - Follow the established TODO format: `TODO:NNN [INITIALS]: description` (see [TODO Guidelines](docs/contributing/TODO-GUIDELINES.md))
 - Use per-file sequential numbering (001, 002, 003, etc.)
 - Refer to [docs/contributing/TODO-GUIDELINES.md](docs/contributing/TODO-GUIDELINES.md) for complete standards
 - Use `TODO:XXX` as temporary placeholder, then request proper numbering
 
 ### Issue Tracking & Documentation
+
 - Issues are managed per project individually
 - May sync to GitHub repositories when applicable
 - portunix-dream-code-specific issues: {{COMMON_ISSUE_TYPES}}
 
 ### Team Communication
+
 - English is the primary language for all project communication (see [Multilingual Team Communication](docs/contributing/README.md#multilingual-team-communication))
 - Use simple, clear English to accommodate non-native speakers
 - Avoid idioms, colloquialisms, and culture-specific references
 - Team initials assignment follows collision resolution (JS → JSm if JS exists) (see [Team Initials Assignment](docs/contributing/README.md#team-initials-assignment-and-collision-resolution))
 
 ### AI Assistant Guidelines
+
 - Claude Code is the preferred AI assistant with pre-configured context
 - Alternative AI tools require users to prepare their own context materials
 - Follow established AI assistant best practices in [docs/contributing/AI-ASSISTANTS.md](docs/contributing/AI-ASSISTANTS.md)
 
 ### Translation Workflow
+
 - Use `.translated/` directory structure for team member translations
 - Follow ISO 639-1 language codes (cs, de, fr, etc.)
 - Refer to [docs/contributing/TRANSLATION-WORKFLOW.md](docs/contributing/TRANSLATION-WORKFLOW.md) for complete process
 - Translations are temporary and can be regenerated as needed
 
 ### Repository Management
+
 - Main branch is `main` (not `master`)
 - Issues tracked in project-specific locations
 - {{LICENSE_TYPE}} license - {{LICENSE_SCOPE}}
-- Links use format: https://github.com/CassandraGargoyle/portunix-dream-code
+- Links use format: <https://github.com/CassandraGargoyle/portunix-dream-code>
 
 ## Build & Development
 
 ### Prerequisites
+
 {{PREREQUISITES}}
 
 ### Setup Commands
+
 ```bash
 # Clone repository
 git clone git@github.com:CassandraGargoyle/portunix-dream-code.git
@@ -94,28 +109,35 @@ cd portunix-dream-code
 ```
 
 ### Build Commands
+
 {{BUILD_COMMANDS}}
 
 ### Testing
+
 - Testing framework: {{TESTING_FRAMEWORK}}
 - Run tests: {{TEST_COMMAND}}
 - Coverage target: {{COVERAGE_TARGET}}
 
 ### Dependencies
+
 {{DEPENDENCIES_INFO}}
 
 ## Project-Specific Guidelines
 
 ### Architecture
+
 {{ARCHITECTURE_INFO}}
 
 ### Key Components
+
 {{KEY_COMPONENTS}}
 
 ### Configuration
+
 {{CONFIGURATION_INFO}}
 
 ### Deployment
+
 {{DEPLOYMENT_INFO}}
 
 ---

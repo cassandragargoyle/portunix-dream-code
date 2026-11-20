@@ -110,41 +110,41 @@ java -jar target/ptx-sonarlint-bridge.jar rules
 
 ## Supported Languages
 
-| Language | SonarLint Plugin |
-|----------|------------------|
-| Java | sonar-java-plugin |
+| Language   | SonarLint Plugin        |
+| ---------- | ----------------------- |
+| Java       | sonar-java-plugin       |
 | JavaScript | sonar-javascript-plugin |
 | TypeScript | sonar-javascript-plugin |
-| Python | sonar-python-plugin |
-| Go | sonar-go-plugin |
-| Kotlin | sonar-kotlin-plugin |
-| Scala | sonar-scala-plugin |
-| Ruby | sonar-ruby-plugin |
-| PHP | sonar-php-plugin |
+| Python     | sonar-python-plugin     |
+| Go         | sonar-go-plugin         |
+| Kotlin     | sonar-kotlin-plugin     |
+| Scala      | sonar-scala-plugin      |
+| Ruby       | sonar-ruby-plugin       |
+| PHP        | sonar-php-plugin        |
 
 ## Common Rules
 
 ### Java
 
-| Rule | Description |
-|------|-------------|
-| `java:S106` | System.out/err should not be used |
-| `java:S1186` | Methods should not be empty |
-| `java:S1135` | Track uses of "TODO" tags |
+| Rule         | Description                              |
+| ------------ | ---------------------------------------- |
+| `java:S106`  | System.out/err should not be used        |
+| `java:S1186` | Methods should not be empty              |
+| `java:S1135` | Track uses of "TODO" tags                |
 | `java:S2259` | Null pointers should not be dereferenced |
 
 ### TypeScript/JavaScript
 
-| Rule | Description |
-|------|-------------|
+| Rule               | Description            |
+| ------------------ | ---------------------- |
 | `typescript:S1481` | Unused local variables |
-| `javascript:S3776` | Cognitive Complexity |
-| `typescript:S4325` | Type assertion style |
+| `javascript:S3776` | Cognitive Complexity   |
+| `typescript:S4325` | Type assertion style   |
 
 ## Environment Variables
 
-| Variable | Description |
-|----------|-------------|
+| Variable               | Description                 |
+| ---------------------- | --------------------------- |
 | `PTX_SONARLINT_BRIDGE` | Override path to bridge JAR |
 
 ## Testing
@@ -155,7 +155,7 @@ mvn test
 
 ## Architecture
 
-```
+```text
 stdin (JSON) → AnalyzeCommand → SonarLintAnalyzer → stdout (JSON)
                     │
                     └── RulesCommand → stdout (JSON)
