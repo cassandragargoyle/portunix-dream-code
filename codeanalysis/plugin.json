@@ -39,14 +39,35 @@
   "commands": [
     {
       "name": "analyze",
-      "description": "Code analysis commands",
-      "subcommands": ["init", "validate", "rules"],
+      "description": "Run code analysis",
       "examples": [
-        "portunix code-analysis",
-        "portunix code-analysis --config ./custom.ptxcode",
-        "portunix code-analysis ./src",
-        "portunix code-analysis init --template java",
-        "portunix code-analysis validate ./project.ptxcode",
+        "portunix code-analysis analyze",
+        "portunix code-analysis analyze ./src",
+        "portunix code-analysis analyze --config ./custom.ptxcode",
+        "portunix code-analysis analyze ./src --ci"
+      ]
+    },
+    {
+      "name": "init",
+      "description": "Initialize a new .ptxcode configuration",
+      "examples": [
+        "portunix code-analysis init",
+        "portunix code-analysis init --template java"
+      ]
+    },
+    {
+      "name": "validate",
+      "description": "Validate a .ptxcode configuration file",
+      "examples": [
+        "portunix code-analysis validate",
+        "portunix code-analysis validate ./project.ptxcode"
+      ]
+    },
+    {
+      "name": "rules",
+      "description": "List available analysis rules",
+      "examples": [
+        "portunix code-analysis rules",
         "portunix code-analysis rules --engine sonarlint --language java"
       ]
     }

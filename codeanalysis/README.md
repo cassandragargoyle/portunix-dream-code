@@ -36,42 +36,42 @@ make build-bridge  # All Java bridges
 
 ```bash
 # Create default .ptxcode file
-portunix analyze init
+portunix code-analysis init
 
 # Use specific template
-portunix analyze init --template java
-portunix analyze init --template typescript
-portunix analyze init --template python
+portunix code-analysis init --template java
+portunix code-analysis init --template typescript
+portunix code-analysis init --template python
 ```
 
 ### Run analysis
 
 ```bash
 # Analyze current directory
-portunix analyze
+portunix code-analysis analyze
 
 # Analyze specific path
-portunix analyze ./src
+portunix code-analysis analyze ./src
 
 # Use custom config
-portunix analyze --config ./custom.ptxcode
+portunix code-analysis analyze --config ./custom.ptxcode
 
 # CI mode with strict exit codes
-portunix analyze --ci
+portunix code-analysis analyze --ci
 ```
 
 ### Validate configuration
 
 ```bash
-portunix analyze validate
-portunix analyze validate ./project.ptxcode
+portunix code-analysis validate
+portunix code-analysis validate ./project.ptxcode
 ```
 
 ### List available rules
 
 ```bash
-portunix analyze rules
-portunix analyze rules --engine sonarlint --language java
+portunix code-analysis rules
+portunix code-analysis rules --engine sonarlint --language java
 ```
 
 ## Configuration
@@ -155,7 +155,7 @@ spec:
 ## Architecture
 
 ```text
-portunix analyze → ptx-codeanalysis (Go) → Java bridges → SonarLint/CodeScan
+portunix code-analysis → ptx-codeanalysis (Go) → Java bridges → SonarLint/CodeScan
 ```
 
 The Go binary orchestrates analysis and communicates with Java bridges via subprocess + JSON.
