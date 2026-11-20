@@ -7,11 +7,13 @@ plugin (`code-info`) instead of one entry per subcommand. Portunix clients read 
 commands from the manifest, so they cannot show what the plugin offers. Replace the
 placeholder with the real subcommand `loc`, with a description, parameters and examples.
 
-**Status**: 📋 Open
+**Status**: ✅ Implemented
 **Type**: bug
 **Priority**: medium
 **Component**: codeinfo / plugin manifest
 **Created**: 2026-11-20
+**Closed**: 2026-11-20
+**Acceptance**: [acceptance-013.md](../../testing/acceptance-013.md)
 **GitHub**: #13
 **Related**: cassandragargoyle/portunix#257, cassandragargoyle/portunix-vscode#145
 
@@ -91,13 +93,15 @@ command, so it is not part of this issue.
 
 ## Acceptance Criteria
 
-1. `codeinfo/plugin.json` has no placeholder entry: no command named `code-info` or
-   `ptx-codeinfo`
-2. Every listed command exists in `ptx-codeinfo --help` and has a description
-3. Every command of `ptx-codeinfo --list-commands` is listed
-4. Examples start with `portunix code-info <command>`
-5. After reinstall of the plugin, `portunix plugin list --json` shows the real commands
-6. `portunix plugin validate` passes without warnings about the commands
+- [x] `codeinfo/plugin.json` has no placeholder entry: no command named `code-info` or
+  `ptx-codeinfo`
+- [x] Every listed command exists in `ptx-codeinfo --help` and has a description
+- [x] Every command of `ptx-codeinfo --list-commands` is listed
+- [x] Examples start with `portunix code-info <command>`
+- [x] After reinstall of the plugin, `portunix plugin list --json` shows the real commands
+- [x] `portunix plugin validate` passes without warnings about the commands (Portunix
+  v2.7.0+dev.3; this version does not check placeholder entries yet, re-check when
+  cassandragargoyle/portunix#257 is released)
 
 ## Testing
 
