@@ -18,56 +18,76 @@ The goal of Portunix Dream Code is to create a set of integrated tools that:
 
 ## Project Status
 
-This project is currently in early development. The architecture and core components are being established.
-
-**Last Update**: 2025-10-28 - Project initialized and restructured from previous Dream programming language concept
-
-## Repository Information
-
-- **GitHub Repository**: https://github.com/CassandraGargoyle/portunix-dream-code
-- **License**: MIT, see [LICENSE](LICENSE)
-
-## Getting Started
-
-Documentation and setup instructions will be added as the project develops.
-
-For development guidelines and contributing information, see:
-
-- [Contributing Guidelines](docs/contributing/README.md)
-- [Project Instructions](AGENTS.md)
+The project is in early development. Both modules are Portunix plugins at version 1.1.1;
+`code-info` is experimental. See the [changelog of code-info](codeinfo/CHANGELOG.md) and
+the [open issues](https://github.com/cassandragargoyle/portunix-dream-code/issues).
 
 ## Components
 
-| Module | Language | Description |
-| ------ | -------- | ----------- |
-| codeanalysis | Go + Java | Portunix plugin for code analysis (SonarLint, JavaCodeScan) |
-| codeinfo | Java | Code information extraction |
+Each module is a Portunix helper plugin. Portunix runs `portunix <plugin> <command>` with
+the plugin binary. See [docs/MODULES.md](docs/MODULES.md) for module details.
 
-### codeanalysis
+| Module | Plugin | Binary | Language | Purpose |
+| ------ | ------ | ------ | -------- | ------- |
+| [codeanalysis](codeanalysis/README.md) | `code-analysis` | `ptx-codeanalysis` | Go + Java bridges | Static code analysis with SonarLint and CodeScan |
+| [codeinfo](codeinfo/README.md) | `code-info` | `ptx-codeinfo` | Java (GraalVM Native Image) | Code information and metrics |
 
-**Portunix plugin** - Hybrid Go + Java module for unified code analysis:
+### code-analysis
 
-- **SonarLint Bridge**: Static analysis for Java, TypeScript, JavaScript, Python
-- **JavaCodeScan Bridge**: Annotation detection (TODO, FIXME) and pattern matching
-- **YAML Configuration**: `.ptxcode` format for project configuration
+A Go CLI that reads the `.ptxcode` YAML configuration and runs the Java bridges:
 
-See [ADR-004](docs/adr/004-ptx-codeanalysis-plugin-architecture.md) for architecture details.
-
-### codeinfo
-
-**Standalone CLI tool** - Java application for code information extraction:
-
-- **Native Binary**: Compiled with GraalVM Native Image for fast startup
-- **Lines of Code**: `ptx-codeinfo loc` command for counting lines of code in Java files
-- **JavaParser**: AST-based analysis for accurate code/comment/empty line separation
-
-**Usage**:
+- **SonarLint bridge**: static analysis for Java, TypeScript, JavaScript and Python
+- **CodeScan bridge**: annotation detection (`TODO`, `FIXME`, `HACK`) and pattern matching
+- **CI mode**: strict exit codes based on thresholds (`--ci`)
 
 ```bash
-ptx-codeinfo loc MyClass.java           # Basic LOC count
-ptx-codeinfo loc MyClass.java -v        # Verbose output with breakdown
+portunix code-analysis init --template java       # Create a .ptxcode configuration
+portunix code-analysis analyze ./src              # Run the analysis
+portunix code-analysis validate ./project.ptxcode # Check a configuration file
+portunix code-analysis rules                      # List the available rules
 ```
 
-## Contact & Support
+Details: [codeanalysis/README.md](codeanalysis/README.md),
+[ADR-004](docs/adr/004-ptx-codeanalysis-plugin-architecture.md).
 
-For team members: Please refer to project documentation and internal communication channels.
+### code-info
+
+A Java CLI (Picocli, JavaParser) built as a JAR and as a GraalVM native image:
+
+- **Lines of code**: the `loc` command counts code, comment and empty lines of a Java file
+- **AST-based**: JavaParser separates code and comments correctly, also in mixed lines
+- **Fast startup**: the native binary starts in about 2 ms without a JVM
+
+```bash
+portunix code-info loc MyClass.java            # Lines of code
+portunix code-info loc MyClass.java --verbose  # Breakdown of code, comment and empty lines
+```
+
+The binary also runs without Portunix (`ptx-codeinfo loc MyClass.java`).
+Details: [codeinfo/README.md](codeinfo/README.md).
+
+## Getting Started
+
+Requirements: Java 21+ and Maven, Go, Python 3.10+ with [uv](https://docs.astral.sh/uv/),
+and [Portunix](https://github.com/cassandragargoyle/portunix) to run the plugins.
+
+```bash
+make deps          # Install dependencies
+make build         # Build both modules
+make test          # Run all tests
+make deploy-local  # Install both plugins into the local Portunix
+```
+
+Run `make help` for all targets. [TESTING.md](TESTING.md) describes the tests and
+[DISTRIBUTING.md](DISTRIBUTING.md) the release packages.
+
+## Contributing
+
+- [Contributing Guidelines](docs/contributing/README.md)
+- [Project Instructions](AGENTS.md) (also for AI assistants)
+- Issues and feature requests: [GitHub Issues](https://github.com/cassandragargoyle/portunix-dream-code/issues)
+
+## Repository Information
+
+- **GitHub Repository**: <https://github.com/cassandragargoyle/portunix-dream-code>
+- **License**: MIT, see [LICENSE](LICENSE)
