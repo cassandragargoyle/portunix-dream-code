@@ -1,4 +1,4 @@
-.PHONY: all build build-java build-java-native build-codeinfo build-codeinfo-native build-codeanalysis clean test test-java test-codeinfo test-codeinfo-native coverage-codeinfo test-bridges test-codeanalysis test-go test-quick test-codescan deps dev loc loc-all loc-file dist dist-codeanalysis dist-codeinfo dist-codeinfo-native release deploy-local undeploy-local help
+.PHONY: all build build-java build-java-native build-codeinfo build-codeinfo-native build-codeanalysis clean test test-java test-codeinfo test-codeinfo-native coverage-codeinfo test-bridges test-codeanalysis test-go test-quick test-codescan lint-md deps dev loc loc-all loc-file dist dist-codeanalysis dist-codeinfo dist-codeinfo-native release deploy-local undeploy-local help
 
 # Default target
 all: build
@@ -91,6 +91,14 @@ deps:
 	@echo "Installing codeanalysis dependencies..."
 	$(MAKE) -C codeanalysis deps
 	@echo "Done"
+
+# Markdown linter (config: .markdownlint.jsonc, .markdownlint-cli2.jsonc, same as Portunix)
+MARKDOWNLINT_VERSION := 0.24.0
+MARKDOWNLINT := $(shell command -v markdownlint-cli2 2>/dev/null || echo npx --yes markdownlint-cli2@$(MARKDOWNLINT_VERSION))
+
+lint-md:
+	@echo "Running Markdown linter..."
+	$(MARKDOWNLINT)
 
 # Quick development build (skip tests)
 dev: build-java
@@ -201,6 +209,7 @@ help:
 	@echo "  test-go            - Run Go vet, build and unit tests (codeanalysis)"
 	@echo "  test-quick         - Run quick tests (codeanalysis)"
 	@echo "  test-codescan      - Run CodeScan tests only"
+	@echo "  lint-md            - Run Markdown linter (markdownlint-cli2)"
 	@echo "  clean              - Remove all build artifacts"
 	@echo "  deps               - Install all dependencies"
 	@echo "  dev                - Quick development build"
