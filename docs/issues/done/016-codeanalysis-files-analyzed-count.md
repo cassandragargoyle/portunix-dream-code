@@ -6,11 +6,12 @@ The console report of `ptx-codeanalysis analyze` shows a wrong number of analyze
 files. With one engine the count is doubled, with SonarLint and CodeScan enabled it is
 tripled.
 
-**Status**: 📋 Open
+**Status**: ✅ Implemented
 **Type**: bug
 **Priority**: low
 **Component**: codeanalysis / engine
 **Created**: 2026-11-21
+**Closed**: 2026-11-21
 **GitHub**: #16
 **Related**: #15
 
@@ -47,10 +48,11 @@ match the target patterns. `Merge` does not add `FilesAnalyzed`.
 
 ## Acceptance Criteria
 
-1. `Files analyzed` equals the number of files that match the target patterns, with one
-   engine and with both engines enabled
-2. `Analyzed 0 file(s)` stays correct when no file matches
-3. Unit tests cover `Results.Merge` and the count in `Orchestrator.Run`
+- [x] `Files analyzed` equals the number of files that match the target patterns, with
+  one engine and with both engines enabled
+- [x] `Analyzed 0 file(s)` stays correct when no file matches
+- [x] Unit tests cover `Results.Merge` and the count in `Orchestrator.Run`; `Run` with
+  enabled engines is covered only by manual cases (see `docs/testing/acceptance-016.md`)
 
 ## Testing
 
